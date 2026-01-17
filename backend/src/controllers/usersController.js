@@ -1,4 +1,7 @@
 import User from "../models/User.js";
+import bcrypt from "bcrypt";
+
+// MÉTODOS GET
 
 export const getUsers = async (req, res) => {
   try {
@@ -86,6 +89,116 @@ export const getUserByUsername = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error al obtener usuario",
+      error: error.message,
+    });
+  }
+};
+
+// MÉTODOS POST
+
+export const createUser = async (req, res) => {
+  try {
+    const {
+      name,
+      surname,
+      username,
+      email,
+      password,
+      avatar_img,
+      country,
+      city,
+      street,
+      postcode,
+      number,
+    } = req.body;
+
+    if (!name || !username || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Nombre, username, email y password son obligatorios",
+      });
+    }
+
+    const existingUsername = await User.findOne({
+      where: { username },
+    });
+
+    if (existingUsername) {
+      return res.status(409).json({
+        success: false,
+        message: `El username "${username}" ya está en uso`,
+      });
+    }
+
+    const existingEmail = await User.findOne({
+      where: { email },
+    });
+
+    if (existingEmail) {
+      return res.status(409).json({
+        success: false,
+        message: `El email "${email}" ya está registrado`,
+      });
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const newUser = await User.create({
+      is_admin: false,
+      name,
+      surname: surname || null,
+      username,
+      email,
+      password: hashedPassword,
+      avatar_img: avatar_img || null,
+      country: country || null,
+      city: city || null,
+      street: street || null,
+      postcode: postcode || null,
+      number: number || null,
+      last_login_at: null,
+    });
+
+    const userResponse = {
+      id: newUser.id,
+      is_admin: newUser.is_admin,
+      name: newUser.name,
+      surname: newUser.surname,
+      username: newUser.username,
+      email: newUser.email,
+      avatar_img: newUser.avatar_img,
+      country: newUser.country,
+      city: newUser.city,
+      street: newUser.street,
+      postcode: newUser.postcode,
+      number: newUser.number,
+      created_at: newUser.created_at,
+      last_login_at: newUser.last_login_at,
+    };
+
+    res.status(201).json({
+      success: true,
+      message: "Usuario creado exitosamente",
+      data: userResponse,
+    });
+  } catch (error) {
+    console.error("Error en createUser:", error);
+
+    if (error.name === "SequelizeValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: "Error de validación",
+        errors: error.errors.map((err) => ({
+          field: err.path,
+          message: err.message,
+        })),
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Error al crear usuario",
       error: error.message,
     });
   }

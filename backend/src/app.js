@@ -6,6 +6,9 @@ import commentsRoutes from "./routes/commentsRoutes.js";
 const app = express();
 const port = 3000;
 
+//MIDDLEARE
+app.use(express.json());
+
 app.get("/", (req, res) => {
   res.send({
     api: "Yggdrasound",

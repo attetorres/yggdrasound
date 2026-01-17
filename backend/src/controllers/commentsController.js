@@ -40,7 +40,7 @@ export const getCommentByUsername = async (req, res) => {
     const user = await User.findOne({
       where: {
         username: {
-          [Op.iLike]: username, // Búsqueda insensible a mayúsculas/minúsculas
+          [Op.iLike]: username,
         },
       },
     });
@@ -52,12 +52,11 @@ export const getCommentByUsername = async (req, res) => {
       });
     }
 
-    // 2. Buscar comentarios del usuario con paginación
     const { count, rows } = await Comment.findAndCountAll({
       where: { user_id: user.id },
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [["created_at", "DESC"]], // Más recientes primero
+      order: [["created_at", "DESC"]],
     });
 
     res.json({
@@ -85,5 +84,60 @@ export const getCommentByUsername = async (req, res) => {
 };
 
 export const getCommentByAlbum = async (req, res) => {
-  // Implementaremos después
+  try {
+    const { album } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const vinyls = await Vinyl.findAll({
+      where: {
+        album: {
+          [Op.iLike]: album,
+        },
+      },
+      attributes: ["id"],
+    });
+
+    if (vinyls.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `No se encontró el álbum "${album}"`,
+      });
+    }
+
+    const vinylIds = vinyls.map((vinyl) => vinyl.id);
+
+    const { count, rows } = await Comment.findAndCountAll({
+      where: {
+        vinyl_id: {
+          [Op.in]: vinylIds,
+        },
+      },
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [["created_at", "DESC"]],
+    });
+
+    res.json({
+      success: true,
+      data: rows,
+      album: album,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(count / limit),
+        showingFrom: offset + 1,
+        showingTo: Math.min(offset + parseInt(limit), count),
+      },
+    });
+  } catch (error) {
+    console.error("Error en getCommentByAlbum:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener comentarios por álbum",
+      error: error.message,
+    });
+  }
 };

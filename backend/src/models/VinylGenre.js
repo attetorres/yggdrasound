@@ -30,6 +30,7 @@ const VinylGenre = sequelize.define(
     tableName: "vinyl_genre",
     timestamps: true,
     createdAt: "created_at",
+    updatedAt: false,
     underscored: true,
     indexes: [
       {

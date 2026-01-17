@@ -5,6 +5,7 @@ import {
   getVinylsByArtist,
   getVinylsByAlbum,
   getVinylsByGenre,
+  createVinyl,
 } from "../controllers/vinylsController.js";
 
 const router = express.Router();
@@ -17,6 +18,7 @@ router.get("/get-vinyls-by-album/", getVinylsByAlbum);
 router.get("/get-vinyls-by-genre/", getVinylsByGenre);
 
 // POST
+router.post("/create-vinyl", createVinyl);
 
 // PUT
 

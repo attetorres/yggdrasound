@@ -243,7 +243,6 @@ export const createVinyl = async (req, res) => {
       genre,
     } = req.body;
 
-    // 1. Validaciones básicas
     if (!artist || !album || !price || !genre) {
       return res.status(400).json({
         success: false,
@@ -251,7 +250,6 @@ export const createVinyl = async (req, res) => {
       });
     }
 
-    // 2. Verificar si el vinilo ya existe
     const existingVinyl = await Vinyl.findOne({
       where: {
         artist: { [Op.iLike]: artist },
@@ -266,7 +264,6 @@ export const createVinyl = async (req, res) => {
       });
     }
 
-    // 3. Buscar el género
     const genreRecord = await Genre.findOne({
       where: {
         name: { [Op.iLike]: genre },
@@ -280,10 +277,8 @@ export const createVinyl = async (req, res) => {
       });
     }
 
-    // 4. Calcular track_count automáticamente
     const finalTrackCount = track_count || (track_list ? track_list.length : 0);
 
-    // 5. Crear el vinilo
     const newVinyl = await Vinyl.create({
       artist,
       album,
@@ -298,13 +293,11 @@ export const createVinyl = async (req, res) => {
       band_url: band_url || null,
     });
 
-    // 6. Crear la relación en vinyl_genre
     await VinylGenre.create({
       vinyl_id: newVinyl.id,
       genre_id: genreRecord.id,
     });
 
-    // 7. Respuesta simplificada (sin include)
     res.status(201).json({
       success: true,
       message: "Vinilo creado exitosamente",

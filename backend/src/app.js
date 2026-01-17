@@ -1,5 +1,6 @@
 import express from "express";
-import userRoutes from "./routes/usersRoutes.js";
+import usersRoutes from "./routes/usersRoutes.js";
+import vinylsRoutes from "./routes/vinylsRoutes.js";
 
 const app = express();
 const port = 3000;
@@ -15,7 +16,8 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use("/api/users", userRoutes);
+app.use("/api/users", usersRoutes);
+app.use("/api/vinyls", vinylsRoutes);
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);

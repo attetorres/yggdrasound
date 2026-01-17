@@ -3,6 +3,7 @@ import {
   getCommentById,
   getCommentByUsername,
   getCommentByAlbum,
+  createComment,
 } from "../controllers/commentsController.js";
 
 const router = express.Router();
@@ -13,6 +14,7 @@ router.get("/get-comment-by-username/:username", getCommentByUsername);
 router.get("/get-comment-by-album/:album", getCommentByAlbum);
 
 // POST
+router.post("/create-comment", createComment);
 
 // PUT
 

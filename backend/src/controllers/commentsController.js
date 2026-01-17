@@ -3,6 +3,8 @@ import User from "../models/User.js";
 import Vinyl from "../models/Vinyl.js";
 import { Op } from "sequelize";
 
+// MÉTODOS GET
+
 export const getCommentById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -137,6 +139,40 @@ export const getCommentByAlbum = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error al obtener comentarios por álbum",
+      error: error.message,
+    });
+  }
+};
+
+// MÉTODOS POST
+
+export const createComment = async (req, res) => {
+  try {
+    const { user_id, vinyl_id, comment_text } = req.body;
+
+    if (!user_id || !vinyl_id || !comment_text) {
+      return res.status(400).json({
+        success: false,
+        message: "Faltan datos obligatorios",
+      });
+    }
+
+    const newComment = await Comment.create({
+      user_id,
+      vinyl_id,
+      comment_text,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Comentario creado",
+      data: newComment,
+    });
+  } catch (error) {
+    console.error("Error en createComment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al crear comentario",
       error: error.message,
     });
   }

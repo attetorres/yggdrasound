@@ -33,6 +33,34 @@ export const getVinyls = async (req, res) => {
   }
 };
 
+export const getVinylById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const vinyl = await Vinyl.findByPk(id);
+
+    if (!vinyl) {
+      return res.status(404).json({
+        success: false,
+        message: `Vinilo con ID ${id} no encontrado`,
+      });
+    }
+
+    res.json({
+      success: true,
+      data: vinyl,
+    });
+  } catch (error) {
+    console.error("Error en getVinylById:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener vinilo",
+      error: error.message,
+    });
+  }
+};
+
 export const getVinylsByArtist = async (req, res) => {
   try {
     const { artist, page = 1, limit = 20 } = req.query;
@@ -78,6 +106,55 @@ export const getVinylsByArtist = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error al buscar vinilos por artista",
+    });
+  }
+};
+
+export const getVinylsByAlbum = async (req, res) => {
+  try {
+    const { album, page = 1, limit = 20 } = req.query;
+
+    if (!album) {
+      return res.status(400).json({
+        success: false,
+        message: 'Se requiere el parámetro "album" para la búsqueda',
+      });
+    }
+
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await Vinyl.findAndCountAll({
+      where: {
+        album: {
+          [Op.iLike]: `%${album}%`,
+        },
+      },
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [
+        ["album", "ASC"],
+        ["release_date", "DESC"],
+      ],
+    });
+
+    res.json({
+      success: true,
+      data: rows,
+      searchTerm: album,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(count / limit),
+        showingFrom: offset + 1,
+        showingTo: Math.min(offset + parseInt(limit), count),
+      },
+    });
+  } catch (error) {
+    console.error("Error en getVinylsByAlbum:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al buscar vinilos por álbum",
     });
   }
 };

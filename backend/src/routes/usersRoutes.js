@@ -4,7 +4,7 @@ import { getUserById } from "../controllers/usersController.js";
 const router = express.Router();
 
 // GET
-router.get("/get-user/:id", getUserById);
+router.get("/get-user-by-id/:id", getUserById);
 
 // POST
 

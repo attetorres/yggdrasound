@@ -13,6 +13,7 @@ app.get("/", (req, res) => {
     endpoints: {
       users: "/api/users",
       vinyls: "/api/vinyls",
+      comments: "/api/comments",
     },
   });
 });

@@ -203,3 +203,138 @@ export const createUser = async (req, res) => {
     });
   }
 };
+
+// MÉTODOS PUT
+
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      surname,
+      username,
+      email,
+      avatar_img,
+      country,
+      city,
+      street,
+      postcode,
+      number,
+      is_admin,
+    } = req.body;
+
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: `Usuario con ID ${id} no encontrado`,
+      });
+    }
+
+    // Verificar si el nuevo username ya existe
+    if (username && username !== user.username) {
+      const existingUsername = await User.findOne({
+        where: { username },
+      });
+
+      if (existingUsername) {
+        return res.status(409).json({
+          success: false,
+          message: `El username "${username}" ya está en uso`,
+        });
+      }
+    }
+
+    // Verificar si el nuevo email ya existe
+    if (email && email !== user.email) {
+      const existingEmail = await User.findOne({
+        where: { email },
+      });
+
+      if (existingEmail) {
+        return res.status(409).json({
+          success: false,
+          message: `El email "${email}" ya está registrado`,
+        });
+      }
+    }
+
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (surname !== undefined) updateData.surname = surname;
+    if (username !== undefined) updateData.username = username;
+    if (email !== undefined) updateData.email = email;
+    if (avatar_img !== undefined) updateData.avatar_img = avatar_img;
+    if (country !== undefined) updateData.country = country;
+    if (city !== undefined) updateData.city = city;
+    if (street !== undefined) updateData.street = street;
+    if (postcode !== undefined) updateData.postcode = postcode;
+    if (number !== undefined) updateData.number = number;
+    if (is_admin !== undefined) updateData.is_admin = is_admin;
+
+    await user.update(updateData);
+
+    const userResponse = {
+      id: user.id,
+      is_admin: user.is_admin,
+      name: user.name,
+      surname: user.surname,
+      username: user.username,
+      email: user.email,
+      avatar_img: user.avatar_img,
+      country: user.country,
+      city: user.city,
+      street: user.street,
+      postcode: user.postcode,
+      number: user.number,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+      last_login_at: user.last_login_at,
+    };
+
+    res.json({
+      success: true,
+      message: "Usuario actualizado exitosamente",
+      data: userResponse,
+    });
+  } catch (error) {
+    console.error("Error en updateUser:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al actualizar usuario",
+      error: error.message,
+    });
+  }
+};
+
+// MÉTODOS DELETE
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: `Usuario con ID ${id} no encontrado`,
+      });
+    }
+
+    await user.destroy();
+
+    res.json({
+      success: true,
+      message: "Usuario eliminado exitosamente",
+    });
+  } catch (error) {
+    console.error("Error en deleteUser:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al eliminar usuario",
+      error: error.message,
+    });
+  }
+};

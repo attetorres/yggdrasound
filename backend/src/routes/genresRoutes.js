@@ -3,6 +3,7 @@ import {
   getGenres,
   getGenreById,
   getGenreByName,
+  getGenresByVinylId,
   createGenre,
   updateGenre,
   deleteGenre,
@@ -14,6 +15,7 @@ const router = express.Router();
 router.get("/", getGenres);
 router.get("/get-genre-by-id/:id", getGenreById);
 router.get("/get-genre-by-name/:name", getGenreByName);
+router.get("/get-genres-by-vinylId/:vinyl_id", getGenresByVinylId);
 
 // POST
 router.post("/create-genre", createGenre);

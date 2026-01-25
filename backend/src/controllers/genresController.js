@@ -1,4 +1,5 @@
 import Genre from "../models/Genre.js";
+import Vinyl from "../models/Vinyl.js";
 import VinylGenre from "../models/VinylGenre.js";
 import { Op } from "sequelize";
 
@@ -74,6 +75,44 @@ export const getGenreByName = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error al obtener género",
+      error: error.message,
+    });
+  }
+};
+
+export const getGenresByVinylId = async (req, res) => {
+  try {
+    const { vinyl_id } = req.params;
+
+    const vinyl = await Vinyl.findByPk(vinyl_id);
+    if (!vinyl) {
+      return res.status(404).json({
+        success: false,
+        message: `Vinilo con ID ${vinyl_id} no encontrado`,
+      });
+    }
+
+    const vinylGenres = await VinylGenre.findAll({
+      where: { vinyl_id },
+      attributes: ["genre_id"],
+    });
+
+    const genreIds = vinylGenres.map((vg) => vg.genre_id);
+
+    const genres = await Genre.findAll({
+      where: { id: genreIds },
+      attributes: ["id", "name"],
+    });
+
+    res.json({
+      success: true,
+      data: genres,
+    });
+  } catch (error) {
+    console.error("Error en getGenresByVinylId:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener géneros del vinilo",
       error: error.message,
     });
   }

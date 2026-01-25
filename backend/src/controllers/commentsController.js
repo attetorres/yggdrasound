@@ -145,7 +145,6 @@ export const getCommentByAlbum = async (req, res) => {
 };
 
 // MÉTODOS POST
-
 export const createComment = async (req, res) => {
   try {
     const { user_id, vinyl_id, comment_text } = req.body;
@@ -173,6 +172,79 @@ export const createComment = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error al crear comentario",
+      error: error.message,
+    });
+  }
+};
+
+// MÉTODOS PUT
+
+export const updateComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { comment_text } = req.body;
+
+    if (!comment_text || comment_text.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "El texto del comentario es obligatorio",
+      });
+    }
+
+    const comment = await Comment.findByPk(id);
+
+    if (!comment) {
+      return res.status(404).json({
+        success: false,
+        message: `Comentario con ID ${id} no encontrado`,
+      });
+    }
+
+    await comment.update({
+      comment_text: comment_text.trim(),
+    });
+
+    res.json({
+      success: true,
+      message: "Comentario actualizado exitosamente",
+      data: comment,
+    });
+  } catch (error) {
+    console.error("Error en updateComment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al actualizar comentario",
+      error: error.message,
+    });
+  }
+};
+
+// MÉTODOS DELETE
+
+export const deleteComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const comment = await Comment.findByPk(id);
+
+    if (!comment) {
+      return res.status(404).json({
+        success: false,
+        message: `Comentario con ID ${id} no encontrado`,
+      });
+    }
+
+    await comment.destroy();
+
+    res.json({
+      success: true,
+      message: "Comentario eliminado exitosamente",
+    });
+  } catch (error) {
+    console.error("Error en deleteComment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al eliminar comentario",
       error: error.message,
     });
   }

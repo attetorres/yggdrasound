@@ -4,6 +4,8 @@ import {
   getCommentByUsername,
   getCommentByAlbum,
   createComment,
+  updateComment,
+  deleteComment,
 } from "../controllers/commentsController.js";
 
 const router = express.Router();
@@ -17,5 +19,9 @@ router.get("/get-comment-by-album/:album", getCommentByAlbum);
 router.post("/create-comment", createComment);
 
 // PUT
+router.put("/update-comment/:id", updateComment);
+
+// DELETE
+router.delete("/delete-comment/:id", deleteComment);
 
 export default router;

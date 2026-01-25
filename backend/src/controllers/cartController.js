@@ -1,4 +1,3 @@
-// controllers/cartController.js
 import ShoppingCart from "../models/ShoppingCart.js";
 import CartItem from "../models/CartItem.js";
 import User from "../models/User.js";
@@ -18,29 +17,31 @@ export const getCartByUserId = async (req, res) => {
       return res.json({ success: true, data: { items: [] } });
     }
 
-    const vinylIds = cartItems.map(item => item.vinyl_id);
+    const vinylIds = cartItems.map((item) => item.vinyl_id);
     const vinyls = await Vinyl.findAll({
       where: { id: vinylIds },
-      attributes: ['id', 'artist', 'album', 'price', 'album_cover']
+      attributes: ["id", "artist", "album", "price", "album_cover"],
     });
 
     const vinylMap = {};
-    vinyls.forEach(v => { vinylMap[v.id] = v; });
+    vinyls.forEach((v) => {
+      vinylMap[v.id] = v;
+    });
 
     const items = [];
     let total = 0;
 
-    cartItems.forEach(item => {
+    cartItems.forEach((item) => {
       const vinyl = vinylMap[item.vinyl_id];
       if (vinyl) {
         const subtotal = vinyl.price * item.quantity;
         total += subtotal;
-        
+
         items.push({
           id: item.id,
           quantity: item.quantity,
           vinyl: vinyl,
-          subtotal: subtotal.toFixed(2)
+          subtotal: subtotal.toFixed(2),
         });
       }
     });
@@ -51,15 +52,15 @@ export const getCartByUserId = async (req, res) => {
         cart_id: cart.id,
         user_id: user_id,
         items: items,
-        total: total.toFixed(2)
-      }
+        total: total.toFixed(2),
+      },
     });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({
       success: false,
       message: "Error",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -94,7 +95,7 @@ export const addToCart = async (req, res) => {
     // Añadir/actualizar item
     const [cartItem, created] = await CartItem.findOrCreate({
       where: { cart_id: cart.id, vinyl_id },
-      defaults: { quantity: parseInt(quantity) }
+      defaults: { quantity: parseInt(quantity) },
     });
 
     if (!created) {
@@ -139,7 +140,7 @@ export const updateCartItem = async (req, res) => {
 
     // Buscar el item del carrito
     const cartItem = await CartItem.findByPk(cart_item_id);
-    
+
     if (!cartItem) {
       return res.status(404).json({
         success: false,
@@ -153,7 +154,7 @@ export const updateCartItem = async (req, res) => {
 
     // Obtener info del vinilo para respuesta
     const vinyl = await Vinyl.findByPk(cartItem.vinyl_id, {
-      attributes: ['id', 'artist', 'album', 'price', 'album_cover']
+      attributes: ["id", "artist", "album", "price", "album_cover"],
     });
 
     res.json({
@@ -163,7 +164,7 @@ export const updateCartItem = async (req, res) => {
         id: cartItem.id,
         quantity: cartItem.quantity,
         vinyl: vinyl,
-        subtotal: vinyl ? (vinyl.price * cartItem.quantity).toFixed(2) : "0.00"
+        subtotal: vinyl ? (vinyl.price * cartItem.quantity).toFixed(2) : "0.00",
       },
     });
   } catch (error) {
@@ -181,7 +182,7 @@ export const updateCartItem = async (req, res) => {
 export const deleteFromCart = async (req, res) => {
   try {
     const cartItem = await CartItem.findByPk(req.params.cart_item_id);
-    
+
     if (!cartItem) {
       return res.status(404).json({
         success: false,
@@ -206,10 +207,10 @@ export const deleteFromCart = async (req, res) => {
 
 export const clearCart = async (req, res) => {
   try {
-    const cart = await ShoppingCart.findOne({ 
-      where: { user_id: req.params.user_id } 
+    const cart = await ShoppingCart.findOne({
+      where: { user_id: req.params.user_id },
     });
-    
+
     if (!cart) {
       return res.json({
         success: true,

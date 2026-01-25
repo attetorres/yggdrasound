@@ -21,7 +21,7 @@ router.post("/create-user", createUser);
 // PUT
 router.put("/update-user/:id", updateUser);
 
-// PUT
+//DELETE
 router.delete("/delete-user/:id", deleteUser);
 
 export default router;

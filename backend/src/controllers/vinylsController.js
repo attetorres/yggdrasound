@@ -338,3 +338,120 @@ export const createVinyl = async (req, res) => {
     });
   }
 };
+
+// MÉTODOS PUT
+export const updateVinyl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      artist,
+      album,
+      album_url,
+      band_location,
+      release_date,
+      album_cover,
+      price,
+      track_list,
+      track_count,
+      duration,
+      band_url,
+    } = req.body;
+
+    const vinyl = await Vinyl.findByPk(id);
+
+    if (!vinyl) {
+      return res.status(404).json({
+        success: false,
+        message: `Vinilo con ID ${id} no encontrado`,
+      });
+    }
+
+    // Verificar si se está cambiando artista/álbum y si ya existe
+    if (
+      (artist || album) &&
+      (artist !== vinyl.artist || album !== vinyl.album)
+    ) {
+      const newArtist = artist || vinyl.artist;
+      const newAlbum = album || vinyl.album;
+
+      const existingVinyl = await Vinyl.findOne({
+        where: {
+          artist: { [Op.iLike]: newArtist },
+          album: { [Op.iLike]: newAlbum },
+          id: { [Op.ne]: id },
+        },
+      });
+
+      if (existingVinyl) {
+        return res.status(409).json({
+          success: false,
+          message: `Ya existe un vinilo de "${newArtist}" - "${newAlbum}"`,
+        });
+      }
+    }
+
+    const updateData = {};
+    if (artist !== undefined) updateData.artist = artist;
+    if (album !== undefined) updateData.album = album;
+    if (album_url !== undefined) updateData.album_url = album_url;
+    if (band_location !== undefined) updateData.band_location = band_location;
+    if (release_date !== undefined) updateData.release_date = release_date;
+    if (album_cover !== undefined) updateData.album_cover = album_cover;
+    if (price !== undefined) updateData.price = parseFloat(price);
+    if (track_list !== undefined) {
+      updateData.track_list = track_list;
+      // Si se actualiza track_list y no se da track_count, recalcular
+      if (track_count === undefined) {
+        updateData.track_count = track_list ? track_list.length : 0;
+      }
+    }
+    if (track_count !== undefined) updateData.track_count = track_count;
+    if (duration !== undefined) updateData.duration = duration;
+    if (band_url !== undefined) updateData.band_url = band_url;
+
+    await vinyl.update(updateData);
+
+    res.json({
+      success: true,
+      message: "Vinilo actualizado exitosamente",
+      data: vinyl,
+    });
+  } catch (error) {
+    console.error("Error en updateVinyl:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al actualizar vinilo",
+      error: error.message,
+    });
+  }
+};
+
+// MÉTODOS DELETE
+export const deleteVinyl = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const vinyl = await Vinyl.findByPk(id);
+
+    if (!vinyl) {
+      return res.status(404).json({
+        success: false,
+        message: `Vinilo con ID ${id} no encontrado`,
+      });
+    }
+
+    await vinyl.destroy();
+
+    res.json({
+      success: true,
+      message: `Vinilo "${vinyl.artist} - ${vinyl.album}" eliminado exitosamente`,
+    });
+  } catch (error) {
+    console.error("Error en deleteVinyl:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al eliminar vinilo",
+      error: error.message,
+    });
+  }
+};

@@ -3,6 +3,7 @@ import usersRoutes from "./routes/usersRoutes.js";
 import vinylsRoutes from "./routes/vinylsRoutes.js";
 import commentsRoutes from "./routes/commentsRoutes.js";
 import genresRoutes from "./routes/genresRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
 import ordersHistoryRoutes from "./routes/ordersHistoryRoutes.js";
 
 const app = express();
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
       vinyls: "/api/vinyls",
       comments: "/api/comments",
       genres: "/api/genres",
+      shopping_cart: "/api/shopping-cart",
       orders_history: "/api/orders-history",
     },
   });
@@ -30,6 +32,7 @@ app.use("/api/users", usersRoutes);
 app.use("/api/vinyls", vinylsRoutes);
 app.use("/api/comments", commentsRoutes);
 app.use("/api/genres", genresRoutes);
+app.use("/api/shopping-cart", cartRoutes)
 app.use("/api/orders-history", ordersHistoryRoutes);
 
 app.listen(port, () => {

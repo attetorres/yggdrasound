@@ -6,49 +6,187 @@ import Vinyl from "../models/Vinyl.js";
 // MÉTODOS GET
 export const getOrders = async (req, res) => {
   try {
-    const { page = 1, limit = 50 } = req.query;
+    const { page = 1, limit = 20 } = req.query;
     const offset = (page - 1) * limit;
 
-    const { count, rows } = await OrderHistory.findAndCountAll({
+    const { count, rows: orders } = await OrderHistory.findAndCountAll({
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [["order_date", "DESC"]],
-      // SIN include por ahora
     });
 
-    // Opcional: Obtener usuarios por separado si los necesitas
-    const userIds = rows.map((order) => order.user_id);
+    // Si no hay pedidos
+    if (orders.length === 0) {
+      return res.json({
+        success: true,
+        data: [],
+        pagination: {
+          total: 0,
+          page: 1,
+          limit: parseInt(limit),
+          totalPages: 0,
+        },
+      });
+    }
+
+    // Obtener usuarios
+    const userIds = [...new Set(orders.map((order) => order.user_id))];
     const users = await User.findAll({
       where: { id: userIds },
       attributes: ["id", "username", "name", "email"],
     });
 
+    // Obtener items de cada pedido
+    const orderIds = orders.map((order) => order.id);
+    const orderItems = await OrderVinyl.findAll({
+      where: { order_id: orderIds },
+    });
+
+    // Agrupar items por pedido
+    const itemsByOrder = {};
+    orderItems.forEach((item) => {
+      if (!itemsByOrder[item.order_id]) {
+        itemsByOrder[item.order_id] = [];
+      }
+      itemsByOrder[item.order_id].push(item);
+    });
+
     // Combinar datos
-    const ordersWithUsers = rows.map((order) => {
+    const ordersWithDetails = orders.map((order) => {
       const user = users.find((u) => u.id === order.user_id);
+      const items = itemsByOrder[order.id] || [];
+
       return {
-        ...order.toJSON(),
+        id: order.id,
+        user_id: order.user_id,
         user: user || null,
+        order_date: order.order_date,
+        total_amount: order.total_amount,
+        quantity: order.quantity,
+        items_count: items.length,
+        created_at: order.created_at,
       };
     });
 
     res.json({
       success: true,
-      data: ordersWithUsers,
+      data: ordersWithDetails,
       pagination: {
         total: count,
         page: parseInt(page),
         limit: parseInt(limit),
         totalPages: Math.ceil(count / limit),
-        showingFrom: offset + 1,
-        showingTo: Math.min(offset + parseInt(limit), count),
       },
     });
   } catch (error) {
-    console.error("Error en getOrders:", error);
+    console.error("Error:", error);
     res.status(500).json({
       success: false,
-      message: "Error al obtener pedidos",
+      message: "Error",
+    });
+  }
+};
+
+export const getOrderById = async (req, res) => {
+  try {
+    const order = await OrderHistory.findByPk(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Pedido no encontrado",
+      });
+    }
+
+    // Usuario
+    const user = await User.findByPk(order.user_id, {
+      attributes: ["id", "username", "name", "email"],
+    });
+
+    // Items del pedido
+    const orderItems = await OrderVinyl.findAll({
+      where: { order_id: order.id },
+    });
+
+    // Información de los vinilos
+    const vinylIds = orderItems.map((item) => item.vinyl_id);
+    const vinyls = await Vinyl.findAll({
+      where: { id: vinylIds },
+      attributes: ["id", "artist", "album", "album_cover"],
+    });
+
+    // Combinar
+    const items = orderItems.map((item) => {
+      const vinyl = vinyls.find((v) => v.id === item.vinyl_id);
+      return {
+        id: item.id,
+        vinyl_id: item.vinyl_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        subtotal: (item.quantity * item.unit_price).toFixed(2),
+        vinyl: vinyl || null,
+      };
+    });
+
+    res.json({
+      success: true,
+      data: {
+        order: {
+          id: order.id,
+          user_id: order.user_id,
+          user: user,
+          order_date: order.order_date,
+          total_amount: order.total_amount,
+          quantity: order.quantity,
+          created_at: order.created_at,
+        },
+        items: items,
+        summary: {
+          items_count: items.length,
+          total_items: order.quantity,
+          total_amount: order.total_amount,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error",
+    });
+  }
+};
+
+export const getOrdersByUserId = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const { count, rows: orders } = await OrderHistory.findAndCountAll({
+      where: { user_id },
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [["order_date", "DESC"]],
+    });
+
+    const user = await User.findByPk(user_id, {
+      attributes: ["id", "username", "name"],
+    });
+
+    res.json({
+      success: true,
+      data: {
+        user: user,
+        orders: orders,
+        count: count,
+      },
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error",
     });
   }
 };
@@ -58,56 +196,75 @@ export const createOrder = async (req, res) => {
   try {
     const { user_id, items } = req.body;
 
-    // Validaciones mínimas
     if (!user_id || !items || !Array.isArray(items)) {
       return res.status(400).json({
         success: false,
-        message: "user_id y array de items son obligatorios",
+        message: "Datos inválidos",
       });
     }
 
-    // Verificar usuario
-    const user = await User.findByPk(user_id);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Usuario no encontrado",
+    // Buscar precios actuales de los vinilos
+    const vinylIds = items.map((item) => item.vinyl_id);
+    const vinyls = await Vinyl.findAll({
+      where: { id: vinylIds },
+      attributes: ["id", "price"],
+    });
+
+    // Calcular totales con precios REALES
+    let total_amount = 0;
+    let total_quantity = 0;
+    const orderItems = [];
+
+    items.forEach((item) => {
+      const vinyl = vinyls.find((v) => v.id === item.vinyl_id);
+      const quantity = item.quantity || 1;
+      const unit_price = vinyl ? parseFloat(vinyl.price) : 0;
+
+      total_amount += unit_price * quantity;
+      total_quantity += quantity;
+
+      orderItems.push({
+        vinyl_id: item.vinyl_id,
+        quantity: quantity,
+        unit_price: unit_price,
       });
-    }
+    });
 
     // Crear pedido
     const order = await OrderHistory.create({
       user_id,
-      total_amount: 0, // Temporal
-      quantity: items.reduce((sum, item) => sum + (item.quantity || 1), 0),
+      total_amount: parseFloat(total_amount.toFixed(2)),
+      quantity: total_quantity,
       order_date: new Date(),
     });
 
-    // Crear items del pedido
-    const orderItems = items.map((item) => ({
+    // Crear items
+    const itemsToCreate = orderItems.map((item) => ({
       order_id: order.id,
       vinyl_id: item.vinyl_id,
-      quantity: item.quantity || 1,
-      unit_price: item.unit_price || 0,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
     }));
 
-    await OrderVinyl.bulkCreate(orderItems);
+    await OrderVinyl.bulkCreate(itemsToCreate);
 
-    // Respuesta simple
+    // Respuesta mejorada
     res.status(201).json({
       success: true,
       message: "Pedido creado",
       data: {
         id: order.id,
         user_id: order.user_id,
+        total_amount: order.total_amount,
+        items_count: items.length,
         created_at: order.created_at,
       },
     });
   } catch (error) {
-    console.error("Error en createOrder:", error);
+    console.error("Error:", error);
     res.status(500).json({
       success: false,
-      message: "Error al crear pedido",
+      message: "Error",
       error: error.message,
     });
   }

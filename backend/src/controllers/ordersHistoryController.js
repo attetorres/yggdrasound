@@ -15,7 +15,6 @@ export const getOrders = async (req, res) => {
       order: [["order_date", "DESC"]],
     });
 
-    // Si no hay pedidos
     if (orders.length === 0) {
       return res.json({
         success: true,
@@ -29,14 +28,12 @@ export const getOrders = async (req, res) => {
       });
     }
 
-    // Obtener usuarios
     const userIds = [...new Set(orders.map((order) => order.user_id))];
     const users = await User.findAll({
       where: { id: userIds },
       attributes: ["id", "username", "name", "email"],
     });
 
-    // Obtener items de cada pedido
     const orderIds = orders.map((order) => order.id);
     const orderItems = await OrderVinyl.findAll({
       where: { order_id: orderIds },
@@ -98,17 +95,14 @@ export const getOrderById = async (req, res) => {
       });
     }
 
-    // Usuario
     const user = await User.findByPk(order.user_id, {
       attributes: ["id", "username", "name", "email"],
     });
 
-    // Items del pedido
     const orderItems = await OrderVinyl.findAll({
       where: { order_id: order.id },
     });
 
-    // Información de los vinilos
     const vinylIds = orderItems.map((item) => item.vinyl_id);
     const vinyls = await Vinyl.findAll({
       where: { id: vinylIds },
@@ -203,14 +197,12 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // Buscar precios actuales de los vinilos
     const vinylIds = items.map((item) => item.vinyl_id);
     const vinyls = await Vinyl.findAll({
       where: { id: vinylIds },
       attributes: ["id", "price"],
     });
 
-    // Calcular totales con precios REALES
     let total_amount = 0;
     let total_quantity = 0;
     const orderItems = [];
@@ -248,7 +240,6 @@ export const createOrder = async (req, res) => {
 
     await OrderVinyl.bulkCreate(itemsToCreate);
 
-    // Respuesta mejorada
     res.status(201).json({
       success: true,
       message: "Pedido creado",

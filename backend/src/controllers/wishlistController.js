@@ -112,7 +112,6 @@ export const addToWishList = async (req, res) => {
       wishList = await WishList.create({ user_id });
     }
 
-    // VERIFICAR si YA EXISTE primero
     const existingItem = await WishItem.findOne({
       where: { wish_list_id: wishList.id, vinyl_id },
     });
@@ -128,7 +127,6 @@ export const addToWishList = async (req, res) => {
       });
     }
 
-    // Si no existe, crearlo
     const wishItem = await WishItem.create({
       wish_list_id: wishList.id,
       vinyl_id,

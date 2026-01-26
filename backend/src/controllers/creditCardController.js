@@ -121,7 +121,7 @@ export const createCreditCard = async (req, res) => {
       });
     }
 
-    // Limpiar número de tarjeta (quitar espacios)
+    // Limpiar tarjeta (quitar espacios)
     const cleanCardNumber = card_number.replace(/\s/g, "");
 
     // Verificar si ya existe esta tarjeta para este usuario
@@ -249,7 +249,6 @@ export const deleteCreditCard = async (req, res) => {
     const wasDefault = creditCard.is_default;
     const userId = creditCard.user_id;
 
-    // Eliminar la tarjeta
     await creditCard.destroy();
 
     // Si era la tarjeta por defecto, buscar otra para poner como default

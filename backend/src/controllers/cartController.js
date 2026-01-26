@@ -65,7 +65,7 @@ export const getCartByUserId = async (req, res) => {
   }
 };
 
-// POST
+// MÉTODOS POST
 export const addToCart = async (req, res) => {
   try {
     const { user_id, vinyl_id, quantity = 1 } = req.body;
@@ -77,7 +77,6 @@ export const addToCart = async (req, res) => {
       });
     }
 
-    // Verificar usuario rápido
     const userExists = await User.findByPk(user_id);
     if (!userExists) {
       return res.status(404).json({
@@ -86,13 +85,11 @@ export const addToCart = async (req, res) => {
       });
     }
 
-    // Obtener o crear carrito
     let cart = await ShoppingCart.findOne({ where: { user_id } });
     if (!cart) {
       cart = await ShoppingCart.create({ user_id });
     }
 
-    // Añadir/actualizar item
     const [cartItem, created] = await CartItem.findOrCreate({
       where: { cart_id: cart.id, vinyl_id },
       defaults: { quantity: parseInt(quantity) },
@@ -103,7 +100,6 @@ export const addToCart = async (req, res) => {
       await cartItem.save();
     }
 
-    // Respuesta ultra simple
     res.status(201).json({
       success: true,
       message: created ? "Añadido al carrito" : "Cantidad actualizada",
@@ -130,7 +126,6 @@ export const updateCartItem = async (req, res) => {
     const { cart_item_id } = req.params;
     const { quantity } = req.body;
 
-    // Validar
     if (!quantity || quantity < 1) {
       return res.status(400).json({
         success: false,
@@ -138,7 +133,6 @@ export const updateCartItem = async (req, res) => {
       });
     }
 
-    // Buscar el item del carrito
     const cartItem = await CartItem.findByPk(cart_item_id);
 
     if (!cartItem) {
@@ -148,11 +142,9 @@ export const updateCartItem = async (req, res) => {
       });
     }
 
-    // Actualizar cantidad
     cartItem.quantity = parseInt(quantity);
     await cartItem.save();
 
-    // Obtener info del vinilo para respuesta
     const vinyl = await Vinyl.findByPk(cartItem.vinyl_id, {
       attributes: ["id", "artist", "album", "price", "album_cover"],
     });
@@ -178,7 +170,6 @@ export const updateCartItem = async (req, res) => {
 };
 
 // MÉTODOS DELETE
-// DELETE /api/cart/remove-item/:cart_item_id
 export const deleteFromCart = async (req, res) => {
   try {
     const cartItem = await CartItem.findByPk(req.params.cart_item_id);

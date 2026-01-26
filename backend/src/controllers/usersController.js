@@ -232,7 +232,6 @@ export const updateUser = async (req, res) => {
       });
     }
 
-    // Verificar si el nuevo username ya existe
     if (username && username !== user.username) {
       const existingUsername = await User.findOne({
         where: { username },
@@ -246,7 +245,6 @@ export const updateUser = async (req, res) => {
       }
     }
 
-    // Verificar si el nuevo email ya existe
     if (email && email !== user.email) {
       const existingEmail = await User.findOne({
         where: { email },

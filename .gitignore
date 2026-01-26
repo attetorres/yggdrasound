@@ -1,15 +1,9 @@
-# Dependencias
+# ============ DEPENDENCIAS ============
 node_modules/
 */node_modules/*
 
-# Entornos
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Logs
+# ============ BACKEND ============
+# Logs (backend)
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -23,16 +17,38 @@ yarn-error.log*
 coverage/
 .nyc_output
 
-# IDE
-.vscode/
+# ============ FRONTEND (VITE) ============
+# Logs (frontend)
+logs
+*.log
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+dist-ssr
+build/
+*.local
+
+# ============ ENTORNOS (AMBOS) ============
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ============ IDE ============
+.vscode/*
+!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# OS
+# ============ SISTEMA OPERATIVO ============
 .DS_Store
 Thumbs.db
-
-# Build outputs 
-dist/
-build/

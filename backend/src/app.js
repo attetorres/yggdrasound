@@ -1,6 +1,7 @@
 import express from "express";
 import usersRoutes from "./routes/usersRoutes.js";
 import vinylsRoutes from "./routes/vinylsRoutes.js";
+import creditCardRoutes from "./routes/creditCardRoutes.js";
 import commentsRoutes from "./routes/commentsRoutes.js";
 import genresRoutes from "./routes/genresRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
     endpoints: {
       users: "/api/users",
       vinyls: "/api/vinyls",
+      credit_card: "/api/credit-card",
       comments: "/api/comments",
       genres: "/api/genres",
       shopping_cart: "/api/shopping-cart",
@@ -32,6 +34,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", usersRoutes);
 app.use("/api/vinyls", vinylsRoutes);
+app.use("/api/credit-card", creditCardRoutes);
 app.use("/api/comments", commentsRoutes);
 app.use("/api/genres", genresRoutes);
 app.use("/api/shopping-cart", cartRoutes);

@@ -1,71 +1,29 @@
 @import "tailwindcss";
 
-
-/* :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@theme {
+  /* Paleta Primary (Vino) */
+  --color-primary-50: #f2efea;
+  --color-primary-100: #e5e1d8;
+  --color-primary-200: #d3d0c6;
+  --color-primary-300: #b6a6ab;
+  --color-primary-400: #9a7b84;
+  --color-primary-500: #7d4c5a;
+  --color-primary-600: #6a414d;
+  --color-primary-700: #583742;
+  --color-primary-800: #4e363e;
+  --color-primary-900: #3a282f;
+  --color-primary-950: #24181c;
+  
+  /* Paleta Neutral (Grises) */
+  --color-neutral-50: #f5f5f5;
+  --color-neutral-100: #e6e6e6;
+  --color-neutral-200: #cccccc;
+  --color-neutral-300: #a3a3a3;
+  --color-neutral-400: #806d71;
+  --color-neutral-500: #6c6c6e;
+  --color-neutral-600: #5a5a5c;
+  --color-neutral-700: #414143;
+  --color-neutral-800: #363638;
+  --color-neutral-900: #30302e;
+  --color-neutral-950: #1f1f1d;
 }
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-} */

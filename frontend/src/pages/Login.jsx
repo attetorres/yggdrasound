@@ -1,19 +1,23 @@
 import React from "react";
-import { loginUser } from "../services/authService"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { loginUser } from "../services/authService"
+import { useAuthStore } from "../store/useAuthStore";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
+
+  const loginGlobal = useAuthStore((state) => state.login)
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = await loginUser(form);
 
     if (data.success) {
-      console.log("¡Login exitoso!", data);
-    
-      alert(`Bienvenido ${data.user.username}`);
+      /* console.log("¡Logueado con éxito!", data); */
+      loginGlobal(data.user, data.token);
+      navigate("/")
     } else {
       console.error("Error en el login:", data.message);
       alert(data.message);

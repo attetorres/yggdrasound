@@ -1,13 +1,24 @@
 import React from "react";
+import { loginUser } from "../services/authService"
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login con:", form);
+    const data = await loginUser(form);
+
+    if (data.success) {
+      console.log("¡Login exitoso!", data);
+    
+      alert(`Bienvenido ${data.user.username}`);
+    } else {
+      console.error("Error en el login:", data.message);
+      alert(data.message);
+    }
+
   };
 
   return (

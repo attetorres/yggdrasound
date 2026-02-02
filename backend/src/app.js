@@ -1,4 +1,6 @@
+import 'dotenv/config';
 import express from "express";
+import cors from "cors";
 import usersRoutes from "./routes/usersRoutes.js";
 import vinylsRoutes from "./routes/vinylsRoutes.js";
 import creditCardRoutes from "./routes/creditCardRoutes.js";
@@ -9,9 +11,10 @@ import wishlistRoutes from "./routes/wishlistRoutes.js";
 import ordersHistoryRoutes from "./routes/ordersHistoryRoutes.js";
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 //MIDDLEWARE
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {

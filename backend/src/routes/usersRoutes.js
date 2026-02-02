@@ -4,6 +4,7 @@ import {
   getUserById,
   getUserByUsername,
   createUser,
+  loginUser,
   updateUser,
   deleteUser,
 } from "../controllers/usersController.js";
@@ -17,6 +18,7 @@ router.get("/get-user-by-username/:username", getUserByUsername);
 
 // POST
 router.post("/create-user", createUser);
+router.post("/login", loginUser);
 
 // PUT
 router.put("/update-user/:id", updateUser);

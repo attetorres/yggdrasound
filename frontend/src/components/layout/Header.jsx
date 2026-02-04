@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, NavLink } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 
 const Header = () => {
@@ -11,15 +11,22 @@ const Header = () => {
   const isLoginPage = location.pathname === "/login";
   const isRegisterPage = location.pathname === "/register";
 
+  const navLinkStyles = ({ isActive }) => 
+    `mr-4 transition-all duration-300 ${
+      isActive 
+        ? "text-primary-400 border-b-2 border-primary-400 pb-1 font-bold" 
+        : "text-white hover:text-primary-300"
+    }`;
+
   return (
     <header className="flex bg-neutral-950 text-white p-4 justify-between items-center">
       <nav>
-        <Link to="/" className="text-white mr-4 hover:text-primary-300">
+        <NavLink to="/" className={navLinkStyles}>
           Home
-        </Link>
-        <Link to="/catalog" className="text-white mr-4 hover:text-primary-300">
+        </NavLink>
+        <NavLink to="/catalog" className={navLinkStyles}>
           Catálogo
-        </Link>
+        </NavLink>
       </nav>
       {isLoggedIn ? (
         <div className="flex items-center space-x-3 relative">

@@ -46,7 +46,7 @@ const Catalog = () => {
             <input
               type="text"
               placeholder="Artista, álbum..."
-              className="w-full bg-neutral-900/50 border border-neutral-800 rounded-xl px-4 py-2 pl-10 text-sm focus:outline-none focus:border-white/30 transition-all placeholder:text-neutral-600"
+              className="w-full bg-neutral-900/50 border border-neutral-800 rounded-xl px-4 py-2 pl-10 text-neutral-100 text-sm focus:outline-none focus:border-white/30 transition-all placeholder:text-neutral-600"
             />
             <svg
               className="absolute left-3 top-2.5 w-4 h-4 text-neutral-600 group-focus-within:text-white transition-colors"
@@ -63,7 +63,7 @@ const Catalog = () => {
             </svg>
           </div>
 
-          <select className="w-full md:w-auto bg-neutral-900/50 border border-neutral-800 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-white/30 cursor-pointer text-neutral-400 hover:text-white transition-all appearance-none pr-10 relative">
+          <select className="w-full md:w-auto bg-neutral-900/50 border border-neutral-800 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-white/30 cursor-pointer text-neutral-100 hover:text-white transition-all appearance-none pr-10 relative">
             <option value="">Todos los Géneros</option>
             <option value="rock">Rock</option>
             <option value="jazz">Jazz</option>
@@ -71,7 +71,7 @@ const Catalog = () => {
             <option value="techno">Techno</option>
           </select>
 
-          <select className="w-full md:w-auto bg-neutral-900/50 border border-neutral-800 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-white/30 cursor-pointer text-neutral-400 hover:text-white transition-all appearance-none pr-10">
+          <select className="w-full md:w-auto bg-neutral-900/50 border border-neutral-800 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-white/30 cursor-pointer text-neutral-100 hover:text-white transition-all appearance-none pr-10">
             <option value="newest">Más nuevos</option>
             <option value="price-asc">Precio: Bajo a Alto</option>
             <option value="price-desc">Precio: Alto a Bajo</option>
@@ -83,7 +83,7 @@ const Catalog = () => {
         </div>
       </div>
 
-      <div className="p-8 rounded-2xl border bg-neutral-950 min-h-screen text-white">
+      <div className="p-8  min-h-screen text-white">
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-8">
           {vinylsData?.data.map((vinyl) => (
@@ -101,12 +101,12 @@ const Catalog = () => {
           </button>
 
           <div className="flex flex-col items-center">
-            <span className="text-neutral-400 text-xs uppercase tracking-widest mb-1">
+            <span className="text-neutral-950 text-xs uppercase tracking-widest mb-1">
               Página
             </span>
-            <span className="text-white font-bold">
+            <span className="text-neutral-800 font-bold">
               {currentPage}{" "}
-              <span className="text-neutral-500 font-normal mx-1">de</span>{" "}
+              <span className="text-neutral-950 font-normal mx-1">de</span>{" "}
               {vinylsData?.pagination.totalPages || "?"}
             </span>
           </div>

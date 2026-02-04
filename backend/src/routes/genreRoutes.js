@@ -7,7 +7,7 @@ import {
   createGenre,
   updateGenre,
   deleteGenre,
-} from "../controllers/genresController.js";
+} from "../controllers/genreController.js";
 
 const router = express.Router();
 

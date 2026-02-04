@@ -8,7 +8,7 @@ import {
   createVinyl,
   updateVinyl,
   deleteVinyl,
-} from "../controllers/vinylsController.js";
+} from "../controllers/vinylController.js";
 
 const router = express.Router();
 

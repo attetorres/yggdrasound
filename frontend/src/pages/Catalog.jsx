@@ -81,9 +81,14 @@ const Catalog = () => {
           >
             <option value="">Todos los Géneros</option>
             <option value="rock">Rock</option>
-            <option value="jazz">Jazz</option>
+            <option value="electronic">Electronic</option>
+            <option value="metal">Metal</option>
+            <option value="alternative">Alternative</option>
+            <option value="hip-hop-rap">Hip Hop / Rap</option>
+            <option value="experimental">Experimental</option>
+            <option value="punk">Punk</option>
             <option value="pop">Pop</option>
-            <option value="techno">Techno</option>
+            <option value="ambient">Ambient</option>
           </select>
 
           <select

@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from "express";
 import cors from "cors";
+import setupAssociations from "./models/associations.js";
 import userRoutes from "./routes/userRoutes.js";
 import vinylRoutes from "./routes/vinylRoutes.js";
 import creditCardRoutes from "./routes/creditCardRoutes.js";
@@ -12,6 +13,8 @@ import ordersHistoryRoutes from "./routes/ordersHistoryRoutes.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+setupAssociations();
 
 //MIDDLEWARE
 app.use(cors());

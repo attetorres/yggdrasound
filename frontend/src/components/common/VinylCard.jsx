@@ -14,10 +14,8 @@ const VinylCard = ({ vinyl }) => {
         activeOffset={20}
         shadow={false}
       >
-        {/* Cambiamos min-h por un diseño que se ajusta al contenido */}
-        <div className="relative bg-neutral-900/40 p-4 rounded-2xl border border-neutral-800/50 flex flex-col backdrop-blur-sm overflow-hidden">
+        <div className="relative bg-primary-900/20 p-4 rounded-2xl border border-neutral-800/50 flex flex-col backdrop-blur-sm overflow-hidden">
           
-          {/* Imagen con margen inferior mínimo (mb-2) */}
           <div className="relative z-10 mb-2 shadow-2xl aspect-square overflow-hidden transition-all duration-700 ease-in-out rounded-lg group-hover:rounded-full group-hover:scale-95">
             <div className="w-full h-full transition-transform duration-700 ease-in-out group-hover:rotate-360">
               <img
@@ -32,7 +30,6 @@ const VinylCard = ({ vinyl }) => {
             </div>
           </div>
 
-          {/* Bloque de texto: Eliminamos el flex-1 para que no rellene espacio */}
           <div className="relative z-10">
             <h3 className="text-base font-bold text-white line-clamp-1 italic leading-tight">
               {vinyl.album}
@@ -41,7 +38,6 @@ const VinylCard = ({ vinyl }) => {
               {vinyl.artist}
             </p>
 
-            {/* Precio: Quitamos el mt-auto y reducimos el padding superior */}
             <div className="flex justify-end items-center pt-2 border-t border-neutral-800/30">
               <span className="text-xl font-black text-white">
                 {vinyl.price}€

@@ -223,6 +223,9 @@ export const loginUser = async (req, res) => {
         .json({ success: false, message: "Contraseña incorrecta" });
     }
 
+    user.last_login_at = new Date();
+    await user.save()
+
     const token = jwt.sign(
       { id: user.id, is_admin: user.is_admin },
       process.env.JWT_SECRET,
@@ -238,6 +241,7 @@ export const loginUser = async (req, res) => {
         username: user.username,
         email: user.email,
         is_admin: user.is_admin,
+        last_login_at: user.last_login_at
       },
     });
   } catch (error) {

@@ -1,6 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { registerUser } from "../services/authService";
+import { loginUser } from "../services/authService"
+import { useAuthStore } from "../store/useAuthStore";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -17,15 +20,43 @@ const Register = () => {
     number: "",
     acceptTerms: false,
   });
+  const [loading, setLoading] = useState(false);
+  const loginStore = useAuthStore((state) => state.login);
+  const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
       alert("Las contraseñas no coinciden");
       return;
     }
-    console.log("Registro con:", form);
-    // Enviar datos al backend
+
+    setLoading(true);
+
+    try {
+      const response = await registerUser(form);
+
+      if (response.success) {
+        alert("Registrado");
+        const loginRes = await loginUser({ 
+          email: form.email, 
+          password: form.password 
+        });
+
+        if(loginRes.success){
+          loginStore(loginRes.user, loginRes.token)
+          alert("¡Registro y acceso exitoso! Bienvenido.");
+          navigate("/");
+        }
+        
+      } else {
+        alert(response.message || "Error al registrar");
+      }
+    } catch (error) {
+      console.log("Error de conexión", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -252,16 +283,19 @@ const Register = () => {
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-linear-to-r from-primary-600 to-primary-700 
-                       text-white py-3 rounded-lg font-semibold hover:from-primary-700 
-                       hover:to-primary-800 transition-all duration-300 
-                       shadow-md hover:shadow-lg"
+              disabled={loading}
+              className={`flex-1 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md 
+              ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-linear-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 hover:shadow-lg"
+              }`}
             >
-              Crear Cuenta
+              {loading ? "Creando cuenta..." : "Crear Cuenta"}
             </button>
-
             <button
               type="button"
+              disabled={loading}
               className="flex-1 border-2 border-primary-500 text-primary-700 
                        py-3 rounded-lg font-semibold hover:bg-primary-50 
                        transition-all duration-300"

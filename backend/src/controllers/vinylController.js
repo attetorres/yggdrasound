@@ -8,13 +8,52 @@ import { Op } from "sequelize";
 
 export const getVinyls = async (req, res) => {
   try {
-    const { page = 1, limit = 50 } = req.query;
+    const {
+      page = 1,
+      limit = 30,
+      search = "",
+      genre = "",
+      sort = "newest",
+    } = req.query;
+
     const offset = (page - 1) * limit;
 
+    const whereClause = {};
+
+    if (search) {
+      whereClause[Op.or] = [
+        { artist: { [Op.iLike]: `%${search}%` } },
+        { album: { [Op.iLike]: `%${search}%` } },
+      ];
+    }
+
+    let orderClause = [];
+    if (sort === "price-asc") {
+      orderClause.push(["price", "ASC"]);
+    } else if (sort === "price-desc") {
+      orderClause.push(["price", "DESC"]);
+    } else if (sort === "oldest") {
+      orderClause.push(["created_at", "ASC"]);
+    } else {
+      orderClause.push(["created_at", "DESC"]);
+    }
+
+    // Consulta con JOIN a la tabla Genre
     const { count, rows } = await Vinyl.findAndCountAll({
+      where: whereClause,
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [["created_at", "DESC"]],
+      order: orderClause,
+      distinct: true, // Necesario para que el count sea correcto al usar include
+      include: [
+        {
+          model: Genre,
+          as: "Genres", // Asegúrate de que el alias coincida con tu asociación
+          where: genre && genre !== "" ? { name: genre } : null,
+          required: genre && genre !== "" ? true : false, // INNER JOIN si hay género, LEFT JOIN si no
+          through: { attributes: [] }, // No traer datos de la tabla intermedia
+        },
+      ],
     });
 
     res.json({
@@ -30,10 +69,11 @@ export const getVinyls = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error en getVinyls:", error);
+    console.error("Error detallado en getVinyls:", error);
     res.status(500).json({
       success: false,
       message: "Error al obtener vinilos",
+      error: error.message,
     });
   }
 };

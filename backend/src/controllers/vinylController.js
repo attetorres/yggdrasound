@@ -48,7 +48,7 @@ export const getVinyls = async (req, res) => {
       include: [
         {
           model: Genre,
-          as: "Genres", // Asegúrate de que el alias coincida con tu asociación
+          as: "Genres", // Que el alias coincida con la asociación
           where: genre && genre !== "" ? { name: genre } : null,
           required: genre && genre !== "" ? true : false, // INNER JOIN si hay género, LEFT JOIN si no
           through: { attributes: [] }, // No traer datos de la tabla intermedia

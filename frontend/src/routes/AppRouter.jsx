@@ -6,6 +6,7 @@ import Register from "../pages/Register";
 import Login from "../pages/Login";
 import Profile from "../pages/Profile";
 import Catalog from "../pages/Catalog";
+import VinylDetails from "../pages/VinylDetails";
 
 const AppRouter = () => {
   return (
@@ -17,6 +18,7 @@ const AppRouter = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/catalog" element={<Catalog />} />
+          <Route path="/vinyl-details/:id" element={<VinylDetails />} />
         </Route>
       </Routes>
     </BrowserRouter>

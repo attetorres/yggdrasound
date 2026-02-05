@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllVinyls } from "../services/vinylService";
 import VinylCard from "../components/common/VinylCard";
+import { Link } from "react-router-dom";
 
 const Catalog = () => {
   const [vinylsData, setVinylsData] = useState(null);
@@ -38,9 +39,6 @@ const Catalog = () => {
           <h1 className="text-3xl font-black italic tracking-tighter uppercase leading-none">
             Catálogo
           </h1>
-          <p className="text-neutral-500 text-[10px] tracking-[0.3em] uppercase mt-1">
-            Yggdrasound Collection
-          </p>
         </div>
 
         <div className="flex flex-col md:flex-row items-center gap-3 w-full lg:w-auto">
@@ -110,7 +108,9 @@ const Catalog = () => {
       <div className="p-8  min-h-screen text-white">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-8">
           {vinylsData?.data.map((vinyl) => (
-            <VinylCard key={vinyl.id} vinyl={vinyl} />
+            <Link to={`/vinyl-details/${vinyl.id}`} key={vinyl.id}>
+              <VinylCard vinyl={vinyl} />
+            </Link>
           ))}
         </div>
 

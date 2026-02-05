@@ -19,3 +19,16 @@ export const getAllVinyls = async (page, limit, search, genre, sort) => {
     throw error;
   }
 };
+
+export const getVinylById = async (id) => {
+  try {
+    const response = await axios.get(`${API_URL}/get-vinyl-by-id/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error en el servicio de vinilos al traer vinilo por ID:",
+      error,
+    );
+    throw error;
+  }
+};

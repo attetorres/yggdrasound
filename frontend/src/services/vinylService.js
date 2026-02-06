@@ -1,10 +1,9 @@
 import axios from "axios";
-
-const API_URL = "http://localhost:3000/api/vinyl";
+import { api } from "./api";
 
 export const getAllVinyls = async (page, limit, search, genre, sort) => {
   try {
-    const response = await axios.get(`${API_URL}/`, {
+    const response = await api.get("/vinyl/", {
       params: {
         page: page,
         limit: limit,
@@ -22,7 +21,7 @@ export const getAllVinyls = async (page, limit, search, genre, sort) => {
 
 export const getVinylById = async (id) => {
   try {
-    const response = await axios.get(`${API_URL}/get-vinyl-by-id/${id}`);
+    const response = await api.get(`vinyl/get-vinyl-by-id/${id}`);
     return response.data;
   } catch (error) {
     console.error(

@@ -3,11 +3,13 @@ import {
   getUsers,
   getUserById,
   getUserByUsername,
+  getUserProfile,
   createUser,
   loginUser,
   updateUser,
   deleteUser,
 } from "../controllers/userController.js";
+import { verifyToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -15,6 +17,7 @@ const router = express.Router();
 router.get("/", getUsers);
 router.get("/get-user-by-id/:id", getUserById);
 router.get("/get-user-by-username/:username", getUserByUsername);
+router.get("/profile", verifyToken, getUserProfile);
 
 // POST
 router.post("/create-user", createUser);

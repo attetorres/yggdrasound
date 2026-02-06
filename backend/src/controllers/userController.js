@@ -95,6 +95,30 @@ export const getUserByUsername = async (req, res) => {
   }
 };
 
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: {
+        exclude: ["password"],
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error("Error al obtener perfil:", error);
+    res.status(500).json({ success: false, message: "Error interno" });
+  }
+};
+
 // MÉTODOS POST
 
 export const createUser = async (req, res) => {
@@ -224,7 +248,7 @@ export const loginUser = async (req, res) => {
     }
 
     user.last_login_at = new Date();
-    await user.save()
+    await user.save();
 
     const token = jwt.sign(
       { id: user.id, is_admin: user.is_admin },
@@ -241,7 +265,7 @@ export const loginUser = async (req, res) => {
         username: user.username,
         email: user.email,
         is_admin: user.is_admin,
-        last_login_at: user.last_login_at
+        last_login_at: user.last_login_at,
       },
     });
   } catch (error) {

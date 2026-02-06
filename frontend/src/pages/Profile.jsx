@@ -1,8 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { User, Heart, CreditCard, ShoppingBag } from "lucide-react";
+import { useAuthStore } from "../store/useAuthStore";
+import { getUserProfile } from "../services/userService";
 
 const Profile = () => {
   const [activeSection, setActiveSection] = useState("information");
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const { logout } = useAuthStore();
+
+  const fetchUserData = async () => {
+    try {
+      setLoading(true);
+      const response = await getUserProfile();
+      setProfileData(response.user);
+    } catch (error) {
+      console.error("Error a cargar el perfil.", error);
+      if (error.response?.status === 401) {
+        logout();
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   const menuItems = [
     {
@@ -26,6 +51,16 @@ const Profile = () => {
       icon: <ShoppingBag size={20} strokeWidth={3} />,
     },
   ];
+
+  if (loading && !profileData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-950">
+        <p className="text-primary-400 font-black italic animate-pulse">
+          CARGANDO PERFIL...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col gap-6">
@@ -53,10 +88,13 @@ const Profile = () => {
             </div>
             <div className="text-center">
               <h2 className="text-xl font-black text-primary-400 uppercase tracking-tight">
-                nombre
+                {profileData.name}
               </h2>
               <p className="text-[10px] tracking-widest uppercase text-primary-300">
-                Miembro desde 2026
+                Miembro desde{" "}
+                {profileData?.created_at
+                  ? profileData.created_at.split("-")[0]
+                  : "..."}
               </p>
             </div>
           </div>
@@ -100,7 +138,7 @@ const Profile = () => {
                       Nombre Completo
                     </label>
                     <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                      nombre
+                      {profileData.name}
                     </p>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -108,7 +146,15 @@ const Profile = () => {
                       Email
                     </label>
                     <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                      correo@ejemplo.com
+                      {profileData.email}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
+                      Apellido
+                    </label>
+                    <p className="text-lg font-bold border-b border-neutral-300 pb-2">
+                      {profileData.surname}
                     </p>
                   </div>
                 </div>

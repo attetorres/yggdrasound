@@ -1,11 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getVinylById } from "../services/vinylService";
+import { Heart, ShoppingCart } from "lucide-react";
 
 const VinylDetails = () => {
   const { id } = useParams();
   const [vinyl, setVinyl] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+
+    const parts = dateString.split("-");
+    if (parts.length !== 3) return dateString;
+
+    const [year, month, day] = parts;
+    return `${day}-${month}-${year}`;
+  };
+
+  const formatDuration = (duration) => {
+    if (!duration) return "--:--";
+
+    if (typeof duration === "object") {
+      const { hours, minutes, seconds } = duration;
+
+      const hh = hours ? `${hours}:` : "";
+      const mm = String(minutes || 0).padStart(2, "0");
+      const ss = String(seconds || 0).padStart(2, "0");
+
+      return `${hh}${mm}:${ss}`;
+    }
+
+    return "--:--";
+  };
 
   const fetchDetails = async () => {
     try {
@@ -66,16 +93,26 @@ const VinylDetails = () => {
             />
           </div>
 
-          <div className="flex justify-between items-center px-4 mt-2">
+          <div className="flex justify-around items-center px-4 mt-2">
             <button className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-full border border-neutral-800 flex items-center justify-center group-hover:bg-red-500/10 group-hover:border-red-500/50 transition-all">
-                <span className="text-lg">❤️</span>
+              <div className="w-10 h-10 flex items-center justify-center">
+                <span className="text-lg">
+                  <Heart
+                    size={40}
+                    strokeWidth={3}
+                    className="group-hover:text-red-500 transition-all cursor-pointer"
+                  />
+                </span>
               </div>
             </button>
 
-            <button className="flex items-center gap-3 group">
+            <button className="flex items-center group">
               <span className="font-black uppercase text-xs tracking-tight">
-                🛒 Añadir al carrito — {vinyl.price}€
+                <ShoppingCart
+                  size={40}
+                  strokeWidth={3}
+                  className="group-hover:text-primary-500 transition-all cursor-pointer"
+                />
               </span>
             </button>
           </div>
@@ -83,13 +120,18 @@ const VinylDetails = () => {
 
         <div className="flex-3 bg-neutral-100 rounded-[2.5rem] p-8 md:p-12 text-neutral-900 flex flex-col gap-10 shadow-inner">
           <div className="space-y-8">
-            <div className="space-y-2">
-              <h2 className="text-6xl font-black uppercase italic tracking-tighter leading-[0.85] text-neutral-950">
-                {vinyl?.album}
-              </h2>
-              <p className="text-2xl font-medium text-neutral-500 uppercase tracking-tight italic">
-                {vinyl?.artist}
-              </p>
+            <div className="space-y-2 flex flex-row justify-between">
+              <div className="flex-2">
+                <h2 className="text-6xl font-black uppercase italic tracking-tighter leading-[0.85] text-neutral-950">
+                  {vinyl?.album}
+                </h2>
+                <p className="text-2xl font-medium text-neutral-500 uppercase tracking-tight italic">
+                  {vinyl?.artist}
+                </p>
+              </div>
+              <div className="flex flex-1 justify-center items-center">
+                <p className="text-3xl font-bold">{vinyl.price}€</p>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-y border-neutral-200 py-6">
@@ -98,7 +140,7 @@ const VinylDetails = () => {
                   Lanzamiento
                 </span>
                 <span className="text-sm font-bold">
-                  {vinyl?.release_date || "N/A"}
+                  {formatDate(vinyl?.release_date)}
                 </span>
               </div>
               <div className="flex flex-col">
@@ -114,9 +156,7 @@ const VinylDetails = () => {
                   Duración
                 </span>
                 <span className="text-sm font-bold">
-                  {typeof vinyl?.duration === "object"
-                    ? `${vinyl.duration.minutes}:${vinyl.duration.seconds}`
-                    : vinyl?.duration || "--:--"}
+                  {formatDuration(vinyl?.duration)}
                 </span>
               </div>
               <div className="flex flex-col">

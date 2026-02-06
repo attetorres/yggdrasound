@@ -11,10 +11,10 @@ const Header = () => {
   const isLoginPage = location.pathname === "/login";
   const isRegisterPage = location.pathname === "/register";
 
-  const navLinkStyles = ({ isActive }) => 
+  const navLinkStyles = ({ isActive }) =>
     `mr-4 transition-all duration-300 ${
-      isActive 
-        ? "text-primary-400 border-b-2 border-primary-400 pb-1 font-bold" 
+      isActive
+        ? "text-primary-400 border-b-2 border-primary-400 pb-1 font-bold"
         : "text-white hover:text-primary-300"
     }`;
 
@@ -37,9 +37,13 @@ const Header = () => {
           <div className="relative">
             <div
               onClick={() => setMenuOpen(!menuOpen)}
-              className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold border-2 border-primary-400 cursor-pointer hover:bg-primary-500 transition-colors"
+              className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center text-white font-bold border-2 border-primary-500 cursor-pointer hover:border-white transition-all overflow-hidden group"
             >
-              {user?.username?.charAt(0).toUpperCase()}
+              <img
+                src={`https://api.dicebear.com/9.x/initials/svg?seed=${user.username}&backgroundColor=9a7b84,7d4c5a,583742`}
+                alt={`${user.username} Avatar`}
+                className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500"
+              />
             </div>
 
             {menuOpen && (

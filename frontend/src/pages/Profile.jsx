@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { User, Heart, CreditCard, ShoppingBag } from "lucide-react";
 
 const Profile = () => {
-  const [activeSection, setActiveSection] = useState("informacion");
+  const [activeSection, setActiveSection] = useState("information");
 
   const menuItems = [
     {

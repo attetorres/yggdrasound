@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link, useLocation, NavLink } from "react-router-dom";
+import { Link, useLocation, NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 import { User, ArrowRight, Home, Disc3, ShoppingCart } from "lucide-react";
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { isLoggedIn, user, logout } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -103,6 +104,7 @@ const Header = () => {
                   onClick={() => {
                     setMenuOpen(false);
                     logout();
+                    navigate("/login");
                   }}
                   className="w-full text-left px-4 py-3 text-sm text-neutral-400 hover:bg-red-950/30 hover:text-red-400 transition-all font-medium flex justify-center"
                 >

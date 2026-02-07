@@ -9,3 +9,16 @@ export const getComments = async (id) => {
     throw error;
   }
 };
+
+export const createComment = async (vinyl_id, comment_text) => {
+  try {
+    const response = await api.post("/comment/create-comment", {
+      vinyl_id: vinyl_id,
+      comment_text: comment_text,
+    });
+    return response.data;
+  } catch (error) {
+    console.log("Error en el servicio al crear el comentario; ", error);
+    throw error;
+  }
+};

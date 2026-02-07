@@ -128,13 +128,11 @@ export const getCommentsByVinylId = async (req, res) => {
 // MÉTODOS POST
 export const createComment = async (req, res) => {
   try {
-    const { user_id, vinyl_id, comment_text } = req.body;
+    const { vinyl_id, comment_text } = req.body;
+    const user_id = req.user.id;
 
-    if (!user_id || !vinyl_id || !comment_text) {
-      return res.status(400).json({
-        success: false,
-        message: "Faltan datos obligatorios",
-      });
+    if (!vinyl_id || !comment_text) {
+      return res.status(400).json({ success: false, message: "Faltan datos" });
     }
 
     const newComment = await Comment.create({
@@ -143,10 +141,13 @@ export const createComment = async (req, res) => {
       comment_text,
     });
 
+    const commentWithUser = await Comment.findByPk(newComment.id, {
+      include: [{ model: User, attributes: ["name", "avatar_img"] }],
+    });
+
     res.status(201).json({
       success: true,
-      message: "Comentario creado",
-      data: newComment,
+      data: commentWithUser,
     });
   } catch (error) {
     console.error("Error en createComment:", error);

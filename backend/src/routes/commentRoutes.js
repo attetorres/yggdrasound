@@ -7,6 +7,7 @@ import {
   updateComment,
   deleteComment,
 } from "../controllers/commentController.js";
+import { verifyToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.get("/get-comment-by-username/:username", getCommentByUsername);
 router.get("/get-comment-by-vinyl-id/:id", getCommentsByVinylId);
 
 // POST
-router.post("/create-comment", createComment);
+router.post("/create-comment", verifyToken, createComment);
 
 // PUT
 router.put("/update-comment/:id", updateComment);

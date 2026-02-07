@@ -1,7 +1,7 @@
 import React, { use, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getVinylById } from "../services/vinylService";
-import { getComments } from "../services/commentService";
+import { getComments, createComment } from "../services/commentService";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import CommentCard from "../components/common/CommentCard";
@@ -10,7 +10,8 @@ const VinylDetails = () => {
   const { id } = useParams();
   const [vinyl, setVinyl] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [comments, setCommets] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
 
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
@@ -58,10 +59,23 @@ const VinylDetails = () => {
     try {
       const res = await getComments(id);
       if (res.success) {
-        setCommets(res.data);
+        setComments(res.data);
       }
     } catch (error) {
       console.error("Error al cargar el detalle:", error);
+    }
+  };
+
+  const handlePostComment = async () => {
+    try {
+      const res = await createComment(id, newComment);
+      if (res.success) {
+        setComments((prev) => [res.data, ...prev]);
+      }
+
+      setNewComment("");
+    } catch (error) {
+      console.error("Error al publicar el comentario:", error);
     }
   };
 
@@ -243,11 +257,16 @@ const VinylDetails = () => {
         {isLoggedIn ? (
           <div className="mb-10 flex flex-col gap-4">
             <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
               placeholder="Escribe tu opinión sobre este vinilo..."
               className="w-full bg-neutral-900 border border-neutral-800 rounded-3xl p-6 text-white placeholder:text-neutral-600 focus:outline-none focus:border-neutral-500 transition-all resize-none min-h-30"
             />
             <div className="flex justify-end">
-              <button className="bg-white text-black font-black uppercase px-8 py-3 rounded-full hover:bg-primary-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs tracking-widest cursor-pointer">
+              <button
+                onClick={handlePostComment}
+                className="bg-white text-black font-black uppercase px-8 py-3 rounded-full hover:bg-primary-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs tracking-widest cursor-pointer"
+              >
                 Publicar Comentario
               </button>
             </div>

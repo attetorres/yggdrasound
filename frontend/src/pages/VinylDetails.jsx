@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getVinylById } from "../services/vinylService";
 import { Heart, ShoppingCart } from "lucide-react";
+import { useAuthStore } from "../store/useAuthStore";
 
 const VinylDetails = () => {
   const { id } = useParams();
   const [vinyl, setVinyl] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -93,29 +96,31 @@ const VinylDetails = () => {
             />
           </div>
 
-          <div className="flex justify-around items-center px-4 mt-2">
-            <button className="flex items-center gap-3 group">
-              <div className="w-10 h-10 flex items-center justify-center">
-                <span className="text-lg">
-                  <Heart
+          {isLoggedIn ? (
+            <div className="flex justify-around items-center px-4 mt-2">
+              <button className="flex items-center gap-3 group">
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <span className="text-lg">
+                    <Heart
+                      size={40}
+                      strokeWidth={3}
+                      className="group-hover:text-red-500 transition-all cursor-pointer"
+                    />
+                  </span>
+                </div>
+              </button>
+
+              <button className="flex items-center group">
+                <span className="font-black uppercase text-xs tracking-tight">
+                  <ShoppingCart
                     size={40}
                     strokeWidth={3}
-                    className="group-hover:text-red-500 transition-all cursor-pointer"
+                    className="group-hover:text-primary-500 transition-all cursor-pointer"
                   />
                 </span>
-              </div>
-            </button>
-
-            <button className="flex items-center group">
-              <span className="font-black uppercase text-xs tracking-tight">
-                <ShoppingCart
-                  size={40}
-                  strokeWidth={3}
-                  className="group-hover:text-primary-500 transition-all cursor-pointer"
-                />
-              </span>
-            </button>
-          </div>
+              </button>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex-3 bg-neutral-100 rounded-[2.5rem] p-8 md:p-12 text-neutral-900 flex flex-col gap-10 shadow-inner">

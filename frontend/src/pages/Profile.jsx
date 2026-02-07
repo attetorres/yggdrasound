@@ -73,9 +73,7 @@ const Profile = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* COLUMNA IZQUIERDA: PERFIL Y MENÚ */}
         <div className="flex-1 flex flex-col gap-6">
-          {/* FOTO Y NOMBRE */}
           <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-[2.5rem] flex flex-col items-center gap-4">
             <div className="relative group">
               <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-neutral-800 group-hover:border-neutral-700 transition-all duration-500">
@@ -99,7 +97,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* MENÚ DE NAVEGACIÓN */}
           <div className="flex flex-col gap-2">
             {menuItems.map((item) => (
               <button
@@ -118,7 +115,6 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: CONTENIDO DINÁMICO */}
         <div className="flex-3 bg-neutral-100 rounded-[2.5rem] p-8 md:p-12 text-neutral-900 shadow-inner">
           <div className="space-y-8">
             <div className="flex justify-between items-start">
@@ -132,30 +128,83 @@ const Profile = () => {
 
             <div className="min-h-100">
               {activeSection === "information" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in duration-500">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
-                      Nombre Completo
-                    </label>
-                    <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                      {profileData.name}
-                    </p>
+                <div className="flex flex-col gap-12 animate-in fade-in duration-500">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
+                        Nombre
+                      </label>
+                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
+                        {profileData.name}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
+                        Apellido
+                      </label>
+                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
+                        {profileData.surname || "---"}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
+                        Email
+                      </label>
+                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
+                        {profileData.email}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
-                      Email
-                    </label>
-                    <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                      {profileData.email}
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-neutral-400 whitespace-nowrap">
+                      Dirección y Ubicación
+                    </h3>
+                    <div className="h-px bg-neutral-200 w-full" />
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
-                      Apellido
-                    </label>
-                    <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                      {profileData.surname}
-                    </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="md:col-span-2 flex flex-col gap-1">
+                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
+                        Calle
+                      </label>
+                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
+                        {profileData.street || "No especificada"}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
+                        Nº / Piso
+                      </label>
+                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
+                        {profileData.number || "---"}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
+                        Ciudad
+                      </label>
+                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
+                        {profileData.city || "---"}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
+                        País
+                      </label>
+                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
+                        {profileData.country || "---"}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
+                        Código Postal
+                      </label>
+                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
+                        {profileData.postcode || "---"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}

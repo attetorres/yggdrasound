@@ -78,7 +78,11 @@ const Profile = () => {
             <div className="relative group">
               <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-neutral-800 group-hover:border-neutral-700 transition-all duration-500">
                 <img
-                  src={`https://api.dicebear.com/9.x/initials/svg?seed=Atteneri&backgroundColor=9a7b84,7d4c5a,583742`}
+                  src={
+                    profileData?.avatar_img
+                      ? profileData.avatar_img
+                      : `https://api.dicebear.com/9.x/initials/svg?seed=${profileData.username}&backgroundColor=9a7b84,7d4c5a,583742`
+                  }
                   alt="User Avatar"
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all"
                 />
@@ -86,7 +90,7 @@ const Profile = () => {
             </div>
             <div className="text-center">
               <h2 className="text-xl font-black text-primary-400 uppercase tracking-tight">
-                {profileData.name}
+                {profileData.username}
               </h2>
               <p className="text-[10px] tracking-widest uppercase text-primary-300">
                 Miembro desde{" "}

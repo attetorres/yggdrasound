@@ -83,7 +83,11 @@ const Header = () => {
               className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center text-white font-bold border-2 border-primary-500 cursor-pointer hover:border-white transition-all overflow-hidden group"
             >
               <img
-                src={`https://api.dicebear.com/9.x/initials/svg?seed=${user.username}&backgroundColor=9a7b84,7d4c5a,583742`}
+                src={
+                  user.avatar_img
+                    ? user.avatar_img
+                    : `https://api.dicebear.com/9.x/initials/svg?seed=${user.username}&backgroundColor=9a7b84,7d4c5a,583742`
+                }
                 alt={`${user.username} Avatar`}
                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500"
               />

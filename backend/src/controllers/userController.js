@@ -264,6 +264,7 @@ export const loginUser = async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        avatar_img: user.avatar_img,
         is_admin: user.is_admin,
         last_login_at: user.last_login_at,
       },

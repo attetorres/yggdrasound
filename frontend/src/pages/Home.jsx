@@ -9,6 +9,7 @@ const Home = () => {
     console.log("¿Logueado?:", isLoggedIn);
     console.log("Usuario:", user);
     console.log("JWT Token:", token);
+    console.log("Avatar img:", user.avatar_img);
   }, [user, token, isLoggedIn]);
 
   return <div>Bienvenido a Yggdrasound</div>;

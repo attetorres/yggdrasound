@@ -85,60 +85,41 @@ export const getCommentByUsername = async (req, res) => {
   }
 };
 
-export const getCommentByAlbum = async (req, res) => {
+export const getCommentsByVinylId = async (req, res) => {
   try {
-    const { album } = req.params;
-    const { page = 1, limit = 20 } = req.query;
+    const { id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
     const offset = (page - 1) * limit;
 
-    const vinyls = await Vinyl.findAll({
-      where: {
-        album: {
-          [Op.iLike]: album,
-        },
-      },
-      attributes: ["id"],
-    });
-
-    if (vinyls.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: `No se encontró el álbum "${album}"`,
-      });
-    }
-
-    const vinylIds = vinyls.map((vinyl) => vinyl.id);
+    Comment.belongsTo(User, { foreignKey: "user_id" });
 
     const { count, rows } = await Comment.findAndCountAll({
-      where: {
-        vinyl_id: {
-          [Op.in]: vinylIds,
-        },
-      },
+      where: { vinyl_id: id },
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: User,
+          attributes: ["name", "avatar_img"],
+        },
+      ],
     });
 
     res.json({
       success: true,
       data: rows,
-      album: album,
       pagination: {
         total: count,
-        page: parseInt(page),
-        limit: parseInt(limit),
         totalPages: Math.ceil(count / limit),
-        showingFrom: offset + 1,
-        showingTo: Math.min(offset + parseInt(limit), count),
+        currentPage: parseInt(page),
       },
     });
   } catch (error) {
-    console.error("Error en getCommentByAlbum:", error);
-
+    console.error("Error en getCommentsByVinylId:", error);
     res.status(500).json({
       success: false,
-      message: "Error al obtener comentarios por álbum",
+      message: "Error al obtener comentarios",
       error: error.message,
     });
   }

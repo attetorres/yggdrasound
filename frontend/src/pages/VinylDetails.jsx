@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getVinylById } from "../services/vinylService";
+import { getComments } from "../services/commentService";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import CommentCard from "../components/common/CommentCard";
 
 const VinylDetails = () => {
   const { id } = useParams();
   const [vinyl, setVinyl] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [comments, setCommets] = useState([]);
 
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
@@ -51,8 +54,20 @@ const VinylDetails = () => {
     }
   };
 
+  const fetchComments = async () => {
+    try {
+      const res = await getComments(id);
+      if (res.success) {
+        setCommets(res.data);
+      }
+    } catch (error) {
+      console.error("Error al cargar el detalle:", error);
+    }
+  };
+
   useEffect(() => {
     fetchDetails();
+    fetchComments();
   }, [id]);
 
   if (loading)
@@ -224,17 +239,31 @@ const VinylDetails = () => {
               Comentarios
             </h3>
           </div>
-          <button className="text-white border-b border-white pb-1 text-[10px] uppercase font-bold hover:text-amber-400 hover:border-amber-400 transition-all">
-            Escribe un comentario
-          </button>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="border border-neutral-800 bg-neutral-700/50 rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-40">
-            <p className="text-neutral-500 uppercase text-[10px] tracking-[0.2em] font-bold">
-              Comenta aquí
+        {isLoggedIn ? (
+          <div className="mb-10 flex flex-col gap-4">
+            <textarea
+              placeholder="Escribe tu opinión sobre este vinilo..."
+              className="w-full bg-neutral-900 border border-neutral-800 rounded-3xl p-6 text-white placeholder:text-neutral-600 focus:outline-none focus:border-neutral-500 transition-all resize-none min-h-30"
+            />
+            <div className="flex justify-end">
+              <button className="bg-white text-black font-black uppercase px-8 py-3 rounded-full hover:bg-primary-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs tracking-widest cursor-pointer">
+                Publicar Comentario
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-10 p-6 border border-dashed border-neutral-800 rounded-3xl text-center">
+            <p className="text-neutral-500 text-xs uppercase tracking-widest">
+              Debes iniciar sesión para dejar un comentario
             </p>
           </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {comments.map((comment) => {
+            return <CommentCard key={comment.id} comment={comment} />;
+          })}
         </div>
       </div>
     </div>

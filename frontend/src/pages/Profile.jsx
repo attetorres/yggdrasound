@@ -163,7 +163,7 @@ const Profile = () => {
                   </div>
                   <div className="flex items-center gap-4">
                     <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-neutral-400 whitespace-nowrap">
-                      Dirección y Ubicación
+                      Dirección de envío
                     </h3>
                     <div className="h-px bg-neutral-200 w-full" />
                   </div>

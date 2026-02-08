@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 import { User, ArrowRight, Home, Disc3, ShoppingCart } from "lucide-react";
@@ -21,6 +21,35 @@ const Header = () => {
         : "text-white hover:text-primary-300"
     }`;
 
+  const userMenuRef = useRef(null);
+  const cartMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        menuOpen &&
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target)
+      ) {
+        setMenuOpen(false);
+      }
+
+      if (
+        menuCartOpen &&
+        cartMenuRef.current &&
+        !cartMenuRef.current.contains(event.target)
+      ) {
+        setMenuCartOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen, menuCartOpen]);
+
   return (
     <header className="flex bg-neutral-950 text-white p-4 justify-between items-center">
       <nav className="flex items-center gap-3">
@@ -38,10 +67,10 @@ const Header = () => {
       </nav>
       {isLoggedIn ? (
         <div className="flex items-center space-x-3 relative">
-          <div className="relative pr-5">
+          <div className="relative pr-5" ref={cartMenuRef}>
             <div
               onClick={() => {
-                setMenuCartOpen(!menuOpen);
+                setMenuCartOpen(!menuCartOpen);
                 setMenuOpen(false);
               }}
               className="flex items-center gap-2 relative"
@@ -74,7 +103,7 @@ const Header = () => {
             )}
           </div>
 
-          <div className="relative">
+          <div className="relative" ref={userMenuRef}>
             <div
               onClick={() => {
                 setMenuOpen(!menuOpen);

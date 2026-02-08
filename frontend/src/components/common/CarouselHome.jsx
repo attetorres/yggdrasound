@@ -48,13 +48,15 @@ const CarouselHome = ({ vinyls = [] }) => {
   }, [vinyls]);
 
   return (
-    <div className="w-full max-w-6xl mx-auto relative overflow-hidden bg-black select-none">
-      <div className="absolute inset-y-0 left-0 w-40 bg-linear-to-r from-black via-black/95 to-transparent pointer-events-none z-30" />
-      <div className="absolute inset-y-0 right-0 w-40 bg-linear-to-l from-black via-black/95 to-transparent pointer-events-none z-30" />
+    <div className="w-full max-w-6xl mx-auto relative overflow-hidden select-none bg-neutral-200">
+      {/* GRADIENTES REPARADOS: De neutral-200 a transparente para fundirse con el fondo claro */}
+      <div className=" absolute inset-y-0 left-0 w-48 bg-linear-to-r from-neutral-200 via-neutral-200/80 to-transparent pointer-events-none z-30" />
+      <div className=" absolute inset-y-0 right-0 w-48 bg-linear-to-l from-neutral-200 via-neutral-200/80 to-transparent pointer-events-none z-30" />
+
       <div
         ref={scrollRef}
         className="
-          flex overflow-x-auto gap-12 px-24 py-32 
+          flex overflow-x-auto gap-24 px-24 py-32 
           snap-x snap-mandatory items-center min-h-160
           [&::-webkit-scrollbar]:hidden
           [scrollbar-width:none]
@@ -72,9 +74,13 @@ const CarouselHome = ({ vinyls = [] }) => {
               transform-[translateZ(0)]
               backface-hidden
               blur-none
-              group-hover:opacity-40 group-hover:scale-95 group-hover:blur-none
-              hover:opacity-100! hover:scale-115! hover:blur-none! hover:z-50
-              hover:drop-shadow-[0_0_30px_rgba(255,255,255,0.15)]
+              
+              /* Ajuste de opacidad sobre fondo claro */
+              group-hover:opacity-30 group-hover:scale-95
+              
+              /* El vinyl seleccionado resalta con una sombra sutil (no blanca) */
+              hover:opacity-100! hover:scale-115! hover:z-50
+              hover:drop-shadow-[0_20px_40px_rgba(0,0,0,0.15)]
               cursor-pointer
             "
           >

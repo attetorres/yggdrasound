@@ -1,125 +1,98 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { getAllVinyls } from "../services/vinylService";
 import CarouselHome from "../components/common/CarouselHome";
+import { Link } from "react-router-dom";
+import Yggsologo from "../assets/yggso_logo.png";
 
 const Home = () => {
-  const { user, token, isLoggedIn } = useAuthStore();
+  const { user, isLoggedIn } = useAuthStore();
+  const [newVinyls, setNewVinyls] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchVinyls = async () => {
+    try {
+      setLoading(true);
+      const res = await getAllVinyls(1, 9, "", "", "newest");
+      if (res.success) {
+        setNewVinyls(res.data);
+      }
+    } catch (error) {
+      console.error("Error al cargar novedades:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    console.log("--- ESTADO GLOBAL DEL STORE ---");
-    console.log("¿Logueado?:", isLoggedIn);
-    console.log("Usuario:", user);
-    console.log("JWT Token:", token);
-    console.log("Avatar img:", user.avatar_img);
-  }, [user, token, isLoggedIn]);
-
-  const fakeVinyls = [
-    {
-      id: 1,
-      artist: "Pink Floyd",
-      album: "The Dark Side of the Moon",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
-      price: 34.95,
-      release_date: "1973-03-01",
-      band_location: "London, UK",
-    },
-    {
-      id: 2,
-      artist: "Daft Punk",
-      album: "Random Access Memories",
-      album_cover:
-        "https://i.scdn.co/image/ab67616d0000b273b06380628e8f855e9752d585",
-      price: 39.99,
-      release_date: "2013-05-17",
-      band_location: "Paris, FR",
-    },
-    {
-      id: 3,
-      artist: "Arctic Monkeys",
-      album: "AM",
-      album_cover:
-        "https://i.scdn.co/image/ab67616d0000b2734ae0782241c77ac40ef66d22",
-      price: 28.5,
-      release_date: "2013-09-09",
-      band_location: "Sheffield, UK",
-    },
-    {
-      id: 4,
-      artist: "The Strokes",
-      album: "Is This It",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/0/09/The_Strokes_-_Is_This_It.png",
-      price: 31.0,
-      release_date: "2001-07-30",
-      band_location: "New York, USA",
-    },
-    {
-      id: 5,
-      artist: "Nirvana",
-      album: "Nevermind",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/b/b3/Nevermind_album_cover.jpg",
-      price: 25.0,
-      release_date: "1991-09-24",
-      band_location: "Aberdeen, USA",
-    },
-    {
-      id: 6,
-      artist: "Tame Impala",
-      album: "Currents",
-      album_cover:
-        "https://i.scdn.co/image/ab67616d0000b2739e4954846061386125026c0a",
-      price: 33.5,
-      release_date: "2015-07-17",
-      band_location: "Perth, AU",
-    },
-    {
-      id: 7,
-      artist: "Radiohead",
-      album: "OK Computer",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/a/a1/Radiohead.okcomputer.albumart.jpg",
-      price: 32.0,
-      release_date: "1997-06-16",
-      band_location: "Oxfordshire, UK",
-    },
-    {
-      id: 8,
-      artist: "Fleetwood Mac",
-      album: "Rumours",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/f/fb/Fleetwood_Mac_Rumours_Lp_cover.jpg",
-      price: 29.99,
-      release_date: "1977-02-04",
-      band_location: "London, UK",
-    },
-    {
-      id: 9,
-      artist: "The Beatles",
-      album: "Abbey Road",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/4/42/Beatles_-_Abbey_Road.jpg",
-      price: 35.5,
-      release_date: "1969-09-26",
-      band_location: "Liverpool, UK",
-    },
-  ];
+    fetchVinyls();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-black">
-      <section className="py-20">
-        <div className="container mx-auto px-4 mb-10">
-          <h2 className="text-4xl font-black text-white uppercase tracking-tighter">
-            Novedades <span className="text-primary-500">Recientes</span>
-          </h2>
-          <p className="text-neutral-500">
-            Explora los últimos vinilos añadidos a la colección.
-          </p>
-        </div>
+    <div className="flex flex-col relative overflow-x-hidden min-h-[calc(100vh-200px)] pr-48">
+      <section className="flex-1 flex flex-col pt-8 lg:pt-12 pb-0 relative z-10">
+        <div className="max-w-450 mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-4 items-start h-full relative">
+          <div className="lg:col-span-5 space-y-6 pt-6 lg:pt-10 z-10">
+            <div className="space-y-2 relative">
+              <h1 className="text-7xl md:text-8xl xl:text-9xl font-black italic tracking-tighter uppercase leading-[0.8] text-primary-600">
+                YGGDRA <br />
+                <span className="text-neutral-700">SOUND</span>
+              </h1>
+            </div>
 
-        <CarouselHome vinyls={fakeVinyls} />
+            <div className="flex items-center gap-6 py-2">
+              <div className="relative">
+                <img
+                  src={Yggsologo}
+                  className="w-28 h-28 md:w-36 md:h-36 opacity-90 relative z-10"
+                  alt="Logo"
+                />
+              </div>
+            </div>
+
+            <div className="max-w-md space-y-8">
+              <p className="text-neutral-500 text-sm leading-relaxed tracking-wide border-l-2 border-neutral-300 pl-6">
+                Explora nuestra colección de{" "}
+                <span className="text-neutral-900 font-bold">vinyls</span> y
+                decide tu próxima adquisición. Lee opiniones reales, descubre
+                conciertos y asegura tu copia física.
+                <span className="block mt-4 text-primary-500 italic font-bold">
+                  Busca, comenta, vive y colecciona.
+                </span>
+              </p>
+
+              <div className="pt-2">
+                <Link
+                  to="/catalog"
+                  className="inline-block bg-white text-black font-black uppercase text-[10px] tracking-[0.3em] px-12 py-5 rounded-full hover:bg-primary-500 hover:text-white transition-all duration-500 shadow-2xl"
+                >
+                  Explorar Catálogo
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* PARTE DERECHA: CAROUSEL HUNDIDO */}
+          <div className="lg:col-span-7 relative self-end mt-auto lg:mt-0 pt-20 lg:pt-0 mb-[-60px] lg:mb-[-120px]">
+            <div className="relative translate-y-20 lg:translate-y-80">
+              <div className="absolute inset-y-0 left-0 w-32 bg-linear-to-r from-neutral-200 via-transparent to-transparent z-20 pointer-events-none hidden lg:block" />
+
+              {loading ? (
+                <div className="h-64 flex flex-col items-center justify-center">
+                  <div className="w-6 h-6 border-2 border-neutral-300 border-t-primary-500 rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                <div className="scale-100 lg:scale-110 xl:scale-120 origin-bottom-left transition-transform duration-700">
+                  <CarouselHome vinyls={newVinyls} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </section>
+
+      {/* ESPACIADOR FINAL */}
+      <div className="h-12 lg:h-32" />
     </div>
   );
 };

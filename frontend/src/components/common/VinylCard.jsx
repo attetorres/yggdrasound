@@ -15,7 +15,6 @@ const VinylCard = ({ vinyl }) => {
         shadow={false}
       >
         <div className="relative bg-primary-700 p-4 rounded-2xl border border-neutral-800/50 flex flex-col backdrop-blur-sm overflow-hidden">
-          
           <div className="relative z-10 mb-2 shadow-2xl aspect-square overflow-hidden transition-all duration-700 ease-in-out rounded-lg group-hover:rounded-full group-hover:scale-95">
             <div className="w-full h-full transition-transform duration-700 ease-in-out group-hover:rotate-360">
               <img
@@ -31,10 +30,10 @@ const VinylCard = ({ vinyl }) => {
           </div>
 
           <div className="relative z-10">
-            <h3 className="text-base font-bold text-[20px] text-white line-clamp-1 italic leading-tight">
+            <h3 className="text-base font-bold text-[20px] text-white truncate italic leading-tight">
               {vinyl.album}
             </h3>
-            <p className="text-primary-100 font-semibold text-[12px] uppercase tracking-widest opacity-80 mb-2">
+            <p className="text-primary-100 font-semibold text-[12px] uppercase tracking-widest opacity-80 mb-2 truncate">
               {vinyl.artist}
             </p>
 

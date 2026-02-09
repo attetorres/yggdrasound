@@ -13,7 +13,7 @@ const Home = () => {
   const fetchVinyls = async () => {
     try {
       setLoading(true);
-      const res = await getAllVinyls(1, 9, "", "", "newest");
+      const res = await getAllVinyls(1, 25, "", "", "newest");
       if (res.success) {
         setNewVinyls(res.data);
       }
@@ -29,70 +29,46 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="flex flex-col relative overflow-x-hidden min-h-[calc(100vh-200px)] pr-48">
-      <section className="flex-1 flex flex-col pt-8 lg:pt-12 pb-0 relative z-10">
-        <div className="max-w-450 mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-4 items-start h-full relative">
-          <div className="lg:col-span-5 space-y-6 pt-6 lg:pt-10 z-10">
-            <div className="space-y-2 relative">
-              <h1 className="text-7xl md:text-8xl xl:text-9xl font-black italic tracking-tighter uppercase leading-[0.8] text-primary-600">
-                YGGDRA <br />
-                <span className="text-neutral-700">SOUND</span>
-              </h1>
-            </div>
+    <div className="min-h-screen flex flex-col bg-neutral-300">
+      {/* Contenedor Superior: Texto y Logo */}
+      <section className="pt-12 pb-8 px-6 md:px-12 lg:px-20">
+        <div className="max-w-350 mx-auto">
+          <div className="space-y-6">
+            <h1 className="text-7xl md:text-8xl xl:text-9xl font-black italic tracking-tighter uppercase leading-[0.8] text-primary-600">
+              YGGDRA <br />
+              <span className="text-neutral-700">SOUND</span>
+            </h1>
 
-            <div className="flex items-center gap-6 py-2">
-              <div className="relative">
-                <img
-                  src={Yggsologo}
-                  className="w-28 h-28 md:w-36 md:h-36 opacity-90 relative z-10"
-                  alt="Logo"
-                />
-              </div>
-            </div>
+            <p className="text-neutral-600 max-w-md font-medium text-lg">
+              Descubre las últimas novedades en vinilos y sumérgete en el sonido
+              analógico.
+            </p>
 
-            <div className="max-w-md space-y-8">
-              <p className="text-neutral-500 text-sm leading-relaxed tracking-wide border-l-2 border-neutral-300 pl-6">
-                Explora nuestra colección de{" "}
-                <span className="text-neutral-900 font-bold">vinyls</span> y
-                decide tu próxima adquisición. Lee opiniones reales, descubre
-                conciertos y asegura tu copia física.
-                <span className="block mt-4 text-primary-500 italic font-bold">
-                  Busca, comenta, vive y colecciona.
-                </span>
-              </p>
-
-              <div className="pt-2">
-                <Link
-                  to="/catalog"
-                  className="inline-block bg-white text-black font-black uppercase text-[10px] tracking-[0.3em] px-12 py-5 rounded-full hover:bg-primary-500 hover:text-white transition-all duration-500 shadow-2xl"
-                >
-                  Explorar Catálogo
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* PARTE DERECHA: CAROUSEL HUNDIDO */}
-          <div className="lg:col-span-7 relative self-end mt-auto lg:mt-0 pt-20 lg:pt-0 mb-[-60px] lg:mb-[-120px]">
-            <div className="relative translate-y-20 lg:translate-y-80">
-              <div className="absolute inset-y-0 left-0 w-32 bg-linear-to-r from-neutral-200 via-transparent to-transparent z-20 pointer-events-none hidden lg:block" />
-
-              {loading ? (
-                <div className="h-64 flex flex-col items-center justify-center">
-                  <div className="w-6 h-6 border-2 border-neutral-300 border-t-primary-500 rounded-full animate-spin"></div>
-                </div>
-              ) : (
-                <div className="scale-100 lg:scale-110 xl:scale-120 origin-bottom-left transition-transform duration-700">
-                  <CarouselHome vinyls={newVinyls} />
-                </div>
-              )}
-            </div>
+            <Link
+              to="/shop"
+              className="inline-block bg-primary-600 text-white px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-primary-700 transition-all hover:scale-105 active:scale-95"
+            >
+              Explorar Tienda
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ESPACIADOR FINAL */}
-      <div className="h-12 lg:h-32" />
+      {/* Contenedor Inferior: Carrusel de lado a lado */}
+      <section className="w-full pb-20">
+        {loading ? (
+          <div className="h-64 flex items-center justify-center">
+            <span className="animate-pulse text-neutral-500 font-bold uppercase tracking-tighter">
+              Cargando Sonido...
+            </span>
+          </div>
+        ) : (
+          /* El carrusel ahora ocupa todo el ancho disponible */
+          <div className="w-full overflow-visible">
+            <CarouselHome vinyls={newVinyls} />
+          </div>
+        )}
+      </section>
     </div>
   );
 };

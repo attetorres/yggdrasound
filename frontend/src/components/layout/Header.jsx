@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 import { User, ArrowRight, Home, Disc3, ShoppingCart } from "lucide-react";
-import Yggsologo from "../../assets/yggso_logo.png";
 
 const Header = () => {
   const location = useLocation();
@@ -66,11 +65,7 @@ const Header = () => {
           </span>
         </NavLink>
       </nav>
-      <div className="absolute left-1/2 transform -translate-x-1/2">
-        <div className="rounded-full bg-primary-200 shadow-lg p-0.5">
-          <img src={Yggsologo} alt="YGGDRASOUND Logo" className="h-18 w-auto" />
-        </div>
-      </div>
+
       {isLoggedIn ? (
         <div className="flex items-center space-x-3 relative">
           <div className="relative pr-5" ref={cartMenuRef}>

@@ -1,15 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { getAllVinyls } from "../services/vinylService";
 import VinylCard from "../components/common/VinylCard";
-import { Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 
 const Catalog = () => {
+  const { param_genre } = useParams();
+  const navigate = useNavigate();
+
   const [vinylsData, setVinylsData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [genre, setGenre] = useState("");
+  const [genre, setGenre] = useState(param_genre || "");
   const [sort, setSort] = useState("newest");
+
+  useEffect(() => {
+    setGenre(param_genre || "");
+    setCurrentPage(1);
+  }, [param_genre]);
+
+  const handleGenreChange = (e) => {
+    const selectedValue = e.target.value;
+    setGenre(selectedValue);
+    setCurrentPage(1);
+
+    if (selectedValue) {
+      navigate(`/catalog/${selectedValue}`);
+    } else {
+      navigate("/catalog");
+    }
+  };
 
   const fetchVinyls = async () => {
     try {
@@ -42,7 +62,6 @@ const Catalog = () => {
         </div>
 
         <div className="flex flex-col md:flex-row items-center gap-3 w-full lg:w-auto">
-          {/* 1. BUSCADOR */}
           <div className="relative w-full md:w-64 group">
             <input
               type="text"
@@ -71,10 +90,7 @@ const Catalog = () => {
 
           <select
             value={genre}
-            onChange={(e) => {
-              setGenre(e.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={handleGenreChange}
             className="w-full md:w-auto bg-neutral-900/50 border border-neutral-800 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-white/30 cursor-pointer text-neutral-100 hover:text-white transition-all appearance-none pr-10 relative"
           >
             <option value="">Todos los Géneros</option>

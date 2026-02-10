@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import ScrollToTop from "../components/utils/ScrollToTop";
 import { useAuthStore } from "../store/useAuthStore";
 import MainLayout from "../components/layout/MainLayout";
 import Home from "../pages/Home";
@@ -14,6 +15,7 @@ const AppRouter = () => {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
@@ -23,7 +25,7 @@ const AppRouter = () => {
             path="/profile"
             element={isLoggedIn ? <Profile /> : <Navigate to="/login" />}
           />
-          <Route path="/catalog" element={<Catalog />} />
+          <Route path="/catalog/:param_genre?" element={<Catalog />} />
           <Route path="/vinyl-details/:id" element={<VinylDetails />} />
         </Route>
       </Routes>

@@ -3,20 +3,19 @@ import { Trash2, ShoppingCart } from "lucide-react";
 
 const WishVinylCard = ({ vinyl, onRemove, onAddToCart }) => {
   return (
-    <div className="group relative bg-neutral-900/40 border border-neutral-800 hover:border-neutral-700 rounded-xl p-3 transition-all duration-300 hover:bg-neutral-900/80">
-      <div className="relative aspect-square overflow-hidden rounded-lg mb-3">
+    <div className="group relative bg-neutral-900/40 border border-neutral-800 hover:border-neutral-700 rounded-xl p-3 transition-all duration-300 hover:bg-neutral-900/80 cursor-pointer ">
+      <button
+        onClick={() => onRemove(vinyl.id)}
+        className="cursor-pointer absolute z-10 -top-2 -right-2 p-2 bg-red-950 backdrop-blur-md text-white/70 hover:text-red-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      >
+        <Trash2 size={18} />
+      </button>
+      <div className="aspect-square overflow-hidden rounded-lg mb-3">
         <img
           src={vinyl.album_cover || "/placeholder-vinyl.png"}
           alt={vinyl.album}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-
-        <button
-          onClick={() => onRemove(vinyl.id)}
-          className="absolute top-2 right-2 p-2 bg-black/60 backdrop-blur-md text-white/70 hover:text-red-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        >
-          <Trash2 size={16} />
-        </button>
       </div>
 
       <div className="px-1">

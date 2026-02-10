@@ -1,0 +1,45 @@
+import React from "react";
+import { Trash2, ShoppingCart } from "lucide-react";
+
+const WishVinylCard = ({ vinyl, onRemove, onAddToCart }) => {
+  return (
+    <div className="group relative bg-neutral-900/40 border border-neutral-800 hover:border-neutral-700 rounded-xl p-3 transition-all duration-300 hover:bg-neutral-900/80">
+      <div className="relative aspect-square overflow-hidden rounded-lg mb-3">
+        <img
+          src={vinyl.album_cover || "/placeholder-vinyl.png"}
+          alt={vinyl.album}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+
+        <button
+          onClick={() => onRemove(vinyl.id)}
+          className="absolute top-2 right-2 p-2 bg-black/60 backdrop-blur-md text-white/70 hover:text-red-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+
+      <div className="px-1">
+        <h3 className="text-white font-bold text-sm truncate leading-none mb-1">
+          {vinyl.album}
+        </h3>
+        <p className="text-neutral-500 text-[11px] uppercase tracking-wider truncate mb-3">
+          {vinyl.artist}
+        </p>
+
+        <div className="flex items-center justify-between">
+          <span className="text-white font-black text-lg">{vinyl.price}€</span>
+
+          <button
+            onClick={() => onAddToCart(vinyl)}
+            className="p-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg transition-colors"
+          >
+            <ShoppingCart size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default WishVinylCard;

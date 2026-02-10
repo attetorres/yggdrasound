@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { User, Heart, CreditCard, ShoppingBag } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { getUserProfile } from "../services/userService";
+import WishVinylCard from "../components/common/WishVinylCard";
 
 const Profile = () => {
   const [activeSection, setActiveSection] = useState("information");
@@ -9,6 +10,81 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
 
   const { logout } = useAuthStore();
+
+  const mockWishlist = [
+    {
+      id: 1,
+      artist: "Daft Punk",
+      album: "Discovery",
+      album_cover:
+        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
+      price: 35.99,
+      release_date: "2001-03-12",
+    },
+    {
+      id: 2,
+      artist: "Pink Floyd",
+      album: "The Dark Side of the Moon",
+      album_cover:
+        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
+      price: 29.5,
+      release_date: "1973-03-01",
+    },
+    {
+      id: 3,
+      artist: "Arctic Monkeys",
+      album: "AM",
+      album_cover:
+        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
+      price: 24.9,
+      release_date: "2013-09-09",
+    },
+    {
+      id: 1,
+      artist: "Daft Punk",
+      album: "Discovery",
+      album_cover:
+        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
+      price: 35.99,
+      release_date: "2001-03-12",
+    },
+    {
+      id: 2,
+      artist: "Pink Floyd",
+      album: "The Dark Side of the Moon",
+      album_cover:
+        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
+      price: 29.5,
+      release_date: "1973-03-01",
+    },
+    {
+      id: 3,
+      artist: "Arctic Monkeys",
+      album: "AM",
+      album_cover:
+        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
+      price: 24.9,
+      release_date: "2013-09-09",
+    },
+    {
+      id: 1,
+      artist: "Daft Punk",
+      album: "Discovery",
+      album_cover:
+        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
+      price: 35.99,
+      release_date: "2001-03-12",
+    },
+    {
+      id: 2,
+      artist: "Pink Floyd",
+      album: "The Dark Side of the Moon",
+      album_cover:
+        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
+      price: 29.5,
+      release_date: "1973-03-01",
+    },
+  ];
 
   const fetchUserData = async () => {
     try {
@@ -214,8 +290,28 @@ const Profile = () => {
               )}
 
               {activeSection === "wish" && (
-                <div className="text-neutral-400 italic">
-                  No hay artículos en tu lista de deseos todavía.
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  {mockWishlist.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {mockWishlist.map((vinyl) => (
+                        <WishVinylCard
+                          key={vinyl.id}
+                          vinyl={vinyl}
+                          onRemove={(id) => console.log("Eliminar ID:", id)}
+                          onAddToCart={(v) =>
+                            console.log("Añadir al carrito:", v.album)
+                          }
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-20 text-neutral-400">
+                      <Heart size={48} className="mb-4 opacity-20" />
+                      <p className="italic uppercase tracking-widest text-xs">
+                        Tu lista de deseos está vacía
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

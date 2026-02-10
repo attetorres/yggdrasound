@@ -171,6 +171,51 @@ export const deleteFromWishList = async (req, res) => {
   }
 };
 
+export const removeFromFavourite = async (req, res) => {
+  try {
+    const { vinyl_id } = req.params;
+    const user_id = req.user.id;
+
+    const wishList = await WishList.findOne({ where: { user_id } });
+
+    if (!wishList) {
+      return res.json({
+        success: true,
+        message: "El usuario no tiene lista de favoritos",
+        in_wishlist: false,
+      });
+    }
+
+    const wishItem = await WishItem.findOne({
+      where: { wish_list_id: wishList.id, vinyl_id },
+    });
+
+    if (!wishItem) {
+      return res.json({
+        success: true,
+        message: "El vinilo no está en favoritos",
+        in_wishlist: false,
+      });
+    }
+
+    await wishItem.destroy();
+
+    res.json({
+      success: true,
+      message: "Vinilo eliminado de favoritos correctamente",
+      in_wishlist: false,
+      deleted: true,
+    });
+  } catch (error) {
+    console.error("Error al eliminar de favoritos:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al eliminar de favoritos",
+      error: error.message,
+    });
+  }
+};
+
 export const clearWishList = async (req, res) => {
   try {
     const wishList = await WishList.findOne({

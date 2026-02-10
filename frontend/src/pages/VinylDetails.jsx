@@ -8,6 +8,7 @@ import CommentCard from "../components/common/CommentCard";
 import {
   addToWishList,
   checkVinylInWishList,
+  removeFromFavourite,
 } from "../services/wishListService";
 
 const VinylDetails = () => {
@@ -76,17 +77,26 @@ const VinylDetails = () => {
     }
   };
 
-  const handleAddToWishList = async () => {
+  const handleFavouriteButton = async () => {
     if (isWishLoading) return;
     try {
       setWishLoading(true);
-      const res = await addToWishList(id);
-      if (res.success) {
-        setIsFavorite(true);
-        alert("Añadido a favoritos");
+      if (isFavorite === false) {
+        const res = await addToWishList(id);
+        if (res.success) {
+          setIsFavorite(true);
+          alert("Añadido a favoritos");
+        }
+      } else {
+        const res = await removeFromFavourite(id);
+        if (res.success) {
+          setIsFavorite(res.in_wishlist);
+          alert("Eliminado de favoritos");
+        }
       }
     } catch (error) {
-      console.error("Error al añadir a favoritos:", error);
+      console.error("Error al actualizar favoritos:", error);
+      toast.error("No se pudo actualizar favoritos");
     } finally {
       setWishLoading(false);
     }
@@ -166,7 +176,7 @@ const VinylDetails = () => {
           {isLoggedIn ? (
             <div className="flex justify-around items-center px-4 mt-2">
               <button
-                onClick={handleAddToWishList}
+                onClick={handleFavouriteButton}
                 className="flex items-center gap-3 group"
               >
                 <div className="w-10 h-10 flex items-center justify-center">
@@ -283,7 +293,6 @@ const VinylDetails = () => {
 
         <div className="flex-1 flex lg:flex-col gap-4">
           <div className="flex-1 bg-neutral-900 border border-neutral-800 rounded-[2.5rem] flex items-center justify-center p-8 relative overflow-hidden group cursor-pointer">
-            {/* <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out"></div> */}
             <button className="relative z-10 text-white group-hover:text-black font-black uppercase text-2xl lg:[writing-mode:vertical-lr] tracking-[0.4em] transition-colors duration-300">
               Conciertos
             </button>

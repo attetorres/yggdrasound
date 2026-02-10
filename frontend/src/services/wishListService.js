@@ -26,3 +26,21 @@ export const checkVinylInWishList = async (vinyl_id) => {
     throw error;
   }
 };
+
+export const removeFromFavourite = async (vinyl_id) => {
+  try {
+    const response = await api.delete(
+      `/wish-list/remove-favourite-item/${vinyl_id}`,
+      {
+        vinyl_id: vinyl_id,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.log(
+      "Error en el servicio al eliminar el vinilo de favoritos; ",
+      error,
+    );
+    throw error;
+  }
+};

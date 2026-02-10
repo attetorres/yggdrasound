@@ -6,6 +6,7 @@ import {
   deleteFromWishList,
   clearWishList,
 } from "../controllers/wishlistController.js";
+import { verifyToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.get("/get-wishlist-by-user-id/:user_id", getWishlistByUserId);
 router.get("/check-vinyl-in-wishlist/:user_id/:vinyl_id", checkVinylInWishList);
 
 // POST
-router.post("/add-item", addToWishList);
+router.post("/add-item", verifyToken, addToWishList);
 
 // DELETE
 router.delete("/delete-item/:wish_item_id", deleteFromWishList);

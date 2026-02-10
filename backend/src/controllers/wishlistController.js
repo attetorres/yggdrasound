@@ -95,22 +95,22 @@ export const checkVinylInWishList = async (req, res) => {
   }
 };
 
-// MÉTODOS POST
 export const addToWishList = async (req, res) => {
   try {
-    const { user_id, vinyl_id } = req.body;
+    const { vinyl_id } = req.body;
+    const user_id = req.user.id;
 
-    if (!user_id || !vinyl_id) {
-      return res.status(400).json({
-        success: false,
-        message: "Faltan datos",
-      });
+    const vinyl = await Vinyl.findByPk(vinyl_id, {
+      attributes: ["id", "artist", "album", "album_cover", "price"],
+    });
+
+    if (!vinyl) {
+      return res
+        .status(404)
+        .json({ success: false, message: "El vinilo no existe" });
     }
 
-    let wishList = await WishList.findOne({ where: { user_id } });
-    if (!wishList) {
-      wishList = await WishList.create({ user_id });
-    }
+    let [wishList] = await WishList.findOrCreate({ where: { user_id } });
 
     const existingItem = await WishItem.findOne({
       where: { wish_list_id: wishList.id, vinyl_id },
@@ -120,20 +120,13 @@ export const addToWishList = async (req, res) => {
       return res.status(409).json({
         success: false,
         message: "Este vinilo ya está en tu wish list",
-        data: {
-          wish_item_id: existingItem.id,
-          already_exists: true,
-        },
+        data: { wish_item_id: existingItem.id, already_exists: true },
       });
     }
 
     const wishItem = await WishItem.create({
       wish_list_id: wishList.id,
       vinyl_id,
-    });
-
-    const vinyl = await Vinyl.findByPk(vinyl_id, {
-      attributes: ["id", "artist", "album", "album_cover"],
     });
 
     res.status(201).json({
@@ -146,19 +139,7 @@ export const addToWishList = async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error);
-
-    // Si el error es por UNIQUE constraint
-    if (error.name === "SequelizeUniqueConstraintError") {
-      return res.status(409).json({
-        success: false,
-        message: "Este vinilo ya está en tu wish list",
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Error",
-    });
+    res.status(500).json({ success: false, message: "Error interno" });
   }
 };
 

@@ -5,11 +5,15 @@ import { getComments, createComment } from "../services/commentService";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import CommentCard from "../components/common/CommentCard";
+import { addToWishList } from "../services/wishListService";
 
 const VinylDetails = () => {
   const { id } = useParams();
+
   const [vinyl, setVinyl] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isWishLoading, setWishLoading] = useState(false);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
@@ -52,6 +56,22 @@ const VinylDetails = () => {
       console.error("Error al cargar el detalle:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddToWishList = async () => {
+    if (isWishLoading) return;
+    try {
+      setWishLoading(true);
+      const res = await addToWishList(id);
+      if (res.success) {
+        setIsFavorite(true);
+        alert("Añadido a favoritos");
+      }
+    } catch (error) {
+      console.error("Error al añadir a favoritos:", error);
+    } finally {
+      setIsWishLoading(false);
     }
   };
 
@@ -127,13 +147,20 @@ const VinylDetails = () => {
 
           {isLoggedIn ? (
             <div className="flex justify-around items-center px-4 mt-2">
-              <button className="flex items-center gap-3 group">
+              <button
+                onClick={handleAddToWishList}
+                className="flex items-center gap-3 group"
+              >
                 <div className="w-10 h-10 flex items-center justify-center">
                   <span className="text-lg">
                     <Heart
                       size={40}
                       strokeWidth={3}
-                      className="group-hover:text-red-500 transition-all cursor-pointer"
+                      className={
+                        isFavorite
+                          ? "text-red-500 transition-all cursor-pointer"
+                          : "group-hover:text-red-500 transition-all cursor-pointer"
+                      }
                     />
                   </span>
                 </div>

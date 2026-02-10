@@ -66,7 +66,8 @@ export const getWishlistByUserId = async (req, res) => {
 
 export const checkVinylInWishList = async (req, res) => {
   try {
-    const { user_id, vinyl_id } = req.params;
+    const { vinyl_id } = req.params;
+    const user_id = req.user.id;
 
     const wishList = await WishList.findOne({ where: { user_id } });
 

@@ -5,7 +5,10 @@ import { getComments, createComment } from "../services/commentService";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import CommentCard from "../components/common/CommentCard";
-import { addToWishList } from "../services/wishListService";
+import {
+  addToWishList,
+  checkVinylInWishList,
+} from "../services/wishListService";
 
 const VinylDetails = () => {
   const { id } = useParams();
@@ -59,6 +62,20 @@ const VinylDetails = () => {
     }
   };
 
+  const fetchCheckIsFavorite = async () => {
+    try {
+      setWishLoading(true);
+      const res = await checkVinylInWishList(id);
+      if (res.success) {
+        setIsFavorite(res.in_wishlist);
+      }
+    } catch (error) {
+      console.error("Error al cargar el estado de favorito:", error);
+    } finally {
+      setWishLoading(false);
+    }
+  };
+
   const handleAddToWishList = async () => {
     if (isWishLoading) return;
     try {
@@ -71,7 +88,7 @@ const VinylDetails = () => {
     } catch (error) {
       console.error("Error al añadir a favoritos:", error);
     } finally {
-      setIsWishLoading(false);
+      setWishLoading(false);
     }
   };
 
@@ -101,6 +118,7 @@ const VinylDetails = () => {
 
   useEffect(() => {
     fetchDetails();
+    fetchCheckIsFavorite();
     fetchComments();
   }, [id]);
 

@@ -12,7 +12,7 @@ const router = express.Router();
 
 // GET
 router.get("/get-wishlist-by-user-id/:user_id", getWishlistByUserId);
-router.get("/check-vinyl-in-wishlist/:user_id/:vinyl_id", checkVinylInWishList);
+router.get("/check-item/:vinyl_id", verifyToken, checkVinylInWishList);
 
 // POST
 router.post("/add-item", verifyToken, addToWishList);

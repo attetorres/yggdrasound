@@ -4,6 +4,7 @@ import { getVinylById } from "../services/vinylService";
 import { getComments, createComment } from "../services/commentService";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useShoppingCartStore } from "../store/useShoppingCartStore";
 import CommentCard from "../components/common/CommentCard";
 import {
   addToWishList,
@@ -22,6 +23,7 @@ const VinylDetails = () => {
   const [newComment, setNewComment] = useState("");
 
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const addItem = useShoppingCartStore((state) => state.addItem);
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -99,6 +101,15 @@ const VinylDetails = () => {
       toast.error("No se pudo actualizar favoritos");
     } finally {
       setWishLoading(false);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    try {
+      await addItem(id);
+      alert("Vinilo añadido");
+    } catch (error) {
+      console.error("Error al añadir el vinilo:", error);
     }
   };
 
@@ -194,7 +205,10 @@ const VinylDetails = () => {
                 </div>
               </button>
 
-              <button className="flex items-center group">
+              <button
+                onClick={handleAddToCart}
+                className="flex items-center group"
+              >
                 <span className="font-black uppercase text-xs tracking-tight">
                   <ShoppingCart
                     size={40}

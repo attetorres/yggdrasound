@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
+import { useShoppingCartStore } from "../../store/useShoppingCartStore";
 import { User, ArrowRight, Home, Disc3, ShoppingCart } from "lucide-react";
 
 const Header = () => {
@@ -8,6 +9,8 @@ const Header = () => {
   const navigate = useNavigate();
 
   const { isLoggedIn, user, logout } = useAuthStore();
+  const { items } = useShoppingCartStore();
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuCartOpen, setMenuCartOpen] = useState(false);
 
@@ -76,9 +79,11 @@ const Header = () => {
               }}
               className="flex items-center gap-2 relative"
             >
-              <span className="rounded-full w-3 h-3 absolute -top-1 -right-1 bg-primary-500 text-primary-100 text-[8px] font-bold flex justify-center items-center">
-                40
-              </span>
+              {items.length > 0 ? (
+                <span className="rounded-full w-3 h-3 absolute -top-1 -right-1 bg-primary-500 text-primary-100 text-[8px] font-bold flex justify-center items-center">
+                  {items.length}
+                </span>
+              ) : null}
               <ShoppingCart size={20} strokeWidth={3} />
             </div>
 

@@ -68,7 +68,8 @@ export const getCartByUserId = async (req, res) => {
 // MÉTODOS POST
 export const addToCart = async (req, res) => {
   try {
-    const { user_id, vinyl_id, quantity = 1 } = req.body;
+    const { vinyl_id, quantity = 1 } = req.body;
+    const user_id = req.user.id;
 
     if (!user_id || !vinyl_id) {
       return res.status(400).json({

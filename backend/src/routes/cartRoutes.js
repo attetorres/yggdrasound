@@ -6,6 +6,7 @@ import {
   deleteFromCart,
   clearCart,
 } from "../controllers/cartController.js";
+import { verifyToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ const router = express.Router();
 router.get("/get-cart-by-user-id/:user_id", getCartByUserId);
 
 // POST
-router.post("/add-item", addToCart);
+router.post("/add-item", verifyToken, addToCart);
 
 // PUT
 router.put("/update-item/:cart_item_id", updateCartItem);

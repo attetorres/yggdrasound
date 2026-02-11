@@ -3,10 +3,10 @@ import WishItem from "../models/WishItem.js";
 import Vinyl from "../models/Vinyl.js";
 
 // MÉTODOS GET
-export const getWishlistByUserId = async (req, res) => {
+export const getWishlistByUser = async (req, res) => {
   try {
     const wishList = await WishList.findOne({
-      where: { user_id: req.params.user_id },
+      where: { user_id: req.user.id },
     });
 
     if (!wishList) {

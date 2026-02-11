@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  getWishlistByUserId,
+  getWishlistByUser,
   checkVinylInWishList,
   addToWishList,
   deleteFromWishList,
@@ -12,7 +12,7 @@ import { verifyToken } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 // GET
-router.get("/get-wishlist-by-user-id/:user_id", getWishlistByUserId);
+router.get("/get-wishlist-by-user", verifyToken, getWishlistByUser);
 router.get("/check-item/:vinyl_id", verifyToken, checkVinylInWishList);
 
 // POST

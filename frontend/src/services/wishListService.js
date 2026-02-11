@@ -1,5 +1,15 @@
 import { api } from "./api";
 
+export const getWishListByUser = async () => {
+  try {
+    const response = await api.get("wish-list/get-wishlist-by-user");
+    return response.data.data?.items || response.data.data || [];
+  } catch (error) {
+    console.error("Error en el servicio de obtener wishlist:", error);
+    throw error;
+  }
+};
+
 export const addToWishList = async (vinyl_id) => {
   try {
     const response = await api.post("/wish-list/add-item", {

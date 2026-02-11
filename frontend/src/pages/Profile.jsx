@@ -1,90 +1,19 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { User, Heart, CreditCard, ShoppingBag } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { getUserProfile } from "../services/userService";
 import WishVinylCard from "../components/common/WishVinylCard";
+import { getWishListByUser } from "../services/wishListService";
 
 const Profile = () => {
   const [activeSection, setActiveSection] = useState("information");
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [wishListData, setWishListData] = useState([]);
+  const [loadingWishList, setLoadingWishList] = useState(true);
 
   const { logout } = useAuthStore();
-
-  const mockWishlist = [
-    {
-      id: 1,
-      artist: "Daft Punk",
-      album: "Discovery",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
-      price: 35.99,
-      release_date: "2001-03-12",
-    },
-    {
-      id: 2,
-      artist: "Pink Floyd",
-      album: "The Dark Side of the Moon",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
-      price: 29.5,
-      release_date: "1973-03-01",
-    },
-    {
-      id: 3,
-      artist: "Arctic Monkeys",
-      album: "AM",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
-      price: 24.9,
-      release_date: "2013-09-09",
-    },
-    {
-      id: 1,
-      artist: "Daft Punk",
-      album: "Discovery",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
-      price: 35.99,
-      release_date: "2001-03-12",
-    },
-    {
-      id: 2,
-      artist: "Pink Floyd",
-      album: "The Dark Side of the Moon",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
-      price: 29.5,
-      release_date: "1973-03-01",
-    },
-    {
-      id: 3,
-      artist: "Arctic Monkeys",
-      album: "AM",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
-      price: 24.9,
-      release_date: "2013-09-09",
-    },
-    {
-      id: 1,
-      artist: "Daft Punk",
-      album: "Discovery",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
-      price: 35.99,
-      release_date: "2001-03-12",
-    },
-    {
-      id: 2,
-      artist: "Pink Floyd",
-      album: "The Dark Side of the Moon",
-      album_cover:
-        "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
-      price: 29.5,
-      release_date: "1973-03-01",
-    },
-  ];
 
   const fetchUserData = async () => {
     try {
@@ -101,8 +30,22 @@ const Profile = () => {
     }
   };
 
+  const fetchWishListData = async () => {
+    try {
+      setLoadingWishList(true);
+      const response = await getWishListByUser();
+      setWishListData(response);
+    } catch (error) {
+      console.error("Error al cargar la wishlist: ", error);
+      setWishListData([]);
+    } finally {
+      setLoadingWishList(false);
+    }
+  };
+
   useEffect(() => {
     fetchUserData();
+    fetchWishListData();
   }, []);
 
   const menuItems = [
@@ -291,17 +234,30 @@ const Profile = () => {
 
               {activeSection === "wish" && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {mockWishlist.length > 0 ? (
+                  {loadingWishList ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                      <div className="w-10 h-10 border-4 border-primary-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+                      <p className="text-xs uppercase font-black tracking-widest text-neutral-500">
+                        Cargando tus favoritos...
+                      </p>
+                    </div>
+                  ) : wishListData.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                      {mockWishlist.map((vinyl) => (
-                        <WishVinylCard
-                          key={vinyl.id}
-                          vinyl={vinyl}
-                          onRemove={(id) => console.log("Eliminar ID:", id)}
-                          onAddToCart={(v) =>
-                            console.log("Añadir al carrito:", v.album)
-                          }
-                        />
+                      {wishListData.map((vinylFav) => (
+                        <Link
+                          to={`/vinyl-details/${vinylFav.vinyl.id}`}
+                          key={vinylFav.wish_item_id}
+                        >
+                          <WishVinylCard
+                            vinyl={vinylFav.vinyl}
+                            onRemove={() =>
+                              console.log("Eliminar ID:", vinylFav.wish_item_id)
+                            }
+                            onAddToCart={(v) =>
+                              console.log("Añadir al carrito:", v.album)
+                            }
+                          />
+                        </Link>
                       ))}
                     </div>
                   ) : (

@@ -156,12 +156,12 @@ const Header = () => {
             </Link>
           ) : isRegisterPage ? (
             <Link to="/login" className="text-white hover:text-primary-300">
-              Login
+              Inciar Sesión
             </Link>
           ) : (
             <>
               <Link to="/login" className="text-white hover:text-primary-300">
-                Login
+                Iniciar Sesión
               </Link>
               <span className="text-neutral-400">|</span>
               <Link

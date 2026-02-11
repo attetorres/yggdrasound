@@ -4,7 +4,10 @@ import { User, Heart, CreditCard, ShoppingBag } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { getUserProfile } from "../services/userService";
 import WishVinylCard from "../components/common/WishVinylCard";
-import { getWishListByUser } from "../services/wishListService";
+import {
+  getWishListByUser,
+  removeFromFavourite,
+} from "../services/wishListService";
 
 const Profile = () => {
   const [activeSection, setActiveSection] = useState("information");
@@ -19,7 +22,9 @@ const Profile = () => {
     try {
       setLoading(true);
       const response = await getUserProfile();
-      setProfileData(response.user);
+      if (response.success) {
+        setProfileData(response.user);
+      }
     } catch (error) {
       console.error("Error a cargar el perfil.", error);
       if (error.response?.status === 401) {
@@ -38,6 +43,24 @@ const Profile = () => {
     } catch (error) {
       console.error("Error al cargar la wishlist: ", error);
       setWishListData([]);
+    } finally {
+      setLoadingWishList(false);
+    }
+  };
+
+  const handleRemoveWishListItem = async (vinylId) => {
+    if (loadingWishList) return;
+    try {
+      setLoadingWishList(true);
+      const response = await removeFromFavourite(vinylId);
+      if (response.success) {
+        setWishListData((prevList) =>
+          prevList.filter((item) => item.vinyl.id !== vinylId),
+        );
+        alert("Vinilo eliminado");
+      }
+    } catch (error) {
+      console.error("Error al eliminar favorito:", error);
     } finally {
       setLoadingWishList(false);
     }
@@ -251,7 +274,7 @@ const Profile = () => {
                           <WishVinylCard
                             vinyl={vinylFav.vinyl}
                             onRemove={() =>
-                              console.log("Eliminar ID:", vinylFav.wish_item_id)
+                              handleRemoveWishListItem(vinylFav.vinyl.id)
                             }
                             onAddToCart={(v) =>
                               console.log("Añadir al carrito:", v.album)

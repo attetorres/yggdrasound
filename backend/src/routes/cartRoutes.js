@@ -11,7 +11,7 @@ import { verifyToken } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 // GET
-router.get("/get-cart-by-user-id/:user_id", getCartByUserId);
+router.get("/get-cart-by-user", verifyToken, getCartByUserId);
 
 // POST
 router.post("/add-item", verifyToken, addToCart);

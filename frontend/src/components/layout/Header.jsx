@@ -3,13 +3,14 @@ import { Link, useLocation, NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useShoppingCartStore } from "../../store/useShoppingCartStore";
 import { User, ArrowRight, Home, Disc3, ShoppingCart } from "lucide-react";
+import ShoppingCartMenuCard from "../common/ShoppingCartMenuCard";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const { isLoggedIn, user, logout } = useAuthStore();
-  const { items } = useShoppingCartStore();
+  const { items, fetchCart } = useShoppingCartStore();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuCartOpen, setMenuCartOpen] = useState(false);
@@ -53,6 +54,21 @@ const Header = () => {
     };
   }, [menuOpen, menuCartOpen]);
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchCart();
+    }
+  }, [isLoggedIn, fetchCart]);
+
+  const getTotalItemsCart = () => {
+    let totalItems = 0;
+    items.forEach((item) => {
+      totalItems += item.quantity;
+    });
+
+    return totalItems;
+  };
+
   return (
     <header className="flex bg-neutral-950 text-white p-4 justify-between items-center">
       <nav className="flex items-center gap-3">
@@ -81,30 +97,44 @@ const Header = () => {
             >
               {items.length > 0 ? (
                 <span className="rounded-full w-3 h-3 absolute -top-1 -right-1 bg-primary-500 text-primary-100 text-[8px] font-bold flex justify-center items-center">
-                  {items.length}
+                  {getTotalItemsCart()}
                 </span>
               ) : null}
               <ShoppingCart size={20} strokeWidth={3} />
             </div>
 
             {menuCartOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl z-50">
-                <div className="p-3 border-b border-neutral-800">
-                  <p className="text-sm font-bold text-white">foto articulo</p>
-                  <p className="text-xs text-neutral-400">nombre articulo</p>
-                  <span>precio</span>
-                </div>
-                <button
-                  onClick={() => {
-                    setMenuCartOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 text-sm text-primary-100 hover:bg-primary-400 hover:text-neutral-950 transition-all font-medium"
-                >
-                  <span className="flex items-center justify-center gap-2">
-                    Tramitar pedido
-                    <ArrowRight size={20} strokeWidth={3} />
-                  </span>
-                </button>
+              <div className="absolute cursor-pointer right-0 mt-2 w-64 bg-neutral-900 border border-neutral-700 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto">
+                {items.length > 0 ? (
+                  <>
+                    {items.map((item) => (
+                      <Link
+                        to={`/vinyl-details/${item.vinyl?.id}`}
+                        key={item.id}
+                        onClick={() => setMenuCartOpen(false)}
+                      >
+                        <ShoppingCartMenuCard cartItem={item} />
+                      </Link>
+                    ))}
+                    <button
+                      onClick={() => {
+                        setMenuCartOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm text-primary-100 hover:bg-primary-400 hover:text-neutral-950 transition-all font-medium"
+                    >
+                      <span className="flex items-center justify-center gap-2">
+                        Tramitar pedido
+                        <ArrowRight size={20} strokeWidth={3} />
+                      </span>
+                    </button>
+                  </>
+                ) : (
+                  <div className="p-6 text-center">
+                    <p className="text-xs text-neutral-500 uppercase tracking-widest">
+                      El carrito está vacío
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>

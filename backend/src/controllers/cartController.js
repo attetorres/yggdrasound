@@ -5,7 +5,7 @@ import Vinyl from "../models/Vinyl.js";
 
 export const getCartByUserId = async (req, res) => {
   try {
-    const { user_id } = req.params;
+    const user_id = req.user.id;
 
     const cart = await ShoppingCart.findOne({ where: { user_id } });
     if (!cart) {
@@ -101,14 +101,19 @@ export const addToCart = async (req, res) => {
       await cartItem.save();
     }
 
+    const vinyl = await Vinyl.findByPk(vinyl_id, {
+      attributes: ["id", "artist", "album", "price", "album_cover"],
+    });
+
     res.status(201).json({
       success: true,
       message: created ? "Añadido al carrito" : "Cantidad actualizada",
       data: {
         id: cartItem.id,
         cart_id: cartItem.cart_id,
-        vinyl_id: cartItem.vinyl_id,
         quantity: cartItem.quantity,
+        vinyl: vinyl,
+        subtotal: vinyl ? (vinyl.price * cartItem.quantity).toFixed(2) : "0.00",
       },
     });
   } catch (error) {

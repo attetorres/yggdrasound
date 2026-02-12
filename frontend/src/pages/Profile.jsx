@@ -6,6 +6,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useShoppingCartStore } from "../store/useShoppingCartStore";
 import { getUserProfile } from "../services/userService";
 import WishVinylCard from "../components/common/WishVinylCard";
+import CreditCardComponent from "../components/common/CreditCardComponent";
 import {
   getWishListByUser,
   removeFromFavourite,
@@ -20,6 +21,36 @@ const Profile = () => {
 
   const { logout } = useAuthStore();
   const { addItem } = useShoppingCartStore();
+
+  const mockCreditCards = [
+    {
+      id: 1,
+      user_id: 10,
+      card_number: "4556123456789012",
+      expiration_date: "2028-12-01",
+      cvv: "123",
+      brand: "VISA",
+      is_default: true,
+    },
+    {
+      id: 2,
+      user_id: 10,
+      card_number: "5212987654321098",
+      expiration_date: "2026-05-15",
+      cvv: "456",
+      brand: "MASTERCARD",
+      is_default: false,
+    },
+    {
+      id: 3,
+      user_id: 10,
+      card_number: "378212345678901",
+      expiration_date: "2027-08-20",
+      cvv: "789",
+      brand: "AMERICAN EXPRESS",
+      is_default: false,
+    },
+  ];
 
   const fetchUserData = async () => {
     try {
@@ -311,8 +342,47 @@ const Profile = () => {
               )}
 
               {activeSection === "credit-card" && (
-                <div className="text-neutral-400 italic">
-                  No hay tarjetas de crédito en tu lista todavía.
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="flex justify-between items-center mb-8">
+                    <p className="text-[10px] uppercase font-black text-neutral-400 tracking-[0.2em]">
+                      Tus métodos de pago guardados
+                    </p>
+                    <button
+                      className="text-[10px] font-black uppercase tracking-widest bg-neutral-900 text-white px-4 py-2 rounded-full border border-neutral-800 hover:border-primary-400 transition-all cursor-pointer"
+                      onClick={() =>
+                        showToast.info("Función de añadir tarjeta próximamente")
+                      }
+                    >
+                      + Añadir Tarjeta
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center max-w-4xl mx-auto">
+                    {mockCreditCards.length > 0 ? (
+                      mockCreditCards.map((card) => (
+                        <CreditCardComponent
+                          key={card.id}
+                          creditCard={card}
+                          onDelete={(id) => {
+                            console.log("Eliminar tarjeta:", id);
+                            showToast.success(
+                              "Tarjeta eliminada correctamente",
+                            );
+                          }}
+                          onSelectDefault={(id) => {
+                            console.log("Nueva predeterminada:", id);
+                            showToast.success("Método de pago actualizado");
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <div className="col-span-full py-20 flex flex-col items-center opacity-20">
+                        <p className="text-xs uppercase font-black tracking-widest">
+                          No hay tarjetas guardadas
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 

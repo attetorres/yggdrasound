@@ -24,3 +24,15 @@ export const addItemToCart = async (vinyl_id) => {
     throw error;
   }
 };
+
+export const updateItemCart = async (item_id, quantity) => {
+  try {
+    const response = await api.put(`/shopping-cart/update-item/${item_id}`, {
+      quantity: quantity,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error en el servicio al actualizar el item:", error);
+    throw error;
+  }
+};

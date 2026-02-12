@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { addItemToCart, getCart } from "../services/shoppingCartService";
+import {
+  addItemToCart,
+  getCart,
+  updateItemCart,
+} from "../services/shoppingCartService";
+
+let debounceTimer = null;
 
 export const useShoppingCartStore = create(
   persist(
@@ -35,6 +41,35 @@ export const useShoppingCartStore = create(
           console.error("Error al añadir el vinilo en el carrito:", error);
           throw error;
         }
+      },
+
+      updateItem: async (item_id, newQuantity) => {
+        const currentItems = get().items.map((item) => {
+          if (item.id === item_id) {
+            return {
+              ...item,
+              quantity: newQuantity,
+              subtotal: (item.vinyl.price * newQuantity).toFixed(2),
+            };
+          }
+          return item;
+        });
+
+        set({ items: currentItems });
+
+        if (debounceTimer) clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(async () => {
+          try {
+            const res = await updateItemCart(item_id, newQuantity);
+            if (res.success) {
+              await get().fetchCart();
+            }
+          } catch (error) {
+            console.error("Error sincronizando con servidor:", error);
+            await get().fetchCart();
+          }
+        }, 500);
       },
     }),
     {

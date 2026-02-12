@@ -10,7 +10,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const { isLoggedIn, user, logout } = useAuthStore();
-  const { items, fetchCart } = useShoppingCartStore();
+  const { items, fetchCart, updateItem } = useShoppingCartStore();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuCartOpen, setMenuCartOpen] = useState(false);
@@ -69,6 +69,18 @@ const Header = () => {
     return totalItems;
   };
 
+  const handleIncrease = (item) => {
+    updateItem(item.id, item.quantity + 1);
+  };
+
+  const handleDecrease = (item) => {
+    if (item.quantity > 1) {
+      updateItem(item.id, item.quantity - 1);
+    } else {
+      alert("Se elimina el item");
+    }
+  };
+
   return (
     <header className="flex bg-neutral-950 text-white p-4 justify-between items-center">
       <nav className="flex items-center gap-3">
@@ -113,7 +125,11 @@ const Header = () => {
                         key={item.id}
                         onClick={() => setMenuCartOpen(false)}
                       >
-                        <ShoppingCartMenuCard cartItem={item} />
+                        <ShoppingCartMenuCard
+                          cartItem={item}
+                          onIncrease={handleIncrease}
+                          onDecrease={handleDecrease}
+                        />
                       </Link>
                     ))}
                     <button

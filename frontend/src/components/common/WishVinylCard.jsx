@@ -36,8 +36,12 @@ const WishVinylCard = ({ vinyl, onRemove, onAddToCart }) => {
           </span>
 
           <button
-            onClick={() => onAddToCart(vinyl)}
-            className="p-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAddToCart(vinyl);
+            }}
+            className="p-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg transition-colors cursor-pointer"
           >
             <ShoppingCart size={14} />
           </button>

@@ -3,6 +3,7 @@ import { showToast } from "../components/utils/toast";
 import { Link } from "react-router-dom";
 import { User, Heart, CreditCard, ShoppingBag } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useShoppingCartStore } from "../store/useShoppingCartStore";
 import { getUserProfile } from "../services/userService";
 import WishVinylCard from "../components/common/WishVinylCard";
 import {
@@ -18,6 +19,7 @@ const Profile = () => {
   const [loadingWishList, setLoadingWishList] = useState(true);
 
   const { logout } = useAuthStore();
+  const { addItem } = useShoppingCartStore();
 
   const fetchUserData = async () => {
     try {
@@ -67,6 +69,16 @@ const Profile = () => {
       showToast.error("No se pudo eliminar el vinilo de favoritos");
     } finally {
       setLoadingWishList(false);
+    }
+  };
+
+  const handleAddToCartFromWishList = async (vinyl) => {
+    try {
+      await addItem(vinyl.id);
+      showToast.cart(vinyl.album);
+    } catch (error) {
+      console.error("Error al añadir el vinilo:", error);
+      showToast.error("No se pudo añadir al carrito");
     }
   };
 
@@ -280,8 +292,8 @@ const Profile = () => {
                             onRemove={() =>
                               handleRemoveWishListItem(vinylFav.vinyl.id)
                             }
-                            onAddToCart={(v) =>
-                              console.log("Añadir al carrito:", v.album)
+                            onAddToCart={() =>
+                              handleAddToCartFromWishList(vinylFav.vinyl)
                             }
                           />
                         </Link>

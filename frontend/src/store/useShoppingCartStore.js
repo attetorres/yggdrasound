@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
   addItemToCart,
+  deleteItemCart,
   getCart,
   updateItemCart,
 } from "../services/shoppingCartService";
@@ -71,7 +72,21 @@ export const useShoppingCartStore = create(
           }
         }, 500);
       },
+
+      deleteItem: async (item_id) => {
+        try {
+          const res = await deleteItemCart(item_id);
+          if (res.success) {
+            await get().fetchCart();
+            return res;
+          }
+        } catch (error) {
+          console.error("Error al eliminar el item del carrito:", error);
+          throw error;
+        }
+      },
     }),
+
     {
       name: "shopping-cart-storage",
     },

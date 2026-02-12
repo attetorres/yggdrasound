@@ -10,7 +10,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const { isLoggedIn, user, logout } = useAuthStore();
-  const { items, fetchCart, updateItem } = useShoppingCartStore();
+  const { items, fetchCart, updateItem, deleteItem } = useShoppingCartStore();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuCartOpen, setMenuCartOpen] = useState(false);
@@ -77,7 +77,7 @@ const Header = () => {
     if (item.quantity > 1) {
       updateItem(item.id, item.quantity - 1);
     } else {
-      alert("Se elimina el item");
+      deleteItem(item.id);
     }
   };
 
@@ -105,14 +105,14 @@ const Header = () => {
                 setMenuCartOpen(!menuCartOpen);
                 setMenuOpen(false);
               }}
-              className="flex items-center gap-2 relative"
+              className="flex items-center gap-2 relative cursor-pointer"
             >
               {items.length > 0 ? (
-                <span className="rounded-full w-3 h-3 absolute -top-1 -right-1 bg-primary-500 text-primary-100 text-[8px] font-bold flex justify-center items-center">
+                <span className="rounded-full w-5 h-5 absolute -top-2 -right-3 bg-primary-500 text-primary-100 text-[12px] font-bold flex justify-center items-center">
                   {getTotalItemsCart()}
                 </span>
               ) : null}
-              <ShoppingCart size={20} strokeWidth={3} />
+              <ShoppingCart size={30} strokeWidth={3} />
             </div>
 
             {menuCartOpen && (

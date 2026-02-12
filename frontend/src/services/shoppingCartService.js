@@ -36,3 +36,13 @@ export const updateItemCart = async (item_id, quantity) => {
     throw error;
   }
 };
+
+export const deleteItemCart = async (item_id) => {
+  try {
+    const response = await api.delete(`/shopping-cart/delete-item/${item_id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error en el servicio al borrar el item: ", error);
+    throw error;
+  }
+};

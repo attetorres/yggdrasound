@@ -10,7 +10,11 @@ const WishVinylCard = ({ vinyl, onRemove, onAddToCart }) => {
           e.stopPropagation();
           onRemove();
         }}
-        className="cursor-pointer absolute z-10 -top-2 -right-2 p-2 bg-red-950 backdrop-blur-md text-white/70 hover:text-red-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        className="cursor-pointer absolute z-20 -top-2 -right-2 p-2 
+             bg-red-950 backdrop-blur-md text-white/70 
+             hover:text-red-400 rounded-full 
+             opacity-100 md:opacity-0 md:group-hover:opacity-100 
+             transition-all duration-300 shadow-lg border border-white/10"
       >
         <Trash2 size={18} />
       </button>

@@ -17,6 +17,16 @@ const CreditCardComponent = ({ creditCard, onDelete, onSelectDefault }) => {
 
   return (
     <div className="relative group">
+      <button
+        onClick={() => onDelete(creditCard.id)}
+        className="absolute -top-2 -right-2 z-60 p-2 
+             bg-red-950 backdrop-blur-md text-white/70 
+             hover:text-red-400 rounded-full 
+             opacity-100 md:opacity-0 md:group-hover:opacity-100 
+             transition-all duration-300 cursor-pointer shadow-xl border border-white/10"
+      >
+        <Trash2 size={18} />
+      </button>
       <div
         className={`w-full max-w-85 h-48 rounded-4xl p-6 flex flex-col justify-between shadow-2xl transition-all duration-500 relative overflow-hidden
           ${
@@ -71,15 +81,6 @@ const CreditCardComponent = ({ creditCard, onDelete, onSelectDefault }) => {
             </button>
           )}
         </div>
-
-        {!creditCard.is_default && (
-          <button
-            onClick={() => onDelete(creditCard.id)}
-            className="absolute top-4 right-4 p-2 text-neutral-500 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
-          >
-            <Trash2 size={18} />
-          </button>
-        )}
       </div>
     </div>
   );

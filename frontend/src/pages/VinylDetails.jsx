@@ -1,4 +1,5 @@
 import React, { use, useEffect, useState } from "react";
+import { showToast } from "../components/utils/toast";
 import { useParams } from "react-router-dom";
 import { getVinylById } from "../services/vinylService";
 import { getComments, createComment } from "../services/commentService";
@@ -87,18 +88,18 @@ const VinylDetails = () => {
         const res = await addToWishList(id);
         if (res.success) {
           setIsFavorite(true);
-          alert("Añadido a favoritos");
+          showToast.success(`"${vinyl.album}" añadido a favoritos`);
         }
       } else {
         const res = await removeFromFavourite(id);
         if (res.success) {
           setIsFavorite(res.in_wishlist);
-          alert("Eliminado de favoritos");
+          showToast.success(`"${vinyl.album}" eliminado de favoritos`);
         }
       }
     } catch (error) {
       console.error("Error al actualizar favoritos:", error);
-      toast.error("No se pudo actualizar favoritos");
+      showToast.error("No se pudo actualizar favoritos");
     } finally {
       setWishLoading(false);
     }
@@ -107,9 +108,10 @@ const VinylDetails = () => {
   const handleAddToCart = async () => {
     try {
       await addItem(id);
-      alert("Vinilo añadido");
+      showToast.cart(vinyl.album);
     } catch (error) {
       console.error("Error al añadir el vinilo:", error);
+      showToast.error("No se pudo añadir al carrito");
     }
   };
 
@@ -129,11 +131,13 @@ const VinylDetails = () => {
       const res = await createComment(id, newComment);
       if (res.success) {
         setComments((prev) => [res.data, ...prev]);
+        showToast.success("Comentario publicado");
       }
 
       setNewComment("");
     } catch (error) {
       console.error("Error al publicar el comentario:", error);
+      showToast.error("No se pudo publicar el comentario");
     }
   };
 

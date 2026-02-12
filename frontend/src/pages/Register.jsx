@@ -1,8 +1,9 @@
 import React from "react";
+import { showToast } from "../components/utils/toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { registerUser } from "../services/authService";
-import { loginUser } from "../services/authService"
+import { loginUser } from "../services/authService";
 import { useAuthStore } from "../store/useAuthStore";
 
 const Register = () => {
@@ -22,38 +23,37 @@ const Register = () => {
   });
   const [loading, setLoading] = useState(false);
   const loginStore = useAuthStore((state) => state.login);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
-      alert("Las contraseñas no coinciden");
+      showToast.info("Las contraseñas no coinciden");
       return;
     }
 
     setLoading(true);
-
     try {
       const response = await registerUser(form);
 
       if (response.success) {
-        alert("Registrado");
-        const loginRes = await loginUser({ 
-          email: form.email, 
-          password: form.password 
+        showToast.success("Registrado con éxito");
+        const loginRes = await loginUser({
+          email: form.email,
+          password: form.password,
         });
 
-        if(loginRes.success){
-          loginStore(loginRes.user, loginRes.token)
-          alert("¡Registro y acceso exitoso! Bienvenido.");
+        if (loginRes.success) {
+          loginStore(loginRes.user, loginRes.token);
           navigate("/");
+          showToast.success(`"¡Hola, ${loginRes.user.username}!"`);
         }
-        
       } else {
         alert(response.message || "Error al registrar");
       }
     } catch (error) {
       console.log("Error de conexión", error);
+      showToast.error("Error al registrarse");
     } finally {
       setLoading(false);
     }

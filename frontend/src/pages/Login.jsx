@@ -1,28 +1,28 @@
 import React from "react";
+import { showToast } from "../components/utils/toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { loginUser } from "../services/authService"
+import { loginUser } from "../services/authService";
 import { useAuthStore } from "../store/useAuthStore";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
 
-  const loginGlobal = useAuthStore((state) => state.login)
-  const navigate = useNavigate()
+  const loginGlobal = useAuthStore((state) => state.login);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = await loginUser(form);
 
     if (data.success) {
-      /* console.log("¡Logueado con éxito!", data); */
       loginGlobal(data.user, data.token);
-      navigate("/")
+      navigate("/");
+      showToast.success(`"¡Hola, ${data.user.username}!"`);
     } else {
       console.error("Error en el login:", data.message);
-      alert(data.message);
+      showToast.success("Error al iniciar sesión");
     }
-
   };
 
   return (

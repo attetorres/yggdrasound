@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { showToast } from "../components/utils/toast";
 import { Link } from "react-router-dom";
 import { User, Heart, CreditCard, ShoppingBag } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
@@ -50,6 +51,8 @@ const Profile = () => {
 
   const handleRemoveWishListItem = async (vinylId) => {
     if (loadingWishList) return;
+    const itemToRemove = wishListData.find((item) => item.vinyl.id === vinylId);
+    const albumName = itemToRemove?.vinyl?.album || "Vinilo";
     try {
       setLoadingWishList(true);
       const response = await removeFromFavourite(vinylId);
@@ -57,10 +60,11 @@ const Profile = () => {
         setWishListData((prevList) =>
           prevList.filter((item) => item.vinyl.id !== vinylId),
         );
-        alert("Vinilo eliminado");
+        showToast.success(`"${albumName}" eliminado de favoritos`);
       }
     } catch (error) {
       console.error("Error al eliminar favorito:", error);
+      showToast.error("No se pudo eliminar el vinilo de favoritos");
     } finally {
       setLoadingWishList(false);
     }

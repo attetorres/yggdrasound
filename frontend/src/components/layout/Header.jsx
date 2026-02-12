@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { showToast } from "../utils/toast";
 import { Link, useLocation, NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useShoppingCartStore } from "../../store/useShoppingCartStore";
@@ -78,6 +79,7 @@ const Header = () => {
       updateItem(item.id, item.quantity - 1);
     } else {
       deleteItem(item.id);
+      showToast.success(`"${item.vinyl?.album}" eliminado del carrito`);
     }
   };
 

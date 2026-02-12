@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ScrollToTop from "../components/utils/ScrollToTop";
+import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "../store/useAuthStore";
 import MainLayout from "../components/layout/MainLayout";
 import Home from "../pages/Home";
@@ -16,6 +17,16 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: "#30302e", // neutral-900
+            color: "#e5e1d8", // primary-100
+            border: "1px solid #414143", // neutral-700
+          },
+        }}
+      />
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />

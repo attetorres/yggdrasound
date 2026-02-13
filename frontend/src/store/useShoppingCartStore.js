@@ -20,8 +20,10 @@ export const useShoppingCartStore = create(
         try {
           const res = await getCart();
           if (res.success) {
+            const sortedItems = res.data.items.sort((a, b) => a.id - b.id);
+
             set({
-              items: res.data.items,
+              items: sortedItems,
               total: res.data.total,
               cart_id: res.data.cart_id,
             });

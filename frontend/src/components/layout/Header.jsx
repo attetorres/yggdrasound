@@ -140,10 +140,12 @@ const Header = () => {
                       }}
                       className="w-full text-left px-4 py-3 text-sm text-primary-100 hover:bg-primary-400 hover:text-neutral-950 transition-all font-medium"
                     >
-                      <span className="flex items-center justify-center gap-2">
-                        Tramitar pedido
-                        <ArrowRight size={20} strokeWidth={3} />
-                      </span>
+                      <Link to="/purchasing-process">
+                        <span className="flex items-center justify-center gap-2">
+                          Tramitar pedido
+                          <ArrowRight size={20} strokeWidth={3} />
+                        </span>
+                      </Link>
                     </button>
                   </>
                 ) : (

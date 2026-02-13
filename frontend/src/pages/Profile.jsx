@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { showToast } from "../components/utils/toast";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { User, Heart, CreditCard, ShoppingBag } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useShoppingCartStore } from "../store/useShoppingCartStore";
@@ -67,6 +67,16 @@ const Profile = () => {
 
   const { logout } = useAuthStore();
   const { addItem } = useShoppingCartStore();
+
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const sectionParam = params.get("section");
+
+    if (sectionParam) {
+      setActiveSection(sectionParam);
+    }
+  }, [location]);
 
   const fetchUserData = async () => {
     try {

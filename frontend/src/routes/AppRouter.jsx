@@ -10,6 +10,7 @@ import Login from "../pages/Login";
 import Profile from "../pages/Profile";
 import Catalog from "../pages/Catalog";
 import VinylDetails from "../pages/VinylDetails";
+import PurchasingProcess from "../pages/PurchasingProcess";
 
 const AppRouter = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
@@ -38,6 +39,7 @@ const AppRouter = () => {
           />
           <Route path="/catalog/:param_genre?" element={<Catalog />} />
           <Route path="/vinyl-details/:id" element={<VinylDetails />} />
+          <Route path="/purchasing-process" element={<PurchasingProcess />} />
         </Route>
       </Routes>
     </BrowserRouter>

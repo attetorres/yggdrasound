@@ -127,6 +127,11 @@ const Profile = () => {
   };
 
   const handleSaveProfile = async () => {
+    if (!formUserData.name?.trim() || !formUserData.surname?.trim()) {
+      showToast.error("El nombre y el apellido son obligatorios");
+      return;
+    }
+
     try {
       const response = await updateUser(formUserData);
       if (response.success) {

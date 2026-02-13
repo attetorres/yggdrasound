@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { User, Heart, CreditCard, ShoppingBag } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useShoppingCartStore } from "../store/useShoppingCartStore";
-import { getUserProfile } from "../services/userService";
+import { getUserProfile, updateUser } from "../services/userService";
 import WishVinylCard from "../components/common/WishVinylCard";
 import CreditCardComponent from "../components/common/CreditCardComponent";
 import {
@@ -19,12 +19,45 @@ import {
   setDefaultCard,
 } from "../services/creditCardService";
 
+const EditableField = ({
+  label,
+  value,
+  name,
+  isEditing,
+  onChange,
+  placeholder,
+  className = "",
+}) => (
+  <div className={`flex flex-col gap-1 ${className}`}>
+    <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
+      {label}
+    </label>
+    {isEditing ? (
+      <input
+        type="text"
+        name={name}
+        value={value || ""}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="text-lg font-bold border-b-2 border-primary-400 pb-2 bg-neutral-200/50 outline-none animate-in fade-in duration-300 px-2 rounded-t-md text-neutral-900"
+      />
+    ) : (
+      <p className="text-lg font-bold border-b border-neutral-300 pb-2 text-neutral-800">
+        {value || "---"}
+      </p>
+    )}
+  </div>
+);
+
 const Profile = () => {
   const [activeSection, setActiveSection] = useState("information");
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [wishListData, setWishListData] = useState([]);
   const [loadingWishList, setLoadingWishList] = useState(true);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [formUserData, setFormUserData] = useState({});
 
   const [creditCards, setCreditCards] = useState([]);
   const [loadingCards, setLoadingCards] = useState(false);
@@ -78,6 +111,41 @@ const Profile = () => {
     } finally {
       setLoadingCards(false);
     }
+  };
+
+  const handleStartEdit = () => {
+    setFormUserData({
+      name: profileData.name,
+      surname: profileData.surname,
+      street: profileData.street,
+      number: profileData.number,
+      city: profileData.city,
+      country: profileData.country,
+      postcode: profileData.postcode,
+    });
+    setIsEditing(true);
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const response = await updateUser(formUserData);
+      if (response.success) {
+        setProfileData(response.data);
+        setIsEditing(false);
+        showToast.success("Perfil actualizado con éxito");
+      }
+    } catch (error) {
+      console.error(error);
+      showToast.error("Error al actualizar el perfil");
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormUserData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleRemoveWishListItem = async (vinylId) => {
@@ -265,34 +333,67 @@ const Profile = () => {
             <div className="min-h-100">
               {activeSection === "information" && (
                 <div className="flex flex-col gap-12 animate-in fade-in duration-500">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-4 flex-1">
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-neutral-400 whitespace-nowrap">
+                        Datos Personales
+                      </h3>
+                      <div className="h-px bg-neutral-200 w-full" />
+                    </div>
+                    <div className="flex gap-2 ml-4">
+                      {!isEditing ? (
+                        <button
+                          onClick={handleStartEdit}
+                          className="bg-neutral-900 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-primary-400 border border-transparent transition-all cursor-pointer"
+                        >
+                          Editar Perfil
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={handleSaveProfile}
+                            className="bg-primary-400 text-neutral-950 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-primary-500 transition-all cursor-pointer"
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            onClick={() => setIsEditing(false)}
+                            className="bg-neutral-200 text-neutral-500 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-300 transition-all cursor-pointer"
+                          >
+                            Cancelar
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
-                        Nombre
-                      </label>
-                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                        {profileData.name}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
-                        Apellido
-                      </label>
-                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                        {profileData.surname || "---"}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col gap-1">
+                    <EditableField
+                      label="Nombre"
+                      name="name"
+                      value={isEditing ? formUserData.name : profileData.name}
+                      isEditing={isEditing}
+                      onChange={handleInputChange}
+                    />
+                    <EditableField
+                      label="Apellido"
+                      name="surname"
+                      value={
+                        isEditing ? formUserData.surname : profileData.surname
+                      }
+                      isEditing={isEditing}
+                      onChange={handleInputChange}
+                    />
+                    <div className="flex flex-col gap-1 opacity-60">
                       <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
                         Email
                       </label>
-                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
+                      <p className="text-lg font-bold border-b border-neutral-300 pb-2 text-neutral-800">
                         {profileData.email}
                       </p>
                     </div>
                   </div>
+
                   <div className="flex items-center gap-4">
                     <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-neutral-400 whitespace-nowrap">
                       Dirección de envío
@@ -301,46 +402,52 @@ const Profile = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="md:col-span-2 flex flex-col gap-1">
-                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
-                        Calle
-                      </label>
-                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                        {profileData.street || "No especificada"}
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
-                        Nº / Piso
-                      </label>
-                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                        {profileData.number || "---"}
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
-                        Ciudad
-                      </label>
-                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                        {profileData.city || "---"}
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
-                        País
-                      </label>
-                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                        {profileData.country || "---"}
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-[10px] uppercase font-black text-neutral-400 tracking-widest">
-                        Código Postal
-                      </label>
-                      <p className="text-lg font-bold border-b border-neutral-300 pb-2">
-                        {profileData.postcode || "---"}
-                      </p>
-                    </div>
+                    <EditableField
+                      label="Calle"
+                      name="street"
+                      value={
+                        isEditing
+                          ? formUserData.street
+                          : profileData.street || "No especificada"
+                      }
+                      isEditing={isEditing}
+                      onChange={handleInputChange}
+                      className="md:col-span-2"
+                    />
+                    <EditableField
+                      label="Nº / Piso"
+                      name="number"
+                      value={
+                        isEditing ? formUserData.number : profileData.number
+                      }
+                      isEditing={isEditing}
+                      onChange={handleInputChange}
+                    />
+                    <EditableField
+                      label="Ciudad"
+                      name="city"
+                      value={isEditing ? formUserData.city : profileData.city}
+                      isEditing={isEditing}
+                      onChange={handleInputChange}
+                    />
+                    <EditableField
+                      label="País"
+                      name="country"
+                      value={
+                        isEditing ? formUserData.country : profileData.country
+                      }
+                      isEditing={isEditing}
+                      onChange={handleInputChange}
+                    />
+                    <EditableField
+                      label="Código Postal"
+                      name="postcode"
+                      value={
+                        isEditing ? formUserData.postcode : profileData.postcode
+                      }
+                      isEditing={isEditing}
+                      onChange={handleInputChange}
+                    />
                   </div>
                 </div>
               )}

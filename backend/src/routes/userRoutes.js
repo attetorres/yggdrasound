@@ -24,7 +24,7 @@ router.post("/create-user", createUser);
 router.post("/login", loginUser);
 
 // PUT
-router.put("/update-user/:id", updateUser);
+router.put("/update-user", verifyToken, updateUser);
 
 //DELETE
 router.delete("/delete-user/:id", deleteUser);

@@ -9,3 +9,13 @@ export const getUserProfile = async () => {
     throw error;
   }
 };
+
+export const updateUser = async (userData) => {
+  try {
+    const response = await api.put("/user/update-user/", userData);
+    return response.data;
+  } catch (error) {
+    console.error("Error al actualizar usuario:", error);
+    throw error;
+  }
+};

@@ -16,6 +16,7 @@ import {
   getCreditCards,
   createCreditCard,
   deleteCreditCard,
+  setDefaultCard,
 } from "../services/creditCardService";
 
 const Profile = () => {
@@ -125,8 +126,19 @@ const Profile = () => {
     }
   };
 
+  const handleSetDefaultCard = async (cardId) => {
+    try {
+      const response = await setDefaultCard(cardId);
+      if (response.success) {
+        showToast.success(response.message);
+        fetchCreditCards();
+      }
+    } catch (error) {
+      showToast.error("No se pudo cambiar la tarjeta predeterminada");
+    }
+  };
+
   const handleDeleteCreditCard = async (cardId) => {
-    // Un pequeño check de seguridad nunca está de más
     const confirmDelete = window.confirm(
       "¿Seguro que quieres eliminar esta tarjeta?",
     );
@@ -136,7 +148,6 @@ const Profile = () => {
       const response = await deleteCreditCard(cardId);
       if (response.success) {
         showToast.success(response.message || "Tarjeta eliminada");
-        // Refrescamos la lista para que desaparezca y se actualice la nueva default si aplica
         fetchCreditCards();
       }
     } catch (error) {
@@ -399,7 +410,7 @@ const Profile = () => {
                           creditCard={card}
                           onDelete={() => handleDeleteCreditCard(card.id)}
                           onSelectDefault={() => {
-                            /* Ya lo haré */
+                            handleSetDefaultCard(card.id);
                           }}
                         />
                       ))

@@ -23,6 +23,16 @@ export const createCreditCard = async (cardData) => {
   }
 };
 
+export const setDefaultCard = async (cardId) => {
+  try {
+    const response = await api.put(`/credit-card/set-default-card/${cardId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al cambiar la tarjeta predeterminada:", error);
+    throw error;
+  }
+};
+
 export const deleteCreditCard = async (cardId) => {
   try {
     const response = await api.delete(

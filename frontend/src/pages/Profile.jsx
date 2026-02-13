@@ -11,6 +11,11 @@ import {
   getWishListByUser,
   removeFromFavourite,
 } from "../services/wishListService";
+import AddCreditCardModal from "../components/common/AddCreditCardModal";
+import {
+  getCreditCards,
+  createCreditCard,
+} from "../services/creditCardService";
 
 const Profile = () => {
   const [activeSection, setActiveSection] = useState("information");
@@ -19,38 +24,14 @@ const Profile = () => {
   const [wishListData, setWishListData] = useState([]);
   const [loadingWishList, setLoadingWishList] = useState(true);
 
+  const [creditCards, setCreditCards] = useState([]);
+  const [loadingCards, setLoadingCards] = useState(false);
+
+  const [isAddCreditCardModalOpen, setIsAddCreditCardModalOpen] =
+    useState(false);
+
   const { logout } = useAuthStore();
   const { addItem } = useShoppingCartStore();
-
-  const mockCreditCards = [
-    {
-      id: 1,
-      user_id: 10,
-      card_number: "4556123456789012",
-      expiration_date: "2028-12-01",
-      cvv: "123",
-      brand: "VISA",
-      is_default: true,
-    },
-    {
-      id: 2,
-      user_id: 10,
-      card_number: "5212987654321098",
-      expiration_date: "2026-05-15",
-      cvv: "456",
-      brand: "MASTERCARD",
-      is_default: false,
-    },
-    {
-      id: 3,
-      user_id: 10,
-      card_number: "378212345678901",
-      expiration_date: "2027-08-20",
-      cvv: "789",
-      brand: "AMERICAN EXPRESS",
-      is_default: false,
-    },
-  ];
 
   const fetchUserData = async () => {
     try {
@@ -79,6 +60,21 @@ const Profile = () => {
       setWishListData([]);
     } finally {
       setLoadingWishList(false);
+    }
+  };
+
+  const fetchCreditCards = async () => {
+    try {
+      setLoadingCards(true);
+      const response = await getCreditCards();
+
+      if (response.success) {
+        setCreditCards(response.data.credit_cards);
+      }
+    } catch (error) {
+      console.error("Error al cargar tarjetas:", error);
+    } finally {
+      setLoadingCards(false);
     }
   };
 
@@ -113,9 +109,25 @@ const Profile = () => {
     }
   };
 
+  const handleAddCreditCard = async (cardData) => {
+    try {
+      const response = await createCreditCard(cardData);
+      if (response.success) {
+        showToast.success("Tarjeta de crédito añadida con éxito");
+        setIsAddCreditCardModalOpen(false);
+        fetchCreditCards();
+      }
+    } catch (error) {
+      showToast.error(
+        error.response?.data?.message || "Error al añadir tarjeta",
+      );
+    }
+  };
+
   useEffect(() => {
     fetchUserData();
     fetchWishListData();
+    fetchCreditCards();
   }, []);
 
   const menuItems = [
@@ -160,7 +172,6 @@ const Profile = () => {
           </h1>
         </div>
       </div>
-
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 flex flex-col gap-6">
           <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-[2.5rem] flex flex-col items-center gap-4">
@@ -349,29 +360,27 @@ const Profile = () => {
                     </p>
                     <button
                       className="text-[10px] font-black uppercase tracking-widest bg-neutral-900 text-white px-4 py-2 rounded-full border border-neutral-800 hover:border-primary-400 transition-all cursor-pointer"
-                      onClick={() =>
-                        showToast.info("Función de añadir tarjeta próximamente")
-                      }
+                      onClick={() => setIsAddCreditCardModalOpen(true)}
                     >
                       + Añadir Tarjeta
                     </button>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center max-w-4xl mx-auto">
-                    {mockCreditCards.length > 0 ? (
-                      mockCreditCards.map((card) => (
+                    {loadingCards ? (
+                      <p className="col-span-full text-center animate-pulse uppercase font-black text-xs text-neutral-400">
+                        Cargando tus métodos de pago...
+                      </p>
+                    ) : creditCards.length > 0 ? (
+                      creditCards.map((card) => (
                         <CreditCardComponent
                           key={card.id}
                           creditCard={card}
-                          onDelete={(id) => {
-                            console.log("Eliminar tarjeta:", id);
-                            showToast.success(
-                              "Tarjeta eliminada correctamente",
-                            );
+                          onDelete={() => {
+                            /* Ya lo haré */
                           }}
-                          onSelectDefault={(id) => {
-                            console.log("Nueva predeterminada:", id);
-                            showToast.success("Método de pago actualizado");
+                          onSelectDefault={() => {
+                            /* Ya lo haré */
                           }}
                         />
                       ))
@@ -395,6 +404,11 @@ const Profile = () => {
           </div>
         </div>
       </div>
+      <AddCreditCardModal
+        isOpen={isAddCreditCardModalOpen}
+        onClose={() => setIsAddCreditCardModalOpen(false)}
+        onSuccess={handleAddCreditCard}
+      />
     </div>
   );
 };

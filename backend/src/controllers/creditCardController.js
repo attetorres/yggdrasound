@@ -53,19 +53,11 @@ export const getCreditCardById = async (req, res) => {
   }
 };
 
-export const getCreditCardsByUserId = async (req, res) => {
+export const getCreditCardsByUser = async (req, res) => {
   try {
-    const { user_id } = req.params;
+    const user_id = req.user.id;
 
-    const user = await User.findByPk(user_id);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "Usuario no encontrado",
-      });
-    }
-
-    const creditCards = await CreditCard.findAll({
+    let creditCards = await CreditCard.findAll({
       where: { user_id },
       order: [
         ["is_default", "DESC"],
@@ -73,32 +65,29 @@ export const getCreditCardsByUserId = async (req, res) => {
       ],
     });
 
+    if (creditCards.length === 1 && !creditCards[0].is_default) {
+      await creditCards[0].update({ is_default: true });
+      creditCards[0].is_default = true;
+    }
+
     res.json({
       success: true,
       data: {
-        user: {
-          id: user.id,
-          username: user.username,
-          name: user.name,
-        },
         credit_cards: creditCards,
         count: creditCards.length,
       },
     });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error",
-    });
+    console.error("Error al obtener tarjetas:", error);
+    res.status(500).json({ success: false, message: "Error" });
   }
 };
 
 // MÉTODOS POST
 export const createCreditCard = async (req, res) => {
   try {
+    const user_id = req.user.id;
     const {
-      user_id,
       card_number,
       expiration_date,
       cvv,
@@ -121,10 +110,8 @@ export const createCreditCard = async (req, res) => {
       });
     }
 
-    // Limpiar tarjeta (quitar espacios)
     const cleanCardNumber = card_number.replace(/\s/g, "");
 
-    // Verificar si ya existe esta tarjeta para este usuario
     const existingCard = await CreditCard.findOne({
       where: {
         user_id,
@@ -144,7 +131,6 @@ export const createCreditCard = async (req, res) => {
       });
     }
 
-    // Si se marca como default, quitar default de otras tarjetas
     if (is_default) {
       await CreditCard.update({ is_default: false }, { where: { user_id } });
     }
@@ -158,7 +144,6 @@ export const createCreditCard = async (req, res) => {
       is_default,
     });
 
-    // No devolver datos sensibles en respuesta
     const safeResponse = {
       id: creditCard.id,
       user_id: creditCard.user_id,
@@ -196,10 +181,8 @@ export const setDefaultCard = async (req, res) => {
       });
     }
 
-    // Verificar si ya era la tarjeta predeterminada
     const wasDefault = creditCard.is_default;
 
-    // Si ya era la predeterminada, desactivarla
     if (wasDefault) {
       creditCard.is_default = false;
       await creditCard.save();
@@ -211,13 +194,11 @@ export const setDefaultCard = async (req, res) => {
       });
     }
 
-    // Si no era predeterminada, quitar default de todas las tarjetas del usuario
     await CreditCard.update(
       { is_default: false },
       { where: { user_id: creditCard.user_id } },
     );
 
-    // Poner esta como default
     creditCard.is_default = true;
     await creditCard.save();
 

@@ -22,3 +22,15 @@ export const createCreditCard = async (cardData) => {
     throw error;
   }
 };
+
+export const deleteCreditCard = async (cardId) => {
+  try {
+    const response = await api.delete(
+      `/credit-card/delete-credit-card/${cardId}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar la tarjeta:", error);
+    throw error;
+  }
+};

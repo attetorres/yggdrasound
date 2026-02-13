@@ -15,6 +15,7 @@ import AddCreditCardModal from "../components/common/AddCreditCardModal";
 import {
   getCreditCards,
   createCreditCard,
+  deleteCreditCard,
 } from "../services/creditCardService";
 
 const Profile = () => {
@@ -121,6 +122,26 @@ const Profile = () => {
       showToast.error(
         error.response?.data?.message || "Error al añadir tarjeta",
       );
+    }
+  };
+
+  const handleDeleteCreditCard = async (cardId) => {
+    // Un pequeño check de seguridad nunca está de más
+    const confirmDelete = window.confirm(
+      "¿Seguro que quieres eliminar esta tarjeta?",
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await deleteCreditCard(cardId);
+      if (response.success) {
+        showToast.success(response.message || "Tarjeta eliminada");
+        // Refrescamos la lista para que desaparezca y se actualice la nueva default si aplica
+        fetchCreditCards();
+      }
+    } catch (error) {
+      showToast.error("No se pudo eliminar la tarjeta");
+      console.error(error);
     }
   };
 
@@ -376,9 +397,7 @@ const Profile = () => {
                         <CreditCardComponent
                           key={card.id}
                           creditCard={card}
-                          onDelete={() => {
-                            /* Ya lo haré */
-                          }}
+                          onDelete={() => handleDeleteCreditCard(card.id)}
                           onSelectDefault={() => {
                             /* Ya lo haré */
                           }}

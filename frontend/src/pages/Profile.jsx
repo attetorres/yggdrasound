@@ -59,8 +59,14 @@ const Profile = () => {
   const [activeSection, setActiveSection] = useState("information");
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [wishListData, setWishListData] = useState([]);
   const [loadingWishList, setLoadingWishList] = useState(true);
+  const [wishCurrentPage, setWishCurrentPage] = useState(1);
+  const [wishPagination, setWishPagination] = useState({
+    totalPages: 1,
+    totalItems: 0,
+  });
 
   const [isEditing, setIsEditing] = useState(false);
   const [formUserData, setFormUserData] = useState({});
@@ -122,8 +128,12 @@ const Profile = () => {
   const fetchWishListData = async () => {
     try {
       setLoadingWishList(true);
-      const response = await getWishListByUser();
-      setWishListData(response);
+      const response = await getWishListByUser(wishCurrentPage, 8);
+
+      if (response.success) {
+        setWishListData(response.data.items);
+        setWishPagination(response.data.pagination);
+      }
     } catch (error) {
       console.error("Error al cargar la wishlist: ", error);
       setWishListData([]);
@@ -205,19 +215,23 @@ const Profile = () => {
     if (loadingWishList) return;
     const itemToRemove = wishListData.find((item) => item.vinyl.id === vinylId);
     const albumName = itemToRemove?.vinyl?.album || "Vinilo";
+
     try {
       setLoadingWishList(true);
       const response = await removeFromFavourite(vinylId);
+
       if (response.success) {
-        setWishListData((prevList) =>
-          prevList.filter((item) => item.vinyl.id !== vinylId),
-        );
         showToast.success(`"${albumName}" eliminado de favoritos`);
+
+        if (wishCurrentPage > 1 && wishListData.length === 1) {
+          setWishCurrentPage((prev) => prev - 1);
+        } else {
+          fetchWishListData();
+        }
       }
     } catch (error) {
       console.error("Error al eliminar favorito:", error);
       showToast.error("No se pudo eliminar el vinilo de favoritos");
-    } finally {
       setLoadingWishList(false);
     }
   };
@@ -278,6 +292,10 @@ const Profile = () => {
     fetchCreditCards();
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    fetchWishListData();
+  }, [wishCurrentPage]);
 
   const menuItems = [
     {
@@ -535,6 +553,38 @@ const Profile = () => {
                       <p className="italic uppercase tracking-widest text-xs">
                         Tu lista de deseos está vacía
                       </p>
+                    </div>
+                  )}
+                  {wishPagination.totalPages > 1 && (
+                    <div className="mt-10 flex gap-6 items-center justify-center border-t border-neutral-200 pt-8">
+                      <button
+                        onClick={() =>
+                          setWishCurrentPage((prev) => Math.max(prev - 1, 1))
+                        }
+                        disabled={wishCurrentPage === 1}
+                        className="bg-neutral-900 hover:bg-neutral-800 text-white px-5 py-2 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer text-[10px] font-black uppercase tracking-widest"
+                      >
+                        Anterior
+                      </button>
+
+                      <div className="flex flex-col items-center">
+                        <span className="text-neutral-900 font-bold text-sm">
+                          {wishCurrentPage}
+                          <span className="text-neutral-400 font-normal mx-1">
+                            {" "}
+                            de{" "}
+                          </span>
+                          {wishPagination.totalPages}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => setWishCurrentPage((prev) => prev + 1)}
+                        disabled={wishCurrentPage === wishPagination.totalPages}
+                        className="bg-neutral-900 hover:bg-neutral-800 text-white px-5 py-2 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer text-[10px] font-black uppercase tracking-widest"
+                      >
+                        Siguiente
+                      </button>
                     </div>
                   )}
                 </div>

@@ -1,9 +1,11 @@
 import { api } from "./api";
 
-export const getWishListByUser = async () => {
+export const getWishListByUser = async (page = 1, limit = 8) => {
   try {
-    const response = await api.get("wish-list/get-wishlist-by-user");
-    return response.data.data?.items || response.data.data || [];
+    const response = await api.get("wish-list/get-wishlist-by-user", {
+      params: { page, limit },
+    });
+    return response.data;
   } catch (error) {
     console.error("Error en el servicio de obtener wishlist:", error);
     throw error;
@@ -24,9 +26,7 @@ export const addToWishList = async (vinyl_id) => {
 
 export const checkVinylInWishList = async (vinyl_id) => {
   try {
-    const response = await api.get(`/wish-list/check-item/${vinyl_id}`, {
-      vinyl_id: vinyl_id,
-    });
+    const response = await api.get(`/wish-list/check-item/${vinyl_id}`);
     return response.data;
   } catch (error) {
     console.log(
@@ -41,9 +41,6 @@ export const removeFromFavourite = async (vinyl_id) => {
   try {
     const response = await api.delete(
       `/wish-list/remove-favourite-item/${vinyl_id}`,
-      {
-        vinyl_id: vinyl_id,
-      },
     );
     return response.data;
   } catch (error) {

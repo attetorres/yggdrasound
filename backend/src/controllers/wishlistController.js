@@ -5,6 +5,9 @@ import Vinyl from "../models/Vinyl.js";
 // MÉTODOS GET
 export const getWishlistByUser = async (req, res) => {
   try {
+    const { page = 1, limit = 12 } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
     const wishList = await WishList.findOne({
       where: { user_id: req.user.id },
     });
@@ -12,18 +15,27 @@ export const getWishlistByUser = async (req, res) => {
     if (!wishList) {
       return res.json({
         success: true,
-        data: [],
+        data: {
+          items: [],
+          pagination: { total: 0, totalPages: 0, currentPage: parseInt(page) },
+        },
       });
     }
 
-    const wishItems = await WishItem.findAll({
+    const { count, rows: wishItems } = await WishItem.findAndCountAll({
       where: { wish_list_id: wishList.id },
+      limit: parseInt(limit),
+      offset: offset,
+      order: [["created_at", "DESC"]],
     });
 
-    if (wishItems.length === 0) {
+    if (count === 0) {
       return res.json({
         success: true,
-        data: [],
+        data: {
+          items: [],
+          pagination: { total: 0, totalPages: 0, currentPage: parseInt(page) },
+        },
       });
     }
 
@@ -52,15 +64,19 @@ export const getWishlistByUser = async (req, res) => {
         wish_list_id: wishList.id,
         user_id: wishList.user_id,
         items: items,
-        count: items.length,
+        pagination: {
+          totalItems: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: parseInt(page),
+          limit: parseInt(limit),
+        },
       },
     });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error",
-    });
+    console.error("Error en getWishlistByUser:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error al obtener favoritos" });
   }
 };
 

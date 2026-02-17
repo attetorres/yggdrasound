@@ -81,6 +81,11 @@ const Profile = () => {
 
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [orderHistoryCurrentPage, setOrderHistoryCurrentPage] = useState(1);
+  const [orderHistoryPagination, setOrderHistoryPagination] = useState({
+    totalPages: 1,
+    totalItems: 0,
+  });
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   const [isAddCreditCardModalOpen, setIsAddCreditCardModalOpen] =
@@ -166,9 +171,10 @@ const Profile = () => {
   const fetchOrders = async () => {
     try {
       setLoadingOrders(true);
-      const response = await getOrdersHistory();
+      const response = await getOrdersHistory(orderHistoryCurrentPage, 5);
       if (response.success && response.data) {
         setOrders(response.data.orders);
+        setOrderHistoryPagination(response.data.pagination);
       }
     } catch (error) {
       console.error("Error al cargar pedidos:", error);
@@ -314,6 +320,10 @@ const Profile = () => {
   useEffect(() => {
     fetchCreditCards();
   }, [creditCardCurrentPage]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [orderHistoryCurrentPage]);
 
   const menuItems = [
     {
@@ -689,12 +699,54 @@ const Profile = () => {
               )}
 
               {activeSection === "orders-history" && (
-                <OrderHistorySection
-                  orders={orders}
-                  loading={loadingOrders}
-                  expandedOrderId={expandedOrderId}
-                  setExpandedOrderId={setExpandedOrderId}
-                />
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <OrderHistorySection
+                    orders={orders}
+                    loading={loadingOrders}
+                    expandedOrderId={expandedOrderId}
+                    setExpandedOrderId={setExpandedOrderId}
+                  />
+
+                  {orderHistoryPagination?.totalPages > 1 && (
+                    <div className="mt-10 flex gap-6 items-center justify-center border-t border-neutral-200 pt-8">
+                      <button
+                        onClick={() =>
+                          setOrderHistoryCurrentPage((prev) =>
+                            Math.max(prev - 1, 1),
+                          )
+                        }
+                        disabled={orderHistoryCurrentPage === 1}
+                        className="bg-neutral-900 hover:bg-neutral-800 text-white px-5 py-2 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer text-[10px] font-black uppercase tracking-widest"
+                      >
+                        Anterior
+                      </button>
+
+                      <div className="flex flex-col items-center">
+                        <span className="text-neutral-900 font-bold text-sm">
+                          {orderHistoryCurrentPage}
+                          <span className="text-neutral-400 font-normal mx-1">
+                            {" "}
+                            de{" "}
+                          </span>
+                          {orderHistoryPagination.totalPages}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() =>
+                          setOrderHistoryCurrentPage((prev) => prev + 1)
+                        }
+                        disabled={
+                          orderHistoryCurrentPage ===
+                          orderHistoryPagination.totalPages
+                        }
+                        className="bg-neutral-900 hover:bg-neutral-800 text-white px-5 py-2 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer text-[10px] font-black uppercase tracking-widest"
+                      >
+                        Siguiente
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

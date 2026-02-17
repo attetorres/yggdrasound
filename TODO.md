@@ -1,9 +1,8 @@
 ## Vista de administrador
  - Hacerla completa
 
-
 ## Perfil
- - paginación historial de compras
+ - Añadir foto de perfil
 
 ## Detalles de vinilo
  - Scraping de conciertos

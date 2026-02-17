@@ -1,14 +1,13 @@
 import { api } from "./api";
 
-export const getOrdersHistory = async () => {
+export const getOrdersHistory = async (page = 1, limit = 5) => {
   try {
-    const response = await api.get("/orders-history/get-orders-by-user");
+    const response = await api.get("/orders-history/get-orders-by-user", {
+      params: { page, limit },
+    });
     return response.data;
   } catch (error) {
-    console.error(
-      "Error al cargar el historial del pedido:",
-      error.response?.data || error.message,
-    );
+    console.error("Error al cargar el historial del pedido:", error);
     throw error;
   }
 };

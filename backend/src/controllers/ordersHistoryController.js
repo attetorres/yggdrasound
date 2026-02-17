@@ -39,7 +39,6 @@ export const getOrders = async (req, res) => {
       where: { order_id: orderIds },
     });
 
-    // Agrupar items por pedido
     const itemsByOrder = {};
     orderItems.forEach((item) => {
       if (!itemsByOrder[item.order_id]) {
@@ -48,7 +47,6 @@ export const getOrders = async (req, res) => {
       itemsByOrder[item.order_id].push(item);
     });
 
-    // Combinar datos
     const ordersWithDetails = orders.map((order) => {
       const user = users.find((u) => u.id === order.user_id);
       const items = itemsByOrder[order.id] || [];
@@ -109,7 +107,6 @@ export const getOrderById = async (req, res) => {
       attributes: ["id", "artist", "album", "album_cover"],
     });
 
-    // Combinar
     const items = orderItems.map((item) => {
       const vinyl = vinyls.find((v) => v.id === item.vinyl_id);
       return {
@@ -154,14 +151,28 @@ export const getOrderById = async (req, res) => {
 export const getOrdersByUser = async (req, res) => {
   try {
     const user_id = req.user.id;
+    const { page = 1, limit = 5 } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
 
-    const orders = await OrderHistory.findAll({
+    const { count, rows: orders } = await OrderHistory.findAndCountAll({
       where: { user_id },
       order: [["order_date", "DESC"]],
+      limit: parseInt(limit),
+      offset: offset,
     });
 
-    if (orders.length === 0) {
-      return res.json({ success: true, data: { orders: [] } });
+    if (count === 0) {
+      return res.json({
+        success: true,
+        data: {
+          orders: [],
+          pagination: {
+            totalItems: 0,
+            totalPages: 0,
+            currentPage: parseInt(page),
+          },
+        },
+      });
     }
 
     const orderIds = orders.map((o) => o.id);
@@ -186,25 +197,26 @@ export const getOrdersByUser = async (req, res) => {
           };
         });
 
-      return {
-        ...order.toJSON(),
-        items: items,
-      };
+      return { ...order.toJSON(), items: items };
     });
 
     res.json({
       success: true,
       data: {
         orders: formattedOrders,
+        pagination: {
+          totalItems: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: parseInt(page),
+          limit: parseInt(limit),
+        },
       },
     });
   } catch (error) {
     console.error("Error detallado:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error al cargar historial",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ success: false, message: "Error al cargar historial" });
   }
 };
 
@@ -246,7 +258,6 @@ export const createOrder = async (req, res) => {
       });
     });
 
-    // Crear pedido
     const order = await OrderHistory.create({
       user_id,
       total_amount: parseFloat(total_amount.toFixed(2)),
@@ -254,7 +265,6 @@ export const createOrder = async (req, res) => {
       order_date: new Date(),
     });
 
-    // Crear items
     const itemsToCreate = orderItems.map((item) => ({
       order_id: order.id,
       vinyl_id: item.vinyl_id,

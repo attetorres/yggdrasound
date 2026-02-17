@@ -56,16 +56,20 @@ export const getCreditCardById = async (req, res) => {
 export const getCreditCardsByUser = async (req, res) => {
   try {
     const user_id = req.user.id;
+    const { page = 1, limit = 4 } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
 
-    let creditCards = await CreditCard.findAll({
+    const { count, rows: creditCards } = await CreditCard.findAndCountAll({
       where: { user_id },
+      limit: parseInt(limit),
+      offset: offset,
       order: [
         ["is_default", "DESC"],
         ["created_at", "DESC"],
       ],
     });
 
-    if (creditCards.length === 1 && !creditCards[0].is_default) {
+    if (count === 1 && creditCards[0] && !creditCards[0].is_default) {
       await creditCards[0].update({ is_default: true });
       creditCards[0].is_default = true;
     }
@@ -74,12 +78,19 @@ export const getCreditCardsByUser = async (req, res) => {
       success: true,
       data: {
         credit_cards: creditCards,
-        count: creditCards.length,
+        pagination: {
+          totalItems: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: parseInt(page),
+          limit: parseInt(limit),
+        },
       },
     });
   } catch (error) {
     console.error("Error al obtener tarjetas:", error);
-    res.status(500).json({ success: false, message: "Error" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error al obtener las tarjetas" });
   }
 };
 

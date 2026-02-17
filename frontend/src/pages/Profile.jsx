@@ -73,6 +73,11 @@ const Profile = () => {
 
   const [creditCards, setCreditCards] = useState([]);
   const [loadingCards, setLoadingCards] = useState(false);
+  const [creditCardCurrentPage, setCreditCardCurrentPage] = useState(1);
+  const [creditCardPagination, setCreditCardPagination] = useState({
+    totalPages: 1,
+    totalItems: 0,
+  });
 
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
@@ -145,10 +150,11 @@ const Profile = () => {
   const fetchCreditCards = async () => {
     try {
       setLoadingCards(true);
-      const response = await getCreditCards();
+      const response = await getCreditCards(creditCardCurrentPage, 4);
 
       if (response.success) {
         setCreditCards(response.data.credit_cards);
+        setCreditCardPagination(response.data.pagination);
       }
     } catch (error) {
       console.error("Error al cargar tarjetas:", error);
@@ -266,7 +272,11 @@ const Profile = () => {
       const response = await setDefaultCard(cardId);
       if (response.success) {
         showToast.success(response.message);
-        fetchCreditCards();
+        if (creditCardCurrentPage === 1) {
+          fetchCreditCards();
+        } else {
+          setCreditCardCurrentPage(1);
+        }
       }
     } catch (error) {
       showToast.error("No se pudo cambiar la tarjeta predeterminada");
@@ -278,11 +288,15 @@ const Profile = () => {
       const response = await deleteCreditCard(cardId);
       if (response.success) {
         showToast.success(response.message || "Tarjeta eliminada");
-        fetchCreditCards();
+
+        if (creditCardCurrentPage > 1 && creditCards.length === 1) {
+          setCreditCardCurrentPage((prev) => prev - 1);
+        } else {
+          fetchCreditCards();
+        }
       }
     } catch (error) {
       showToast.error("No se pudo eliminar la tarjeta");
-      console.error(error);
     }
   };
 
@@ -296,6 +310,10 @@ const Profile = () => {
   useEffect(() => {
     fetchWishListData();
   }, [wishCurrentPage]);
+
+  useEffect(() => {
+    fetchCreditCards();
+  }, [creditCardCurrentPage]);
 
   const menuItems = [
     {
@@ -628,6 +646,45 @@ const Profile = () => {
                       </div>
                     )}
                   </div>
+                  {creditCardPagination?.totalPages > 1 && (
+                    <div className="mt-10 flex gap-6 items-center justify-center border-t border-neutral-200 pt-8">
+                      <button
+                        onClick={() =>
+                          setCreditCardCurrentPage((prev) =>
+                            Math.max(prev - 1, 1),
+                          )
+                        }
+                        disabled={creditCardCurrentPage === 1}
+                        className="bg-neutral-900 hover:bg-neutral-800 text-white px-5 py-2 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer text-[10px] font-black uppercase tracking-widest"
+                      >
+                        Anterior
+                      </button>
+
+                      <div className="flex flex-col items-center">
+                        <span className="text-neutral-900 font-bold text-sm">
+                          {creditCardCurrentPage}
+                          <span className="text-neutral-400 font-normal mx-1">
+                            {" "}
+                            de{" "}
+                          </span>
+                          {creditCardPagination.totalPages}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() =>
+                          setCreditCardCurrentPage((prev) => prev + 1)
+                        }
+                        disabled={
+                          creditCardCurrentPage ===
+                          creditCardPagination.totalPages
+                        }
+                        className="bg-neutral-900 hover:bg-neutral-800 text-white px-5 py-2 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer text-[10px] font-black uppercase tracking-widest"
+                      >
+                        Siguiente
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

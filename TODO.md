@@ -1,12 +1,8 @@
 ## Vista de administrador
  - Hacerla completa
 
-## Cometarios
- - paginación
 
 ## Perfil
- - paginaicón favoritos
- - paginación tarjetas
  - paginación historial de compras
 
 ## Detalles de vinilo

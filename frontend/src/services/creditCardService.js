@@ -1,8 +1,13 @@
 import { api } from "./api";
 
-export const getCreditCards = async () => {
+export const getCreditCards = async (page = 1, limit = 4) => {
   try {
-    const response = await api.get(`/credit-card/get-credit-cards-by-user`);
+    const response = await api.get(`/credit-card/get-credit-cards-by-user`, {
+      params: {
+        page,
+        limit,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error al obtener las tarjetas:", error);

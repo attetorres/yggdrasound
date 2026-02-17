@@ -16,9 +16,14 @@ import {
   checkVinylInWishList,
   removeFromFavourite,
 } from "../services/wishListService";
+import ConfirmModal from "../components/common/ConfirmModal";
 
 const VinylDetails = () => {
   const { id } = useParams();
+
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const user = useAuthStore((state) => state.user);
+  const addItem = useShoppingCartStore((state) => state.addItem);
 
   const [vinyl, setVinyl] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,9 +32,22 @@ const VinylDetails = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-  const user = useAuthStore((state) => state.user);
-  const addItem = useShoppingCartStore((state) => state.addItem);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const triggerDeleteFlow = (id) => {
+    setItemToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmAction = async () => {
+    if (!itemToDelete) return;
+
+    await handleCommentRemove(itemToDelete);
+
+    setIsConfirmModalOpen(false);
+    setItemToDelete(null);
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -375,12 +393,19 @@ const VinylDetails = () => {
                 key={comment.id}
                 comment={comment}
                 currentUserId={user?.id}
-                onRemove={() => handleCommentRemove(comment.id)}
+                onRemove={() => triggerDeleteFlow(comment.id)}
               />
             );
           })}
         </div>
       </div>
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmAction}
+        title="Confirmar eliminación"
+        message="¿Estás seguro de que deseas realizar esta acción? No se puede deshacer."
+      />
     </div>
   );
 };

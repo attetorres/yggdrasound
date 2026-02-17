@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
   addItemToCart,
+  clearCart,
   deleteItemCart,
   getCart,
   updateItemCart,
@@ -84,6 +85,18 @@ export const useShoppingCartStore = create(
           }
         } catch (error) {
           console.error("Error al eliminar el item del carrito:", error);
+          throw error;
+        }
+      },
+      clearCart: async () => {
+        try {
+          const res = await clearCart();
+          if (res.success) {
+            await get().fetchCart();
+            return res;
+          }
+        } catch (error) {
+          console.error("Error al eliminar los items del carrito:", error);
           throw error;
         }
       },

@@ -10,7 +10,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import PurchasingProcessVinylCard from "../components/common/PurchasingProcessVinylCard";
-import CreditCardComponent from "../components/common/CreditCardComponent";
 import { getUserProfile } from "../services/userService";
 import { getCreditCards } from "../services/creditCardService";
 
@@ -36,7 +35,8 @@ const SummarySection = ({ title, icon, children, linkTo, isEmpty }) => (
 );
 
 const PurchasingProcess = () => {
-  const { items, updateItem, deleteItem, total } = useShoppingCartStore();
+  const { items, updateItem, deleteItem, total, clearCart } =
+    useShoppingCartStore();
 
   const [profile, setProfile] = useState(null);
   const [defaultCard, setDefaultCard] = useState(null);
@@ -104,6 +104,8 @@ const PurchasingProcess = () => {
     setIsPurchasing(true);
 
     await new Promise((resolve) => setTimeout(resolve, 2500));
+
+    clearCart();
 
     setPurchaseStep("success");
   };

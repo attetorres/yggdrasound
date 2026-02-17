@@ -205,7 +205,7 @@ export const deleteFromCart = async (req, res) => {
 export const clearCart = async (req, res) => {
   try {
     const cart = await ShoppingCart.findOne({
-      where: { user_id: req.params.user_id },
+      where: { user_id: req.user.id },
     });
 
     if (!cart) {

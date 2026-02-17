@@ -46,3 +46,13 @@ export const deleteItemCart = async (item_id) => {
     throw error;
   }
 };
+
+export const clearCart = async () => {
+  try {
+    const response = await api.delete("/shopping-cart/clear/");
+    return response.data;
+  } catch (error) {
+    console.error("Error en el servicio al borrar el carrito: ", error);
+    throw error;
+  }
+};

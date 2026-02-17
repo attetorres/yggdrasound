@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import { showToast } from "../components/utils/toast";
 import { useShoppingCartStore } from "../store/useShoppingCartStore";
 import { Link } from "react-router-dom";
-import { CreditCard, MapPin, ChevronRight, AlertCircle } from "lucide-react";
+import {
+  CreditCard,
+  MapPin,
+  ChevronRight,
+  CircleCheckBig,
+  AlertCircle,
+} from "lucide-react";
 import PurchasingProcessVinylCard from "../components/common/PurchasingProcessVinylCard";
 import CreditCardComponent from "../components/common/CreditCardComponent";
 import { getUserProfile } from "../services/userService";
@@ -31,30 +37,34 @@ const SummarySection = ({ title, icon, children, linkTo, isEmpty }) => (
 
 const PurchasingProcess = () => {
   const { items, updateItem, deleteItem, total } = useShoppingCartStore();
+
   const [profile, setProfile] = useState(null);
   const [defaultCard, setDefaultCard] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [purchaseStep, setPurchaseStep] = useState("idle");
+
+  const loadCheckoutData = async () => {
+    try {
+      setLoading(true);
+      const [userRes, cardRes] = await Promise.all([
+        getUserProfile(),
+        getCreditCards(),
+      ]);
+      if (userRes.success) setProfile(userRes.user);
+      if (cardRes.success) {
+        const cards = cardRes.data.credit_cards;
+        const mainCard = cards.find((c) => c.is_default) || cards[0];
+        setDefaultCard(mainCard);
+      }
+    } catch (error) {
+      console.error("Error cargando datos de checkout:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadCheckoutData = async () => {
-      try {
-        setLoading(true);
-        const [userRes, cardRes] = await Promise.all([
-          getUserProfile(),
-          getCreditCards(),
-        ]);
-        if (userRes.success) setProfile(userRes.user);
-        if (cardRes.success) {
-          const cards = cardRes.data.credit_cards;
-          const mainCard = cards.find((c) => c.is_default) || cards[0];
-          setDefaultCard(mainCard);
-        }
-      } catch (error) {
-        console.error("Error cargando datos de checkout:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadCheckoutData();
   }, []);
 
@@ -87,6 +97,15 @@ const PurchasingProcess = () => {
     const cleanNum = String(num).replace(/\s+/g, "");
     const lastFour = cleanNum.slice(-4);
     return `**** **** **** ${lastFour}`;
+  };
+
+  const handleFinalCheckout = async () => {
+    setPurchaseStep("processing");
+    setIsPurchasing(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+
+    setPurchaseStep("success");
   };
 
   const hasAddress =
@@ -151,7 +170,8 @@ const PurchasingProcess = () => {
                 </span>
               </div>
               <button
-                disabled={!canCheckout}
+                disabled={!canCheckout || isPurchasing}
+                onClick={handleFinalCheckout}
                 className={`mt-6 w-full py-4 rounded-2xl font-black uppercase italic text-sm tracking-tighter transition-all 
                   ${
                     canCheckout
@@ -159,7 +179,11 @@ const PurchasingProcess = () => {
                       : "bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-50"
                   }`}
               >
-                {canCheckout ? "Finalizar Compra" : "Faltan datos"}
+                {isPurchasing
+                  ? "Procesando..."
+                  : canCheckout
+                    ? "Finalizar Compra"
+                    : "Faltan datos"}
               </button>
               {!canCheckout && items.length > 0 && (
                 <p className="flex items-center gap-1.5 text-[9px] text-red-400 mt-3 font-bold uppercase tracking-tighter">
@@ -232,6 +256,44 @@ const PurchasingProcess = () => {
                 </p>
               )}
             </SummarySection>
+
+            {isPurchasing && (
+              <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 backdrop-blur-md animate-in fade-in duration-500">
+                {purchaseStep === "processing" && (
+                  <div className="flex flex-col items-center gap-4 animate-in zoom-in duration-300">
+                    <div className="w-16 h-16 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin" />
+                    <p className="text-primary-400 font-black italic uppercase tracking-[0.3em] text-xs">
+                      Verificando pago...
+                    </p>
+                  </div>
+                )}
+
+                {purchaseStep === "success" && (
+                  <div className="bg-neutral-900 border border-neutral-800 p-8 md:p-12 rounded-[3rem] max-w-sm w-full text-center shadow-2xl animate-in zoom-in fade-in duration-500">
+                    <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-green-300/20 bg-green-300 ">
+                      <CircleCheckBig size={68} className="text-green-900" />
+                    </div>
+
+                    <h3 className="text-3xl font-black italic text-white uppercase tracking-tighter mb-3">
+                      ¡COMPRA REALIZADA!
+                    </h3>
+
+                    <p className="text-neutral-400 text-sm mb-10 leading-relaxed">
+                      Tu pedido ha sido procesado correctamente. Podrás
+                      comprobarlo en la sección de historial de pedidos de tu
+                      perfil.
+                    </p>
+
+                    <Link
+                      to="/"
+                      className="block w-full py-5 bg-white text-black rounded-2xl font-black uppercase italic text-sm tracking-tighter hover:bg-primary-500 transition-all active:scale-95"
+                    >
+                      Volver a la tienda
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

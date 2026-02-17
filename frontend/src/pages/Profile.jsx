@@ -13,6 +13,7 @@ import {
   removeFromFavourite,
 } from "../services/wishListService";
 import AddCreditCardModal from "../components/common/AddCreditCardModal";
+import ConfirmModal from "../components/common/ConfirmModal";
 import {
   getCreditCards,
   createCreditCard,
@@ -52,6 +53,9 @@ const EditableField = ({
 );
 
 const Profile = () => {
+  const { logout } = useAuthStore();
+  const { addItem } = useShoppingCartStore();
+
   const [activeSection, setActiveSection] = useState("information");
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -71,8 +75,22 @@ const Profile = () => {
   const [isAddCreditCardModalOpen, setIsAddCreditCardModalOpen] =
     useState(false);
 
-  const { logout } = useAuthStore();
-  const { addItem } = useShoppingCartStore();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const triggerDeleteFlow = (id) => {
+    setItemToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmAction = async () => {
+    if (!itemToDelete) return;
+
+    await handleDeleteCreditCard(itemToDelete); // Tu lógica de borrado real
+
+    setIsConfirmModalOpen(false); // Cerramos
+    setItemToDelete(null); // Limpiamos
+  };
 
   const location = useLocation();
   useEffect(() => {
@@ -242,11 +260,6 @@ const Profile = () => {
   };
 
   const handleDeleteCreditCard = async (cardId) => {
-    const confirmDelete = window.confirm(
-      "¿Seguro que quieres eliminar esta tarjeta?",
-    );
-    if (!confirmDelete) return;
-
     try {
       const response = await deleteCreditCard(cardId);
       if (response.success) {
@@ -551,7 +564,7 @@ const Profile = () => {
                         <CreditCardComponent
                           key={card.id}
                           creditCard={card}
-                          onDelete={() => handleDeleteCreditCard(card.id)}
+                          onDelete={() => triggerDeleteFlow(card.id)}
                           onSelectDefault={() => {
                             handleSetDefaultCard(card.id);
                           }}
@@ -584,6 +597,14 @@ const Profile = () => {
         isOpen={isAddCreditCardModalOpen}
         onClose={() => setIsAddCreditCardModalOpen(false)}
         onSuccess={handleAddCreditCard}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmAction}
+        title="Confirmar eliminación"
+        message="¿Estás seguro de que deseas realizar esta acción? No se puede deshacer."
       />
     </div>
   );

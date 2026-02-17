@@ -4,7 +4,7 @@
 ## Cometarios
  - paginación
 
-## Peril
+## Perfil
  - paginaicón favoritos
  - paginación tarjetas
  - paginación historial de compras

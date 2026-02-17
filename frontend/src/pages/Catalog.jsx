@@ -1,34 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { getAllVinyls } from "../services/vinylService";
 import VinylCard from "../components/common/VinylCard";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useParams,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
 const Catalog = () => {
   const { param_genre } = useParams();
   const navigate = useNavigate();
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = parseInt(searchParams.get("page") || "1");
+
   const [vinylsData, setVinylsData] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
   const [genre, setGenre] = useState(param_genre || "");
-  const [sort, setSort] = useState("newest");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [sort, setSort] = useState(searchParams.get("sort") || "newest");
 
   useEffect(() => {
     setGenre(param_genre || "");
-    setCurrentPage(1);
   }, [param_genre]);
+
+  const changePage = (newPage) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("page", newPage);
+    setSearchParams(newParams);
+  };
 
   const handleGenreChange = (e) => {
     const selectedValue = e.target.value;
     setGenre(selectedValue);
-    setCurrentPage(1);
 
-    if (selectedValue) {
-      navigate(`/catalog/${selectedValue}`);
-    } else {
-      navigate("/catalog");
-    }
+    const baseRoute = selectedValue ? `/catalog/${selectedValue}` : "/catalog";
+
+    const queryString = `?page=1${search ? `&search=${search}` : ""}${sort ? `&sort=${sort}` : ""}`;
+
+    navigate(baseRoute + queryString);
   };
 
   const fetchVinyls = async () => {
@@ -70,7 +81,7 @@ const Catalog = () => {
               className="w-full bg-neutral-900/50 border border-neutral-800 rounded-xl px-4 py-2 pl-10 text-neutral-100 text-sm focus:outline-none focus:border-white/30 transition-all placeholder:text-neutral-600"
               onChange={(e) => {
                 setSearch(e.target.value);
-                setCurrentPage(1);
+                changePage(1);
               }}
             />
             <svg
@@ -109,7 +120,7 @@ const Catalog = () => {
             value={sort}
             onChange={(e) => {
               setSort(e.target.value);
-              setCurrentPage(1);
+              changePage(1);
             }}
             className="w-full md:w-auto bg-neutral-900/50 border border-neutral-800 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-white/30 cursor-pointer text-neutral-100 hover:text-white transition-all appearance-none pr-10"
           >
@@ -132,7 +143,7 @@ const Catalog = () => {
 
         <div className="mt-8 flex gap-6 items-center justify-center border-t border-neutral-800/50 pt-8">
           <button
-            onClick={() => setCurrentPage(currentPage - 1)}
+            onClick={() => changePage(currentPage - 1)}
             disabled={currentPage === 1}
             className="bg-neutral-800 hover:bg-neutral-400 px-5 py-2 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer text-sm font-medium"
           >
@@ -148,7 +159,7 @@ const Catalog = () => {
           </div>
 
           <button
-            onClick={() => setCurrentPage(currentPage + 1)}
+            onClick={() => changePage(currentPage + 1)}
             disabled={currentPage === vinylsData?.pagination.totalPages}
             className="bg-neutral-800 hover:bg-neutral-700 px-5 py-2 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer text-sm font-medium"
           >

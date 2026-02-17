@@ -2,7 +2,11 @@ import React, { use, useEffect, useState } from "react";
 import { showToast } from "../components/utils/toast";
 import { useParams } from "react-router-dom";
 import { getVinylById } from "../services/vinylService";
-import { getComments, createComment } from "../services/commentService";
+import {
+  getComments,
+  createComment,
+  deleteComment,
+} from "../services/commentService";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useShoppingCartStore } from "../store/useShoppingCartStore";
@@ -24,6 +28,7 @@ const VinylDetails = () => {
   const [newComment, setNewComment] = useState("");
 
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const user = useAuthStore((state) => state.user);
   const addItem = useShoppingCartStore((state) => state.addItem);
 
   const formatDate = (dateString) => {
@@ -138,6 +143,18 @@ const VinylDetails = () => {
     } catch (error) {
       console.error("Error al publicar el comentario:", error);
       showToast.error("No se pudo publicar el comentario");
+    }
+  };
+
+  const handleCommentRemove = async (comment_id) => {
+    try {
+      const res = await deleteComment(comment_id);
+      if (res.success) {
+        setComments((prev) => prev.filter((c) => c.id !== comment_id));
+        showToast.success("Comentario eliminado correctamente");
+      }
+    } catch (error) {
+      showToast.error("Error al borrar este comentario");
     }
   };
 
@@ -353,7 +370,14 @@ const VinylDetails = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {comments.map((comment) => {
-            return <CommentCard key={comment.id} comment={comment} />;
+            return (
+              <CommentCard
+                key={comment.id}
+                comment={comment}
+                currentUserId={user?.id}
+                onRemove={() => handleCommentRemove(comment.id)}
+              />
+            );
           })}
         </div>
       </div>

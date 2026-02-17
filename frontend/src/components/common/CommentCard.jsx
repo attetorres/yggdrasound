@@ -1,17 +1,18 @@
 import React from "react";
-import { User, MessageSquare } from "lucide-react";
+import { MessageSquare, Trash2 } from "lucide-react";
 
-const CommentCard = ({ comment }) => {
-  // 1. Destructuring limpio
+const CommentCard = ({ comment, currentUserId, onRemove }) => {
   const {
     comment_text = "Sin contenido",
     created_at,
+    user_id,
     User: userData = {},
   } = comment || {};
 
   const { name = "Usuario Anónimo", avatar_img = null } = userData;
 
-  // 2. Formateador de fecha simplificado
+  const isMyComment = currentUserId === user_id;
+
   const formatDate = (dateString) => {
     if (!dateString) return "Fecha desconocida";
     return new Date(dateString).toLocaleDateString("es-ES", {
@@ -21,7 +22,6 @@ const CommentCard = ({ comment }) => {
     });
   };
 
-  // 3. Construimos la URL del avatar una sola vez
   const avatarSource = avatar_img
     ? avatar_img
     : `https://api.dicebear.com/9.x/initials/svg?seed=${name}&backgroundColor=9a7b84,7d4c5a,583742`;
@@ -50,10 +50,19 @@ const CommentCard = ({ comment }) => {
           </div>
         </div>
 
-        <MessageSquare
-          size={20}
-          className="text-neutral-700 group-hover:text-primary-400 transition-colors"
-        />
+        {isMyComment && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onRemove();
+            }}
+            className="p-1.5 text-neutral-500 hover:text-red-500 transition-colors cursor-pointer rounded-full hover:bg-red-500/10"
+            title="Borrar mi comentario"
+          >
+            <Trash2 size={18} />
+          </button>
+        )}
       </div>
 
       <div className="relative pl-4 border-l-2 border-neutral-800 group-hover:border-primary-400 transition-colors">

@@ -22,3 +22,13 @@ export const createComment = async (vinyl_id, comment_text) => {
     throw error;
   }
 };
+
+export const deleteComment = async (id) => {
+  try {
+    const response = await api.delete(`/comment/delete-comment/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar comentario:", error);
+    throw error;
+  }
+};

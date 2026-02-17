@@ -140,12 +140,9 @@ const Catalog = () => {
           </button>
 
           <div className="flex flex-col items-center">
-            <span className="text-neutral-950 text-xs uppercase tracking-widest mb-1">
-              Página
-            </span>
             <span className="text-neutral-800 font-bold">
               {currentPage}{" "}
-              <span className="text-neutral-950 font-normal mx-1">de</span>{" "}
+              <span className="text-neutral-950 font-normal mx-1"> de </span>{" "}
               {vinylsData?.pagination.totalPages || "?"}
             </span>
           </div>

@@ -31,6 +31,11 @@ const VinylDetails = () => {
   const [isWishLoading, setWishLoading] = useState(false);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [commentCurrentPage, setCommentCurrentPage] = useState(1);
+  const [commentPagination, setCommentPagination] = useState({
+    totalPages: 1,
+    totalItems: 0,
+  });
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
@@ -140,12 +145,16 @@ const VinylDetails = () => {
 
   const fetchComments = async () => {
     try {
-      const res = await getComments(id);
+      const res = await getComments(id, commentCurrentPage, 6);
       if (res.success) {
         setComments(res.data);
+        setCommentPagination({
+          totalPages: res.pagination.totalPages,
+          totalItems: res.pagination.total,
+        });
       }
     } catch (error) {
-      console.error("Error al cargar el detalle:", error);
+      console.error("Error al cargar comentarios:", error);
     }
   };
 
@@ -153,14 +162,18 @@ const VinylDetails = () => {
     try {
       const res = await createComment(id, newComment);
       if (res.success) {
-        setComments((prev) => [res.data, ...prev]);
+        setNewComment("");
         showToast.success("Comentario publicado");
-      }
 
-      setNewComment("");
+        if (commentCurrentPage !== 1) {
+          setCommentCurrentPage(1);
+        } else {
+          fetchComments();
+        }
+      }
     } catch (error) {
-      console.error("Error al publicar el comentario:", error);
       showToast.error("No se pudo publicar el comentario");
+      console.error("Error al publicar el comentario:", error);
     }
   };
 
@@ -168,8 +181,12 @@ const VinylDetails = () => {
     try {
       const res = await deleteComment(comment_id);
       if (res.success) {
-        setComments((prev) => prev.filter((c) => c.id !== comment_id));
         showToast.success("Comentario eliminado correctamente");
+        if (commentCurrentPage > 1 && comments.length === 1) {
+          setCommentCurrentPage((prev) => prev - 1);
+        } else {
+          fetchComments();
+        }
       }
     } catch (error) {
       showToast.error("Error al borrar este comentario");
@@ -179,8 +196,12 @@ const VinylDetails = () => {
   useEffect(() => {
     fetchDetails();
     fetchCheckIsFavorite();
-    fetchComments();
+    setCommentCurrentPage(1);
   }, [id]);
+
+  useEffect(() => {
+    fetchComments();
+  }, [id, commentCurrentPage]);
 
   if (loading)
     return (
@@ -398,6 +419,35 @@ const VinylDetails = () => {
             );
           })}
         </div>
+        {commentPagination.totalPages > 1 && (
+          <div className="mt-10 flex gap-6 items-center justify-center border-t border-neutral-800/50 pt-8">
+            <button
+              onClick={() =>
+                setCommentCurrentPage((prev) => Math.max(prev - 1, 1))
+              }
+              disabled={commentCurrentPage === 1}
+              className="bg-neutral-800 hover:bg-neutral-700 text-white px-5 py-2 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer text-sm font-medium"
+            >
+              Anterior
+            </button>
+
+            <div className="flex flex-col items-center">
+              <span className="text-white font-bold text-sm">
+                {commentCurrentPage}
+                <span className="text-neutral-600 font-normal mx-1"> de </span>
+                {commentPagination.totalPages}
+              </span>
+            </div>
+
+            <button
+              onClick={() => setCommentCurrentPage((prev) => prev + 1)}
+              disabled={commentCurrentPage === commentPagination.totalPages}
+              className="bg-neutral-800 hover:bg-neutral-700 text-white px-5 py-2 rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer text-sm font-medium"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
       </div>
       <ConfirmModal
         isOpen={isConfirmModalOpen}

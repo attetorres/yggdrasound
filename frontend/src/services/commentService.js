@@ -1,8 +1,10 @@
 import { api } from "./api";
 
-export const getComments = async (id) => {
+export const getComments = async (id, page = 1, limit = 6) => {
   try {
-    const response = await api.get(`/comment/get-comment-by-vinyl-id/${id}`);
+    const response = await api.get(`/comment/get-comment-by-vinyl-id/${id}`, {
+      params: { page, limit },
+    });
     return response.data;
   } catch (error) {
     console.log("Error en el servicio de obtención de comentarios; ", error);

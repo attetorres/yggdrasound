@@ -65,20 +65,6 @@ const Login = () => {
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2 text-primary-600" />
-              <span className="text-primary-700">Recordarme</span>
-            </label>
-            <a
-              href="#"
-              className="text-primary-600 hover:text-primary-800 
-                                 hover:underline transition-colors"
-            >
-              ¿Olvidaste tu contraseña?
-            </a>
-          </div>
-
           <button
             type="submit"
             className="w-full bg-linear-to-r from-primary-600 to-primary-700 

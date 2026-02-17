@@ -12,6 +12,7 @@ import {
 import PurchasingProcessVinylCard from "../components/common/PurchasingProcessVinylCard";
 import { getUserProfile } from "../services/userService";
 import { getCreditCards } from "../services/creditCardService";
+import { addOrder } from "../services/orderHistoryService";
 
 const SummarySection = ({ title, icon, children, linkTo, isEmpty }) => (
   <div
@@ -103,11 +104,19 @@ const PurchasingProcess = () => {
     setPurchaseStep("processing");
     setIsPurchasing(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 2500));
-
-    clearCart();
-
-    setPurchaseStep("success");
+    try {
+      const res = await addOrder(items);
+      if (res.success) {
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+        clearCart();
+        setPurchaseStep("success");
+      }
+    } catch (error) {
+      console.error("Error en el proceso de compra:", error);
+      setIsPurchasing(false);
+      setPurchaseStep("idle");
+      showToast.error("No se pudo procesar la compra");
+    }
   };
 
   const hasAddress =

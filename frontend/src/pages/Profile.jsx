@@ -7,6 +7,7 @@ import { useShoppingCartStore } from "../store/useShoppingCartStore";
 import { getUserProfile, updateUser } from "../services/userService";
 import WishVinylCard from "../components/common/WishVinylCard";
 import CreditCardComponent from "../components/common/CreditCardComponent";
+import OrderHistorySection from "../components/common/OrderHistorySection";
 import {
   getWishListByUser,
   removeFromFavourite,
@@ -18,6 +19,7 @@ import {
   deleteCreditCard,
   setDefaultCard,
 } from "../services/creditCardService";
+import { getOrdersHistory } from "../services/orderHistoryService";
 
 const EditableField = ({
   label,
@@ -61,6 +63,10 @@ const Profile = () => {
 
   const [creditCards, setCreditCards] = useState([]);
   const [loadingCards, setLoadingCards] = useState(false);
+
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
 
   const [isAddCreditCardModalOpen, setIsAddCreditCardModalOpen] =
     useState(false);
@@ -120,6 +126,20 @@ const Profile = () => {
       console.error("Error al cargar tarjetas:", error);
     } finally {
       setLoadingCards(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      setLoadingOrders(true);
+      const response = await getOrdersHistory();
+      if (response.success && response.data) {
+        setOrders(response.data.orders);
+      }
+    } catch (error) {
+      console.error("Error al cargar pedidos:", error);
+    } finally {
+      setLoadingOrders(false);
     }
   };
 
@@ -243,6 +263,7 @@ const Profile = () => {
     fetchUserData();
     fetchWishListData();
     fetchCreditCards();
+    fetchOrders();
   }, []);
 
   const menuItems = [
@@ -548,9 +569,12 @@ const Profile = () => {
               )}
 
               {activeSection === "orders-history" && (
-                <div className="text-neutral-400 italic">
-                  No hay artículos en tu historial de pedidos todavía.
-                </div>
+                <OrderHistorySection
+                  orders={orders}
+                  loading={loadingOrders}
+                  expandedOrderId={expandedOrderId}
+                  setExpandedOrderId={setExpandedOrderId}
+                />
               )}
             </div>
           </div>

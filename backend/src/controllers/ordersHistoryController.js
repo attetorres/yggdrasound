@@ -151,36 +151,59 @@ export const getOrderById = async (req, res) => {
   }
 };
 
-export const getOrdersByUserId = async (req, res) => {
+export const getOrdersByUser = async (req, res) => {
   try {
-    const { user_id } = req.params;
-    const { page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;
+    const user_id = req.user.id;
 
-    const { count, rows: orders } = await OrderHistory.findAndCountAll({
+    const orders = await OrderHistory.findAll({
       where: { user_id },
-      limit: parseInt(limit),
-      offset: parseInt(offset),
       order: [["order_date", "DESC"]],
     });
 
-    const user = await User.findByPk(user_id, {
-      attributes: ["id", "username", "name"],
+    if (orders.length === 0) {
+      return res.json({ success: true, data: { orders: [] } });
+    }
+
+    const orderIds = orders.map((o) => o.id);
+    const orderItems = await OrderVinyl.findAll({
+      where: { order_id: orderIds },
+    });
+
+    const vinylIds = [...new Set(orderItems.map((i) => i.vinyl_id))];
+    const vinyls = await Vinyl.findAll({
+      where: { id: vinylIds },
+      attributes: ["id", "artist", "album", "album_cover"],
+    });
+
+    const formattedOrders = orders.map((order) => {
+      const items = orderItems
+        .filter((item) => item.order_id === order.id)
+        .map((item) => {
+          const vinylInfo = vinyls.find((v) => v.id === item.vinyl_id);
+          return {
+            ...item.toJSON(),
+            vinyl: vinylInfo,
+          };
+        });
+
+      return {
+        ...order.toJSON(),
+        items: items,
+      };
     });
 
     res.json({
       success: true,
       data: {
-        user: user,
-        orders: orders,
-        count: count,
+        orders: formattedOrders,
       },
     });
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error detallado:", error);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Error al cargar historial",
+      error: error.message,
     });
   }
 };
@@ -188,9 +211,10 @@ export const getOrdersByUserId = async (req, res) => {
 // MÉTODOS POST
 export const createOrder = async (req, res) => {
   try {
-    const { user_id, items } = req.body;
+    const user_id = req.user.id;
+    const { items } = req.body;
 
-    if (!user_id || !items || !Array.isArray(items)) {
+    if (!items || !Array.isArray(items)) {
       return res.status(400).json({
         success: false,
         message: "Datos inválidos",

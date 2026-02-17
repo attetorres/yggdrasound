@@ -38,7 +38,6 @@ const PurchasingProcessVinylCard = ({
             onDecrease(cartItem);
           }}
           className="p-1 text-neutral-500 hover:text-red-400 transition-colors cursor-pointer"
-          disabled={cartItem.quantity <= 1}
         >
           <Minus size={12} />
         </button>

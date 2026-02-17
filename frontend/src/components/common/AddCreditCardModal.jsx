@@ -87,7 +87,7 @@ const AddCreditCardModal = ({ isOpen, onClose, onSuccess }) => {
                 Expiración
               </label>
               <input
-                type="date"
+                type="month"
                 name="expiration_date"
                 value={formData.expiration_date}
                 className="text-lg font-bold border-b border-neutral-300 pb-2 bg-transparent outline-none focus:border-primary-400 transition-colors text-neutral-900"

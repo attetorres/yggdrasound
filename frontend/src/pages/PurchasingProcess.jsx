@@ -30,13 +30,11 @@ const SummarySection = ({ title, icon, children, linkTo, isEmpty }) => (
 );
 
 const PurchasingProcess = () => {
-  // 1. Funcionalidades de la Store restauradas
   const { items, updateItem, deleteItem, total } = useShoppingCartStore();
   const [profile, setProfile] = useState(null);
   const [defaultCard, setDefaultCard] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Carga de datos inicial
   useEffect(() => {
     const loadCheckoutData = async () => {
       try {
@@ -68,23 +66,43 @@ const PurchasingProcess = () => {
     if (item.quantity > 1) {
       updateItem(item.id, item.quantity - 1);
     } else {
-      // Cuando es 1, directamente pasamos 0 para que se elimine
-      updateItem(item.id, 0);
+      deleteItem(item.id);
       showToast.success(`"${item.vinyl?.album}" eliminado del carrito`);
     }
   };
 
-  const handleRemove = (id) => {
-    deleteItem(id);
+  const handleRemove = (item) => {
+    deleteItem(item.id);
+
+    const message =
+      item.quantity > 1
+        ? `Todas las unidades de "${item.vinyl?.album}" eliminadas`
+        : `"${item.vinyl?.album}" eliminado del carrito`;
+
+    showToast.success(message);
   };
 
-  const hasAddress = profile?.street && profile?.city;
+  const formatCardNumber = (num) => {
+    if (!num) return "**** **** **** ****";
+    const cleanNum = String(num).replace(/\s+/g, "");
+    const lastFour = cleanNum.slice(-4);
+    return `**** **** **** ${lastFour}`;
+  };
+
+  const hasAddress =
+    profile?.name &&
+    profile?.surname &&
+    profile?.street &&
+    profile?.number &&
+    profile?.postcode &&
+    profile?.city &&
+    profile?.country;
+
   const hasPayment = !!defaultCard;
   const canCheckout = hasAddress && hasPayment && items.length > 0;
 
   return (
-    <div className="min-h-screen flex flex-col gap-4 md:gap-6 p-4 md:p-6 bg-black">
-      {/* Header */}
+    <div className="min-h-screen flex flex-col gap-4 md:gap-6 p-4 md:p-6 bg-neutral-200">
       <div className="p-6 md:p-8 rounded-2xl border border-neutral-800 bg-neutral-950 text-white shrink-0">
         <h1 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase leading-none text-center md:text-left">
           Tramitar pedido
@@ -92,7 +110,6 @@ const PurchasingProcess = () => {
       </div>
 
       <div className="flex flex-col md:flex-row flex-1 gap-6">
-        {/* Columna Izquierda: Productos */}
         <div className="flex-1 flex flex-col gap-3 order-2 md:order-1">
           {items.length > 0 ? (
             items.map((item) => (
@@ -101,7 +118,7 @@ const PurchasingProcess = () => {
                 cartItem={item}
                 onIncrease={() => handleIncrease(item)}
                 onDecrease={() => handleDecrease(item)}
-                onRemove={() => handleRemove(item.id)}
+                onRemove={() => handleRemove(item)}
               />
             ))
           ) : (
@@ -119,10 +136,8 @@ const PurchasingProcess = () => {
           )}
         </div>
 
-        {/* Columna Derecha: Resumen Sticky */}
         <div className="w-full md:w-85 flex-none order-1 md:order-2">
           <div className="md:sticky md:top-6 flex flex-col gap-2">
-            {/* Card de Pago/Precio */}
             <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 shadow-2xl">
               <span className="text-[10px] text-neutral-500 uppercase font-black tracking-widest">
                 Resumen del pedido
@@ -132,7 +147,7 @@ const PurchasingProcess = () => {
                   Total a pagar:
                 </h2>
                 <span className="text-white text-3xl font-black block tracking-tighter italic">
-                  {total} €
+                  {total || 0} €
                 </span>
               </div>
               <button
@@ -153,7 +168,6 @@ const PurchasingProcess = () => {
               )}
             </div>
 
-            {/* Datos de Envío */}
             <SummarySection
               title="Dirección de envío"
               icon={<MapPin size={14} />}
@@ -165,11 +179,14 @@ const PurchasingProcess = () => {
                   <p className="font-bold text-neutral-200">
                     {profile.name} {profile.surname}
                   </p>
-                  <p className="text-[11px] text-neutral-400 mt-1 uppercase tracking-tight">
+                  <p className="text-[11px] text-neutral-400 mt-1 tracking-tight">
                     {profile.street}, {profile.number}
                   </p>
                   <p className="text-[11px] text-neutral-500">
                     {profile.postcode} • {profile.city}
+                  </p>
+                  <p className="text-[11px] text-neutral-500">
+                    {profile.country}
                   </p>
                 </div>
               ) : (
@@ -179,49 +196,42 @@ const PurchasingProcess = () => {
               )}
             </SummarySection>
 
-            {/* Método de Pago con Tarjeta Física */}
-            <div className="mt-2 flex flex-col">
-              <div className="flex justify-between items-center px-2 mb-2">
-                <div
-                  className={`flex items-center gap-2 ${!hasPayment ? "text-red-400" : "text-neutral-500"}`}
-                >
-                  <CreditCard size={14} />
-                  <span className="text-[10px] uppercase font-black tracking-widest">
-                    Método de pago
-                  </span>
-                </div>
-                <Link
-                  to="/profile?section=credit-card"
-                  className="text-primary-400 hover:text-primary-300"
-                >
-                  <ChevronRight size={16} />
-                </Link>
-              </div>
-
+            <SummarySection
+              title="Método de pago"
+              icon={<CreditCard size={14} />}
+              linkTo="/profile?section=credit-card"
+              isEmpty={!hasPayment}
+            >
               {hasPayment ? (
-                <div className="flex justify-center md:justify-start">
-                  <div className="scale-[0.85] origin-top-center md:origin-top-left -mb-6">
-                    <CreditCardComponent
-                      creditCard={defaultCard}
-                      onDelete={() => {}}
-                      onSelectDefault={() => {}}
-                    />
+                <div className="flex items-center gap-3">
+                  <div className="px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-[9px] font-black italic text-primary-400 uppercase tracking-tighter">
+                    {defaultCard.brand || "Card"}
+                  </div>
+
+                  <div className="flex flex-col leading-tight">
+                    <p className="font-bold text-neutral-200 tracking-widest">
+                      {formatCardNumber(
+                        defaultCard.card_number ||
+                          defaultCard.last4 ||
+                          defaultCard.number,
+                      )}
+                    </p>
+                    <p className="text-[10px] text-neutral-500 uppercase font-medium mt-0.5">
+                      Expira{" "}
+                      {defaultCard.exp_month ||
+                        defaultCard.expiration_date?.split("-")[1]}
+                      /
+                      {defaultCard.exp_year ||
+                        defaultCard.expiration_date?.split("-")[0]?.slice(-2)}
+                    </p>
                   </div>
                 </div>
               ) : (
-                <div className="bg-neutral-900 border border-red-900/40 rounded-2xl p-6 text-center">
-                  <p className="text-xs text-red-400/80 italic mb-3">
-                    Falta tarjeta
-                  </p>
-                  <Link
-                    to="/profile?section=credit-card"
-                    className="text-[10px] font-black uppercase text-primary-400 border border-primary-400/20 px-4 py-2 rounded-full"
-                  >
-                    Añadir Tarjeta
-                  </Link>
-                </div>
+                <p className="text-xs text-red-400/80 italic">
+                  No hay tarjeta configurada
+                </p>
               )}
-            </div>
+            </SummarySection>
           </div>
         </div>
       </div>

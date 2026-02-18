@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import setupAssociations from "./models/associations.js";
@@ -10,6 +10,7 @@ import genreRoutes from "./routes/genreRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 import ordersHistoryRoutes from "./routes/ordersHistoryRoutes.js";
+import externalRoutes from "./routes/externalRoutes.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -32,7 +33,7 @@ app.get("/", (req, res) => {
       comments: "/api/comment",
       genres: "/api/genre",
       shopping_cart: "/api/shopping-cart",
-      wish_list: "/api/wish-list", 
+      wish_list: "/api/wish-list",
       orders_history: "/api/orders-history",
     },
   });
@@ -46,6 +47,7 @@ app.use("/api/genre", genreRoutes);
 app.use("/api/shopping-cart", cartRoutes);
 app.use("/api/wish-list", wishlistRoutes);
 app.use("/api/orders-history", ordersHistoryRoutes);
+app.use("/api/concert", externalRoutes);
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);

@@ -3,7 +3,14 @@ import { showToast } from "../utils/toast";
 import { Link, useLocation, NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useShoppingCartStore } from "../../store/useShoppingCartStore";
-import { User, ArrowRight, Home, Disc3, ShoppingCart } from "lucide-react";
+import {
+  User,
+  ArrowRight,
+  Home,
+  Disc3,
+  ShoppingCart,
+  ShieldCheck,
+} from "lucide-react";
 import ShoppingCartMenuCard from "../common/ShoppingCartMenuCard";
 
 const Header = () => {
@@ -101,6 +108,14 @@ const Header = () => {
 
       {isLoggedIn ? (
         <div className="flex items-center space-x-3 relative">
+          {user?.is_admin && (
+            <NavLink to="/admin" className={navLinkStyles}>
+              <span className="flex items-center gap-2 text-primary-400 hover:text-white transition-colors">
+                <ShieldCheck size={20} strokeWidth={3} />
+                Administrar
+              </span>
+            </NavLink>
+          )}
           <div className="relative pr-5" ref={cartMenuRef}>
             <div
               onClick={() => {

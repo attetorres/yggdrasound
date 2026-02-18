@@ -11,9 +11,13 @@ import Profile from "../pages/Profile";
 import Catalog from "../pages/Catalog";
 import VinylDetails from "../pages/VinylDetails";
 import PurchasingProcess from "../pages/PurchasingProcess";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import DashboardStats from "../pages/admin/views/DashboardStats";
+import AdminVinyls from "../pages/admin/views/AdminVinyls";
+import AdminUsers from "../pages/admin/views/AdminUsers";
 
 const AppRouter = () => {
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const { isLoggedIn, user } = useAuthStore();
 
   return (
     <BrowserRouter>
@@ -40,6 +44,22 @@ const AppRouter = () => {
           <Route path="/catalog/:param_genre?" element={<Catalog />} />
           <Route path="/vinyl-details/:id" element={<VinylDetails />} />
           <Route path="/purchasing-process" element={<PurchasingProcess />} />
+        </Route>
+
+        <Route
+          path="/admin"
+          element={
+            isLoggedIn && user?.is_admin ? (
+              <AdminDashboard />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        >
+          <Route index element={<DashboardStats />} />
+          <Route path="vinyls" element={<AdminVinyls />} />
+          <Route path="users" element={<AdminUsers />} />
+          {/* <Route path="orders" element={<AdminOrders />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>

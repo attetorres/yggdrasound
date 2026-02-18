@@ -1,5 +1,18 @@
 import { api } from "./api";
 
+/* export const getAllUsers = async (page = 1, limit = 50) => {
+  try {
+    const response = await api.get(`/user/`, {
+      params: { page, limit },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error en getAllUsers service:", error);
+    throw error;
+  }
+}; */
+
 export const getUserProfile = async () => {
   try {
     const response = await api.get("/user/profile");

@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom"; // Importamos NavLink
-import { LayoutDashboard, Disc, Users, ShoppingBag } from "lucide-react";
+import { LayoutDashboard, Disc, Users, ShoppingBag, Home } from "lucide-react";
 
 const AdminSidebar = () => {
   const menuItems = [
@@ -57,9 +57,13 @@ const AdminSidebar = () => {
 
       <div className="pt-8 border-t border-neutral-900">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
           <span className="text-[9px] font-black uppercase tracking-[0.2em] text-neutral-600">
-            System Online v1.0
+            <NavLink to="/">
+              <span className="flex items-center gap-2 hover:text-primary-400">
+                <Home size={20} strokeWidth={3} />
+                Volver al Home
+              </span>
+            </NavLink>
           </span>
         </div>
       </div>

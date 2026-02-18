@@ -11,6 +11,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 import ordersHistoryRoutes from "./routes/ordersHistoryRoutes.js";
 import externalRoutes from "./routes/externalRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -48,6 +49,7 @@ app.use("/api/shopping-cart", cartRoutes);
 app.use("/api/wish-list", wishlistRoutes);
 app.use("/api/orders-history", ordersHistoryRoutes);
 app.use("/api/concert", externalRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);

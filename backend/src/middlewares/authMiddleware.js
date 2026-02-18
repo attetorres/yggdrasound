@@ -28,3 +28,14 @@ export const verifyToken = (req, res, next) => {
       .json({ success: false, message: "Token inválido o expirado" });
   }
 };
+
+export const isAdmin = (req, res, next) => {
+  if (req.user && req.user.is_admin) {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: "Acceso denegado: Se requieren permisos de administrador",
+    });
+  }
+};

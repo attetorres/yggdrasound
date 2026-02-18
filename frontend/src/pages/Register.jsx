@@ -22,6 +22,8 @@ const Register = () => {
     acceptTerms: false,
   });
   const [loading, setLoading] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+
   const loginStore = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
@@ -276,7 +278,15 @@ const Register = () => {
               required
             />
             <label htmlFor="acceptTerms" className="text-primary-700 text-sm">
-              Acepto los términos y condiciones y la política de privacidad *
+              Acepto los{" "}
+              <button
+                type="button"
+                onClick={() => setShowTermsModal(true)}
+                className="text-primary-600 font-bold hover:underline focus:outline-none"
+              >
+                términos y condiciones
+              </button>{" "}
+              y la política de privacidad *
             </label>
           </div>
 
@@ -319,6 +329,39 @@ const Register = () => {
           </div>
         </form>
       </div>
+      {showTermsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-primary-100 animate-in fade-in zoom-in duration-200">
+            <h3 className="text-xl font-bold text-primary-900 mb-4 flex items-center gap-2">
+              Aviso Educativo
+            </h3>
+
+            <div className="text-primary-700 leading-relaxed space-y-4 text-sm">
+              <p>
+                Este sitio web es un <strong>proyecto final académico</strong>{" "}
+                para el Ciclo Superior de Desarrollo de Aplicaciones Web (DAW).
+              </p>
+              <p className="bg-amber-50 border-l-4 border-amber-400 p-3 text-amber-900 font-medium">
+                ⚠️ <strong>IMPORTANTE:</strong> No introduzcas datos reales. No
+                se realizarán transacciones reales y todo el proceso de compra
+                es una simulación.
+              </p>
+              <p>
+                Los datos de los productos son obtenidos de{" "}
+                <strong>Bandcamp</strong> con fines exclusivamente
+                demostrativos.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowTermsModal(false)}
+              className="w-full mt-6 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 rounded-lg transition-colors"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

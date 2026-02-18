@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import Vinyl from "../models/Vinyl.js";
 import OrderHistory from "../models/OrderHistory.js";
+import OrderVinyl from "../models/OrderVinyl.js";
 import { Sequelize } from "sequelize";
 
 export const getDashboardStats = async (req, res) => {
@@ -36,8 +37,7 @@ export const getDashboardStats = async (req, res) => {
   }
 };
 
-// Añade este método a tu adminController.js
-export const getAdminOrders = async (req, res) => {
+/* export const getAdminRecentOrders = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
@@ -46,7 +46,6 @@ export const getAdminOrders = async (req, res) => {
       limit: parseInt(limit),
       offset: offset,
       order: [["order_date", "DESC"]],
-      // Incluimos el modelo User para no tener que hacer búsquedas manuales
       include: [
         {
           model: User,
@@ -67,11 +66,91 @@ export const getAdminOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al obtener pedidos para admin:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener historial de ventas",
+    });
+  }
+}; */
+
+export const getAdminOrders = async (req, res) => {
+  try {
+    // Recogemos page y limit de la query, por defecto 1 y 25
+    const { page = 1, limit = 25 } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    const { count, rows: orders } = await OrderHistory.findAndCountAll({
+      limit: parseInt(limit),
+      offset: offset,
+      distinct: true,
+      order: [["order_date", "DESC"]], // Lo más nuevo primero
+      include: [
+        {
+          model: User,
+          attributes: ["id", "username", "email", "name", "surname"], // Todos los datos del comprador
+        },
+      ],
+    });
+
+    res.json({
+      success: true,
+      data: orders,
+      pagination: {
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: parseInt(page),
+        itemsPerPage: parseInt(limit),
+      },
+    });
+  } catch (error) {
+    console.error("Error al obtener todas las ventas:", error);
     res
       .status(500)
-      .json({
-        success: false,
-        message: "Error al obtener historial de ventas",
-      });
+      .json({ success: false, message: "Error interno del servidor" });
+  }
+};
+
+export const getOrderDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await OrderHistory.findByPk(id, {
+      include: [
+        {
+          model: User,
+          attributes: [
+            "username",
+            "email",
+            "name",
+            "surname",
+            "city",
+            "country",
+            "street",
+            "number",
+            "postcode",
+          ],
+        },
+        {
+          model: OrderVinyl,
+          include: [
+            {
+              model: Vinyl,
+              attributes: ["artist", "album", "album_cover"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Pedido no encontrado" });
+    }
+
+    res.json({ success: true, data: order });
+  } catch (error) {
+    console.error("Error al obtener detalle:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };

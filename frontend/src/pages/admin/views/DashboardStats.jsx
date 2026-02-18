@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+
 import { TrendingUp, Users, Disc, AlertCircle } from "lucide-react";
 import {
   getAdminDashboardStats,
-  getRecentOrders,
+  getOrders,
 } from "../../../services/adminService";
 
 const DashboardStats = () => {
@@ -21,7 +23,7 @@ const DashboardStats = () => {
       setLoading(true);
       const [statsRes, ordersRes] = await Promise.all([
         getAdminDashboardStats(),
-        getRecentOrders(5),
+        getOrders(5),
       ]);
 
       if (statsRes.success) {
@@ -29,7 +31,6 @@ const DashboardStats = () => {
       }
 
       if (ordersRes.success) {
-        console.log("DATOS DE PEDIDOS:", ordersRes.data[0]);
         setRecentOrders(ordersRes.data);
       }
     } catch (error) {
@@ -57,7 +58,7 @@ const DashboardStats = () => {
       color: "text-white",
     },
     {
-      label: "Vinilos en Stock",
+      label: "Vinilos Totales",
       value: loading ? "..." : statsData.totalVinyls,
       icon: <Disc size={20} />,
       color: "text-primary-400",
@@ -100,9 +101,11 @@ const DashboardStats = () => {
           <h3 className="text-2xl font-black uppercase italic tracking-tighter">
             Ventas Recientes
           </h3>
-          <button className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-500 hover:text-white transition-colors cursor-pointer">
-            Ver historial completo →
-          </button>
+          <Link to="/admin/orders">
+            <button className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-500 hover:text-white transition-colors cursor-pointer">
+              Ver historial completo →
+            </button>
+          </Link>
         </div>
 
         <div className="overflow-x-auto">

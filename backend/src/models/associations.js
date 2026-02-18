@@ -3,6 +3,7 @@ import Genre from "./Genre.js";
 import VinylGenre from "./VinylGenre.js";
 import User from "./User.js";
 import OrderHistory from "./OrderHistory.js";
+import OrderVinyl from "../models/OrderVinyl.js";
 
 const setupAssociations = () => {
   Vinyl.belongsToMany(Genre, {
@@ -24,6 +25,12 @@ const setupAssociations = () => {
   User.hasMany(OrderHistory, {
     foreignKey: "user_id",
   });
+
+  OrderHistory.hasMany(OrderVinyl, { foreignKey: "order_id" });
+  OrderVinyl.belongsTo(OrderHistory, { foreignKey: "order_id" });
+
+  OrderVinyl.belongsTo(Vinyl, { foreignKey: "vinyl_id" });
+  Vinyl.hasMany(OrderVinyl, { foreignKey: "vinyl_id" });
 };
 
 export default setupAssociations;

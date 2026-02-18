@@ -15,6 +15,7 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import DashboardStats from "../pages/admin/views/DashboardStats";
 import AdminVinyls from "../pages/admin/views/AdminVinyls";
 import AdminUsers from "../pages/admin/views/AdminUsers";
+import AdminOrders from "../pages/admin/views/AdminOrders";
 
 const AppRouter = () => {
   const { isLoggedIn, user } = useAuthStore();
@@ -59,7 +60,7 @@ const AppRouter = () => {
           <Route index element={<DashboardStats />} />
           <Route path="vinyls" element={<AdminVinyls />} />
           <Route path="users" element={<AdminUsers />} />
-          {/* <Route path="orders" element={<AdminOrders />} /> */}
+          <Route path="orders" element={<AdminOrders />} />
         </Route>
       </Routes>
     </BrowserRouter>

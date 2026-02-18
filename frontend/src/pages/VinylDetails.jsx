@@ -114,12 +114,9 @@ const VinylDetails = () => {
 
     try {
       setLoadingConcerts(true);
-      console.log("--- INICIANDO SCRAPING ---");
-      console.log("URL que enviamos:", vinyl.album_url);
 
       const res = await getConcerts(vinyl.album_url);
       if (res.success) {
-        console.log("Conciertos extraídos:", res.data); // Esto te mostrará el array
         setConcerts(res.data);
       }
     } catch (error) {

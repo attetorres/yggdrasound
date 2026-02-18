@@ -60,6 +60,9 @@ const Profile = () => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [newAvatarUrl, setNewAvatarUrl] = useState("");
+
   const [wishListData, setWishListData] = useState([]);
   const [loadingWishList, setLoadingWishList] = useState(true);
   const [wishCurrentPage, setWishCurrentPage] = useState(1);
@@ -102,10 +105,10 @@ const Profile = () => {
   const handleConfirmAction = async () => {
     if (!itemToDelete) return;
 
-    await handleDeleteCreditCard(itemToDelete); // Tu lógica de borrado real
+    await handleDeleteCreditCard(itemToDelete);
 
-    setIsConfirmModalOpen(false); // Cerramos
-    setItemToDelete(null); // Limpiamos
+    setIsConfirmModalOpen(false);
+    setItemToDelete(null);
   };
 
   const location = useLocation();
@@ -371,7 +374,10 @@ const Profile = () => {
         <div className="flex-1 flex flex-col gap-6">
           <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-[2.5rem] flex flex-col items-center gap-4">
             <div className="relative group">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-neutral-800 group-hover:border-neutral-700 transition-all duration-500">
+              <div
+                onClick={() => setIsAvatarModalOpen(true)} // <-- Añadimos esto
+                className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-neutral-800 group-hover:border-primary-400 transition-all duration-500 cursor-pointer"
+              >
                 <img
                   src={
                     profileData?.avatar_img
@@ -379,7 +385,7 @@ const Profile = () => {
                       : `https://api.dicebear.com/9.x/initials/svg?seed=${profileData.username}&backgroundColor=9a7b84,7d4c5a,583742`
                   }
                   alt="User Avatar"
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all"
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
                 />
               </div>
             </div>
@@ -765,6 +771,67 @@ const Profile = () => {
         title="Confirmar eliminación"
         message="¿Estás seguro de que deseas realizar esta acción? No se puede deshacer."
       />
+
+      {isAvatarModalOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-neutral-200 animate-in fade-in zoom-in duration-200">
+            <h3 className="text-lg font-black uppercase italic tracking-tighter text-neutral-900 mb-4">
+              Cambiar Foto de Perfil
+            </h3>
+
+            <p className="text-xs text-neutral-500 mb-4 uppercase font-bold tracking-widest">
+              Pega la URL de tu imagen
+            </p>
+
+            <input
+              type="text"
+              placeholder="https://ejemplo.com/mi-foto.jpg"
+              value={newAvatarUrl}
+              onChange={(e) => setNewAvatarUrl(e.target.value)}
+              className="w-full border-2 border-neutral-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary-400 mb-6 text-neutral-800"
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={async () => {
+                  if (!newAvatarUrl.trim())
+                    return showToast.error("Pega una URL válida");
+                  try {
+                    const response = await updateUser({
+                      avatar_img: newAvatarUrl,
+                    });
+                    if (response.success) {
+                      setProfileData(response.data);
+
+                      useAuthStore
+                        .getState()
+                        .login(response.data, useAuthStore.getState().token);
+
+                      setIsAvatarModalOpen(false);
+                      setNewAvatarUrl("");
+                      showToast.success("Foto actualizada");
+                    }
+                  } catch (err) {
+                    showToast.error("Error al actualizar la foto");
+                  }
+                }}
+                className="flex-1 bg-neutral-900 text-white font-black uppercase tracking-widest text-[10px] py-3 rounded-xl hover:bg-primary-400 hover:text-neutral-950 transition-all cursor-pointer"
+              >
+                Guardar
+              </button>
+              <button
+                onClick={() => {
+                  setIsAvatarModalOpen(false);
+                  setNewAvatarUrl("");
+                }}
+                className="flex-1 bg-neutral-100 text-neutral-500 font-black uppercase tracking-widest text-[10px] py-3 rounded-xl hover:bg-neutral-200 transition-all cursor-pointer"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

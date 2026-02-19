@@ -26,11 +26,19 @@ const setupAssociations = () => {
     foreignKey: "user_id",
   });
 
-  OrderHistory.hasMany(OrderVinyl, { foreignKey: "order_id" });
-  OrderVinyl.belongsTo(OrderHistory, { foreignKey: "order_id" });
+  OrderHistory.hasMany(OrderVinyl, {
+    foreignKey: "order_id",
+  });
+  OrderVinyl.belongsTo(OrderHistory, {
+    foreignKey: "order_id",
+  });
 
-  OrderVinyl.belongsTo(Vinyl, { foreignKey: "vinyl_id" });
-  Vinyl.hasMany(OrderVinyl, { foreignKey: "vinyl_id" });
+  OrderVinyl.belongsTo(Vinyl, {
+    foreignKey: "vinyl_id",
+  });
+  Vinyl.hasMany(OrderVinyl, {
+    foreignKey: "vinyl_id",
+  });
 };
 
 export default setupAssociations;

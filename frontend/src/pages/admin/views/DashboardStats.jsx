@@ -23,7 +23,7 @@ const DashboardStats = () => {
       setLoading(true);
       const [statsRes, ordersRes] = await Promise.all([
         getAdminDashboardStats(),
-        getOrders(5),
+        getOrders(1, 5),
       ]);
 
       if (statsRes.success) {

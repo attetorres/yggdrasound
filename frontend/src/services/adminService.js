@@ -10,13 +10,16 @@ export const getAdminDashboardStats = async () => {
   }
 };
 
-export const getOrders = async (page = 1, limit = 25) => {
+export const getOrders = async (
+  page = 1,
+  limit = 25,
+  search = "",
+  sortBy = "order_date",
+  order = "DESC",
+) => {
   try {
     const response = await api.get("/admin/orders", {
-      params: {
-        page: page,
-        limit: limit,
-      },
+      params: { page, limit, search, sortBy, order },
     });
     return response.data;
   } catch (error) {

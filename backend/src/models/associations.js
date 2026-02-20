@@ -6,7 +6,7 @@ import OrderHistory from "./OrderHistory.js";
 import OrderVinyl from "../models/OrderVinyl.js";
 
 const setupAssociations = () => {
-  Vinyl.belongsToMany(Genre, {
+  /* Vinyl.belongsToMany(Genre, {
     through: VinylGenre,
     foreignKey: "vinyl_id",
     otherKey: "genre_id",
@@ -16,6 +16,20 @@ const setupAssociations = () => {
     through: VinylGenre,
     foreignKey: "genre_id",
     otherKey: "vinyl_id",
+  }); */
+
+  Vinyl.belongsToMany(Genre, {
+    through: VinylGenre,
+    foreignKey: "vinyl_id",
+    otherKey: "genre_id",
+    as: "Genres"
+  });
+
+  Genre.belongsToMany(Vinyl, {
+    through: VinylGenre,
+    foreignKey: "genre_id",
+    otherKey: "vinyl_id",
+    as: "Vinyls",
   });
 
   OrderHistory.belongsTo(User, {

@@ -4,6 +4,22 @@ import OrderHistory from "../models/OrderHistory.js";
 import OrderVinyl from "../models/OrderVinyl.js";
 import { Sequelize, Op } from "sequelize";
 import bcrypt from "bcryptjs";
+import Genre from "../models/Genre.js";
+
+// FUNCIÓN AUXILIAR PARA FORMATEAR DURACIÓN
+const formatDurationForPostgres = (duration) => {
+  let raw = typeof duration === "object" ? duration?.total : duration;
+  if (!raw || typeof raw !== "string" || raw.trim() === "") return null;
+
+  const parts = raw.split(":");
+  if (parts.length === 2) {
+    return `00:${parts[0].padStart(2, "0")}:${parts[1].padStart(2, "0")}`;
+  }
+  if (parts.length === 3) {
+    return raw;
+  }
+  return null;
+};
 
 export const getDashboardStats = async (req, res) => {
   try {
@@ -162,11 +178,13 @@ export const getAdminUsers = async (req, res) => {
     const whereCondition = search
       ? {
           [Op.or]: [
-            ...(!isNaN(search) ? [{ id: parseInt(search) }] : []),
-            { username: { [Op.like]: `%${search}%` } },
-            { email: { [Op.like]: `%${search}%` } },
-            { name: { [Op.like]: `%${search}%` } },
-            { surname: { [Op.like]: `%${search}%` } },
+            ...(!isNaN(search) && Number.isInteger(Number(search))
+              ? [{ id: parseInt(search) }]
+              : []),
+            { username: { [Op.iLike]: `%${search}%` } },
+            { email: { [Op.iLike]: `%${search}%` } },
+            { name: { [Op.iLike]: `%${search}%` } },
+            { surname: { [Op.iLike]: `%${search}%` } },
           ],
         }
       : {};
@@ -315,5 +333,212 @@ export const deleteUser = async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: "Error al eliminar usuario" });
+  }
+};
+
+export const getAdminVinyls = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      sortBy = "created_at",
+      order = "DESC",
+      genre = "",
+    } = req.query;
+
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    const whereCondition = search
+      ? {
+          [Op.or]: [
+            { artist: { [Op.iLike]: `%${search}%` } },
+            { album: { [Op.iLike]: `%${search}%` } },
+
+            ...(!isNaN(search) && Number.isInteger(Number(search))
+              ? [{ id: parseInt(search) }]
+              : []),
+          ],
+        }
+      : {};
+
+    const allowedSortFields = [
+      "id",
+      "artist",
+      "album",
+      "price",
+      "release_date",
+      "created_at",
+    ];
+    const activeSortField = allowedSortFields.includes(sortBy)
+      ? sortBy
+      : "created_at";
+    const activeOrder = order.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
+    const genreInclude = {
+      model: Genre,
+      as: "Genres",
+      through: { attributes: [] },
+    };
+
+    if (genre && genre !== "") {
+      genreInclude.where = { name: genre };
+      genreInclude.required = true;
+    }
+
+    const { count, rows: vinyls } = await Vinyl.findAndCountAll({
+      where: whereCondition,
+      limit: parseInt(limit),
+      offset: offset,
+      order: [[activeSortField, activeOrder]],
+      distinct: true,
+      include: [genreInclude],
+    });
+
+    res.json({
+      success: true,
+      data: vinyls,
+      pagination: {
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: parseInt(page),
+      },
+    });
+  } catch (error) {
+    console.error("Error detallado en getAdminVinyls:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener catálogo: " + error.message,
+    });
+  }
+};
+
+export const createVinyl = async (req, res) => {
+  try {
+    const {
+      artist,
+      album,
+      price,
+      release_date,
+      album_cover,
+      band_location,
+      duration,
+      track_list,
+      Genres,
+    } = req.body;
+
+    const validDate =
+      release_date && release_date.trim() !== "" ? release_date : null;
+    const postgresDuration = formatDurationForPostgres(duration);
+
+    const newVinyl = await Vinyl.create({
+      artist,
+      album,
+      price: parseFloat(price),
+      release_date: validDate,
+      album_cover,
+      band_location,
+      duration: postgresDuration,
+      track_list: Array.isArray(track_list) ? track_list : [],
+      track_count: track_list?.length || 0,
+    });
+
+    if (Genres && Genres.length > 0) {
+      const genreNames = Genres.map((g) =>
+        typeof g === "string" ? g : g.name,
+      );
+      const foundGenres = await Genre.findAll({ where: { name: genreNames } });
+      await newVinyl.setGenres(foundGenres);
+    }
+
+    res
+      .status(201)
+      .json({ success: true, message: "Creado con éxito", data: newVinyl });
+  } catch (error) {
+    console.error("Error al crear:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateVinyl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      artist,
+      album,
+      price,
+      release_date,
+      album_cover,
+      band_location,
+      duration,
+      track_list,
+      Genres,
+    } = req.body;
+
+    const vinyl = await Vinyl.findByPk(id);
+    if (!vinyl)
+      return res.status(404).json({ success: false, message: "No encontrado" });
+
+    const validDate =
+      release_date && release_date.trim() !== "" ? release_date : null;
+    const postgresDuration = formatDurationForPostgres(duration);
+
+    await vinyl.update({
+      artist,
+      album,
+      price: parseFloat(price),
+      release_date: validDate,
+      album_cover,
+      band_location,
+      duration: postgresDuration,
+      track_list: Array.isArray(track_list) ? track_list : [],
+      track_count: track_list?.length || 0,
+    });
+
+    if (Genres) {
+      const namesToFind = Genres.map((g) =>
+        typeof g === "string" ? g : g.name,
+      );
+      const foundGenres = await Genre.findAll({ where: { name: namesToFind } });
+      await vinyl.setGenres(foundGenres);
+    }
+
+    res.json({
+      success: true,
+      message: "Actualizado correctamente",
+      data: vinyl,
+    });
+  } catch (error) {
+    console.error("Error en update:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteVinyl = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const vinyl = await Vinyl.findByPk(id);
+
+    if (!vinyl) {
+      return res.status(404).json({
+        success: false,
+        message: "El vinilo que intentas eliminar no existe.",
+      });
+    }
+
+    await vinyl.destroy();
+
+    res.json({
+      success: true,
+      message: `El vinilo "${vinyl.album}" ha sido eliminado correctamente.`,
+    });
+  } catch (error) {
+    console.error("--- ERROR AL ELIMINAR VINILO ---");
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor al eliminar: " + error.message,
+    });
   }
 };

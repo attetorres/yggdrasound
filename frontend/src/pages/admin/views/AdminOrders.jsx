@@ -20,10 +20,19 @@ const AdminOrders = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
 
+  const [filters, setFilters] = useState({
+    search: "",
+    sortBy: "order_date",
+    order: "DESC",
+  });
+
   const fetchOrders = async (page) => {
     try {
       setLoading(true);
-      const response = await getOrders(page, 6);
+      const { search, sortBy, order } = filters;
+
+      const response = await getOrders(page, 6, search, sortBy, order);
+
       if (response.success) {
         setOrders(response.data);
         setPagination(response.pagination);
@@ -51,9 +60,14 @@ const AdminOrders = () => {
     }
   };
 
-  useEffect(() => {
+ useEffect(() => {
+  const timer = setTimeout(() => {
     fetchOrders(currentPage);
-  }, [currentPage]);
+  }, 400);
+
+  return () => clearTimeout(timer);
+  
+}, [currentPage, filters.search, filters.sortBy, filters.order]);
 
   return (
     <div className="p-6 bg-black min-h-screen text-white relative">
@@ -64,6 +78,46 @@ const AdminOrders = () => {
         <span className="bg-neutral-800 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
           {pagination.totalItems || 0} Registros
         </span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="md:col-span-2 relative">
+          <input
+            type="text"
+            placeholder="Buscar por ID pedido o Username..."
+            className="w-full bg-neutral-900 border border-neutral-800 rounded-2xl py-3 px-5 text-sm focus:outline-none focus:border-primary-500 transition-colors"
+            value={filters.search}
+            onChange={(e) => {
+              setFilters({ ...filters, search: e.target.value });
+              setCurrentPage(1);
+            }}
+          />
+        </div>
+
+        <select
+          className="bg-neutral-900 border border-neutral-800 rounded-2xl py-3 px-5 text-sm focus:outline-none focus:border-primary-500 cursor-pointer"
+          value={filters.sortBy}
+          onChange={(e) => {
+            setFilters({ ...filters, sortBy: e.target.value });
+            setCurrentPage(1);
+          }}
+        >
+          <option value="order_date">Ordenar por Fecha</option>
+          <option value="total_amount">Ordenar por Total (€)</option>
+          <option value="quantity">Ordenar por Cantidad</option>
+        </select>
+
+        <select
+          className="bg-neutral-900 border border-neutral-800 rounded-2xl py-3 px-5 text-sm focus:outline-none focus:border-primary-500 cursor-pointer"
+          value={filters.order}
+          onChange={(e) => {
+            setFilters({ ...filters, order: e.target.value });
+            setCurrentPage(1);
+          }}
+        >
+          <option value="DESC">Descendente ↓</option>
+          <option value="ASC">Ascendente ↑</option>
+        </select>
       </div>
 
       <div className="bg-neutral-900 border border-neutral-800 rounded-4xl overflow-hidden">

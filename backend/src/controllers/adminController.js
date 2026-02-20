@@ -3,6 +3,7 @@ import Vinyl from "../models/Vinyl.js";
 import OrderHistory from "../models/OrderHistory.js";
 import OrderVinyl from "../models/OrderVinyl.js";
 import { Sequelize, Op } from "sequelize";
+import bcrypt from "bcryptjs";
 
 export const getDashboardStats = async (req, res) => {
   try {
@@ -37,77 +38,35 @@ export const getDashboardStats = async (req, res) => {
   }
 };
 
-/* export const getAdminOrders = async (req, res) => {
-  try {
-    // Recogemos page y limit de la query, por defecto 1 y 25
-    const { page = 1, limit = 25 } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
-
-    const { count, rows: orders } = await OrderHistory.findAndCountAll({
-      limit: parseInt(limit),
-      offset: offset,
-      distinct: true,
-      order: [["order_date", "DESC"]], // Lo más nuevo primero
-      include: [
-        {
-          model: User,
-          attributes: ["id", "username", "email", "name", "surname"], // Todos los datos del comprador
-        },
-      ],
-    });
-
-    res.json({
-      success: true,
-      data: orders,
-      pagination: {
-        totalItems: count,
-        totalPages: Math.ceil(count / limit),
-        currentPage: parseInt(page),
-        itemsPerPage: parseInt(limit),
-      },
-    });
-  } catch (error) {
-    console.error("Error al obtener todas las ventas:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error interno del servidor" });
-  }
-}; */
-
 export const getAdminOrders = async (req, res) => {
   try {
     const {
       page = 1,
       limit = 25,
       search = "",
-      sortBy = "order_date", // Campo por defecto
-      order = "DESC", // Orden por defecto
+      sortBy = "order_date",
+      order = "DESC",
     } = req.query;
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
-    // 1. Filtros de búsqueda (Search)
     const whereCondition = search
       ? {
           [Op.or]: [
-            // Búsqueda por ID de Pedido (si es número)
             ...(!isNaN(search) ? [{ id: parseInt(search) }] : []),
 
-            // Búsqueda por Cantidad exacta (si es número)
-            ...(!isNaN(search) ? [{ quantity: parseInt(search) }] : []),
+            ...(!isNaN(search) ? [{ user_id: parseInt(search) }] : []),
 
-            // Búsqueda por ID de Usuario (UID)
-            { user_id: { [Op.like]: `%${search}%` } },
-
-            // Búsqueda en campos relacionados (User)
-            { "$User.username$": { [Op.like]: `%${search}%` } },
-            { "$User.email$": { [Op.like]: `%${search}%` } },
+            Sequelize.where(Sequelize.col("User.username"), {
+              [Op.like]: `%${search}%`,
+            }),
+            Sequelize.where(Sequelize.col("User.email"), {
+              [Op.like]: `%${search}%`,
+            }),
           ],
         }
       : {};
 
-    // 2. Mapeo de ordenación para evitar ataques de inyección SQL
-    // Solo permitimos ordenar por campos específicos
     const allowedSortFields = ["order_date", "total_amount", "quantity", "id"];
     const activeSortField = allowedSortFields.includes(sortBy)
       ? sortBy
@@ -119,7 +78,7 @@ export const getAdminOrders = async (req, res) => {
       limit: parseInt(limit),
       offset: offset,
       distinct: true,
-      order: [[activeSortField, activeOrder]], // Ordenación dinámica
+      order: [[activeSortField, activeOrder]],
       include: [
         {
           model: User,
@@ -185,5 +144,176 @@ export const getOrderDetail = async (req, res) => {
   } catch (error) {
     console.error("Error al obtener detalle:", error);
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getAdminUsers = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      sortBy = "created_at",
+      order = "DESC",
+    } = req.query;
+
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    const whereCondition = search
+      ? {
+          [Op.or]: [
+            ...(!isNaN(search) ? [{ id: parseInt(search) }] : []),
+            { username: { [Op.like]: `%${search}%` } },
+            { email: { [Op.like]: `%${search}%` } },
+            { name: { [Op.like]: `%${search}%` } },
+            { surname: { [Op.like]: `%${search}%` } },
+          ],
+        }
+      : {};
+
+    const allowedSortFields = [
+      "id",
+      "username",
+      "email",
+      "created_at",
+      "is_admin",
+    ];
+    const activeSortField = allowedSortFields.includes(sortBy)
+      ? sortBy
+      : "created_at";
+    const activeOrder = order.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
+    const { count, rows: users } = await User.findAndCountAll({
+      where: whereCondition,
+      limit: parseInt(limit),
+      offset: offset,
+      attributes: { exclude: ["password"] },
+      order: [[activeSortField, activeOrder]],
+    });
+
+    res.json({
+      success: true,
+      data: users,
+      pagination: {
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: parseInt(page),
+      },
+    });
+  } catch (error) {
+    console.error("Error al obtener usuarios:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error al obtener usuarios" });
+  }
+};
+
+export const createUser = async (req, res) => {
+  try {
+    const userData = { ...req.body };
+
+    const passwordToHash = userData.password || "password123";
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(passwordToHash, saltRounds);
+
+    userData.password = hashedPassword;
+
+    const newUser = await User.create(userData);
+
+    const userResponse = newUser.toJSON();
+    delete userResponse.password;
+
+    res.status(201).json({
+      success: true,
+      message: "Usuario creado correctamente",
+      data: userResponse,
+    });
+  } catch (error) {
+    console.error("Error al crear usuario (Admin):", error);
+
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res.status(400).json({
+        success: false,
+        message: "El email o username ya están en uso.",
+      });
+    }
+
+    if (error.name === "SequelizeValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: "Datos de usuario inválidos",
+        errors: error.errors.map((err) => err.message),
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Error interno al crear el usuario",
+    });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body };
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    if (updateData.password && updateData.password.trim() !== "") {
+      const saltRounds = 10;
+      updateData.password = await bcrypt.hash(updateData.password, saltRounds);
+    } else {
+      delete updateData.password;
+    }
+
+    await user.update(updateData);
+
+    const userResponse = user.toJSON();
+    delete userResponse.password;
+
+    res.json({
+      success: true,
+      message: "Usuario actualizado correctamente",
+      data: userResponse,
+    });
+  } catch (error) {
+    console.error("Error al actualizar usuario:", error);
+
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res
+        .status(400)
+        .json({ success: false, message: "El email o username ya existen" });
+    }
+
+    res
+      .status(500)
+      .json({ success: false, message: "Error al actualizar el usuario" });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    await user.destroy();
+    res.json({ success: true, message: "Usuario eliminado con éxito" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Error al eliminar usuario" });
   }
 };

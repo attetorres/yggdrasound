@@ -94,7 +94,8 @@ export const getAdminOrders = async (req, res) => {
       limit: parseInt(limit),
       offset: offset,
       distinct: true,
-      order: [[activeSortField, activeOrder]],
+      subQuery: false,
+      order: [[activeSortField, activeOrder],["id", "ASC"]],
       include: [
         {
           model: User,
@@ -206,7 +207,7 @@ export const getAdminUsers = async (req, res) => {
       limit: parseInt(limit),
       offset: offset,
       attributes: { exclude: ["password"] },
-      order: [[activeSortField, activeOrder]],
+      order: [[activeSortField, activeOrder],["id", "ASC"]],
     });
 
     res.json({
@@ -336,7 +337,7 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-export const getAdminVinyls = async (req, res) => {
+/* export const getAdminVinyls = async (req, res) => {
   try {
     const {
       page = 1,
@@ -391,8 +392,9 @@ export const getAdminVinyls = async (req, res) => {
       where: whereCondition,
       limit: parseInt(limit),
       offset: offset,
-      order: [[activeSortField, activeOrder]],
+      order: [[activeSortField, activeOrder],["id", "ASC"]],
       distinct: true,
+      subQuery: false,
       include: [genreInclude],
     });
 
@@ -410,6 +412,71 @@ export const getAdminVinyls = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error al obtener catálogo: " + error.message,
+    });
+  }
+}; */
+
+export const getAdminVinyls = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      sortBy = "created_at",
+      order = "DESC",
+      genre = "",
+    } = req.query;
+
+    const offset = (page - 1) * parseInt(limit);
+    const whereClause = {};
+
+    if (search) {
+      whereClause[Op.or] = [
+        { artist: { [Op.iLike]: `%${search}%` } },
+        { album: { [Op.iLike]: `%${search}%` } },
+        ...(!isNaN(search) ? [{ id: parseInt(search) }] : []),
+      ];
+    }
+
+    const allowedSortFields = ["id", "artist", "album", "price", "release_date", "created_at"];
+    const activeSortField = allowedSortFields.includes(sortBy) ? sortBy : "created_at";
+    const activeOrder = order.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
+    const { count, rows } = await Vinyl.findAndCountAll({
+      where: whereClause,
+      limit: parseInt(limit),
+      offset: offset,
+      order: [[activeSortField, activeOrder], ["id", "ASC"]],
+      distinct: true,
+      include: [
+        {
+          model: Genre,
+          as: "genres",
+          where: genre ? { name: genre } : null,
+          required: !!genre,
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    res.json({
+      success: true,
+      data: rows,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(count / parseInt(limit)),
+        showingFrom: offset + 1,
+        showingTo: Math.min(offset + parseInt(limit), count),
+      },
+    });
+  } catch (error) {
+    console.error("Error detallado en getAdminVinyls:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener catálogo de administrador",
+      error: error.message,
     });
   }
 };

@@ -6,7 +6,7 @@ import { Op } from "sequelize";
 
 // MÉTODOS GET
 
-export const getVinyls = async (req, res) => {
+/* export const getVinyls = async (req, res) => {
   try {
     const {
       page = 1,
@@ -38,12 +38,15 @@ export const getVinyls = async (req, res) => {
       orderClause.push(["created_at", "DESC"]);
     }
 
+    orderClause.push(["id", "ASC"]);
+
     const { count, rows } = await Vinyl.findAndCountAll({
       where: whereClause,
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: orderClause,
       distinct: true,
+      subQuery: false,
       include: [
         {
           model: Genre,
@@ -63,6 +66,73 @@ export const getVinyls = async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         totalPages: Math.ceil(count / limit),
+        showingFrom: offset + 1,
+        showingTo: Math.min(offset + parseInt(limit), count),
+      },
+    });
+  } catch (error) {
+    console.error("Error detallado en getVinyls:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener vinilos",
+      error: error.message,
+    });
+  }
+}; */
+
+export const getVinyls = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 30,
+      search = "",
+      genre = "",
+      sort = "newest",
+    } = req.query;
+
+    const offset = (page - 1) * parseInt(limit);
+    const whereClause = {};
+
+    if (search) {
+      whereClause[Op.or] = [
+        { artist: { [Op.iLike]: `%${search}%` } },
+        { album: { [Op.iLike]: `%${search}%` } },
+      ];
+    }
+
+    let orderClause = [];
+    if (sort === "price-asc") orderClause.push(["price", "ASC"]);
+    else if (sort === "price-desc") orderClause.push(["price", "DESC"]);
+    else if (sort === "oldest") orderClause.push(["created_at", "ASC"]);
+    else orderClause.push(["created_at", "DESC"]);
+    
+    orderClause.push(["id", "ASC"]);
+
+    const { count, rows } = await Vinyl.findAndCountAll({
+      where: whereClause,
+      limit: parseInt(limit),
+      offset: offset,
+      order: orderClause,
+      distinct: true,
+      include: [
+        {
+          model: Genre,
+          as: "genres",
+          where: genre ? { name: genre } : null,
+          required: !!genre,
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    res.json({
+      success: true,
+      data: rows,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(count / parseInt(limit)),
         showingFrom: offset + 1,
         showingTo: Math.min(offset + parseInt(limit), count),
       },

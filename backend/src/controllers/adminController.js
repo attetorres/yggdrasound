@@ -377,7 +377,8 @@ export const getAdminVinyls = async (req, res) => {
 
     const genreInclude = {
       model: Genre,
-      as: "Genres",
+      as: "genres",
+      attributes: ["name"],
       through: { attributes: [] },
     };
 
@@ -424,7 +425,7 @@ export const createVinyl = async (req, res) => {
       band_location,
       duration,
       track_list,
-      Genres,
+      genres,
     } = req.body;
 
     const validDate =
@@ -443,8 +444,8 @@ export const createVinyl = async (req, res) => {
       track_count: track_list?.length || 0,
     });
 
-    if (Genres && Genres.length > 0) {
-      const genreNames = Genres.map((g) =>
+    if (genres && genres.length > 0) {
+      const genreNames = genres.map((g) =>
         typeof g === "string" ? g : g.name,
       );
       const foundGenres = await Genre.findAll({ where: { name: genreNames } });
@@ -472,7 +473,7 @@ export const updateVinyl = async (req, res) => {
       band_location,
       duration,
       track_list,
-      Genres,
+      genres,
     } = req.body;
 
     const vinyl = await Vinyl.findByPk(id);
@@ -495,8 +496,8 @@ export const updateVinyl = async (req, res) => {
       track_count: track_list?.length || 0,
     });
 
-    if (Genres) {
-      const namesToFind = Genres.map((g) =>
+    if (genres) {
+      const namesToFind = genres.map((g) =>
         typeof g === "string" ? g : g.name,
       );
       const foundGenres = await Genre.findAll({ where: { name: namesToFind } });

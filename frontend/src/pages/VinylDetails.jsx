@@ -365,6 +365,26 @@ const VinylDetails = () => {
                   {vinyl?.track_count || "0"} Canciones
                 </span>
               </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">
+                  {vinyl?.genres?.length == 1 ? "Género" : "Géneros"}
+                </span>
+                <div className="flex flex-wrap gap-1">
+                  {vinyl?.genres?.length > 0 ? (
+                    vinyl.genres.map((g, index) => (
+                      <span
+                        key={index}
+                        className="text-sm font-bold capitalize"
+                      >
+                        {g.name}
+                        {index < vinyl.genres.length - 1 ? "," : ""}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-sm font-bold">N/A</span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 

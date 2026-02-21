@@ -22,14 +22,14 @@ const setupAssociations = () => {
     through: VinylGenre,
     foreignKey: "vinyl_id",
     otherKey: "genre_id",
-    as: "Genres"
+    as: "genres"
   });
 
   Genre.belongsToMany(Vinyl, {
     through: VinylGenre,
     foreignKey: "genre_id",
     otherKey: "vinyl_id",
-    as: "Vinyls",
+    as: "vinyls",
   });
 
   OrderHistory.belongsTo(User, {

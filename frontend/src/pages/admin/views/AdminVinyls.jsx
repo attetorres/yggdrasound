@@ -61,7 +61,7 @@ const AdminVinyls = () => {
       band_location,
       duration,
       track_list,
-      Genres,
+      genres,
     } = selectedVinyl;
 
     if (
@@ -77,8 +77,8 @@ const AdminVinyls = () => {
       !track_list ||
       track_list.length === 0 ||
       track_list.some((track) => !track.trim()) ||
-      !Genres ||
-      Genres.length === 0
+      !genres ||
+      genres.length === 0
     ) {
       alert("Por favor, completa todos los campos obligatorios.\n");
       return;
@@ -137,18 +137,18 @@ const AdminVinyls = () => {
   };
 
   const handleGenreToggle = (genreName) => {
-    const currentGenres = selectedVinyl.Genres || [];
+    const currentGenres = selectedVinyl.genres || [];
     const exists = currentGenres.find((g) => g.name === genreName);
 
     if (exists) {
       setSelectedVinyl({
         ...selectedVinyl,
-        Genres: currentGenres.filter((g) => g.name !== genreName),
+        genres: currentGenres.filter((g) => g.name !== genreName),
       });
     } else {
       setSelectedVinyl({
         ...selectedVinyl,
-        Genres: [...currentGenres, { name: genreName }],
+        genres: [...currentGenres, { name: genreName }],
       });
     }
   };
@@ -276,7 +276,7 @@ const AdminVinyls = () => {
                 band_location: "",
                 duration: "",
                 track_list: [],
-                Genres: [],
+                genres: [],
               });
               setIsModalOpen(true);
             }}
@@ -349,8 +349,8 @@ const AdminVinyls = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1 max-w-37.5">
-                        {vinyl.Genres && vinyl.Genres.length > 0 ? (
-                          vinyl.Genres.map((genre) => (
+                        {vinyl.genres && vinyl.genres.length > 0 ? (
+                          vinyl.genres.map((genre) => (
                             <span
                               key={genre.id}
                               className="px-1.5 py-0.5 rounded-md bg-white/5 border border-white/10 text-[9px] font-bold uppercase tracking-wider text-neutral-400"
@@ -392,7 +392,7 @@ const AdminVinyls = () => {
 
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 bg-neutral-800 text-neutral-400 rounded-md text-[10px] font-bold">
-                        {vinyl.track_count || 0} temas
+                        {vinyl.track_count || 0}
                       </span>
                     </td>
 
@@ -563,7 +563,7 @@ const AdminVinyls = () => {
                           "pop",
                           "ambient",
                         ].map((genre) => {
-                          const isSelected = selectedVinyl.Genres?.some(
+                          const isSelected = selectedVinyl.genres?.some(
                             (g) => g.name === genre,
                           );
                           return (

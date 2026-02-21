@@ -38,20 +38,19 @@ export const getVinyls = async (req, res) => {
       orderClause.push(["created_at", "DESC"]);
     }
 
-    // Consulta con JOIN a la tabla Genre
     const { count, rows } = await Vinyl.findAndCountAll({
       where: whereClause,
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: orderClause,
-      distinct: true, // Necesario para que el count sea correcto al usar include
+      distinct: true,
       include: [
         {
           model: Genre,
-          as: "Genres", // Que el alias coincida con la asociación
+          as: "genres",
           where: genre && genre !== "" ? { name: genre } : null,
-          required: genre && genre !== "" ? true : false, // INNER JOIN si hay género, LEFT JOIN si no
-          through: { attributes: [] }, // No traer datos de la tabla intermedia
+          required: genre && genre !== "" ? true : false,
+          through: { attributes: [] },
         },
       ],
     });
@@ -82,7 +81,16 @@ export const getVinylById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const vinyl = await Vinyl.findByPk(id);
+    const vinyl = await Vinyl.findByPk(id, {
+      include: [
+        {
+          model: Genre,
+          as: "genres",
+          attributes: ["name"],
+          through: { attributes: [] },
+        },
+      ],
+    });
 
     if (!vinyl) {
       return res.status(404).json({
@@ -217,7 +225,6 @@ export const getVinylsByGenre = async (req, res) => {
 
     const offset = (page - 1) * limit;
 
-    // Buscar el ID del género EXACTO
     const genreVinyl = await Genre.findOne({
       where: { name: genre },
     });
@@ -406,7 +413,6 @@ export const updateVinyl = async (req, res) => {
       });
     }
 
-    // Verificar si se está cambiando artista/álbum y si ya existe
     if (
       (artist || album) &&
       (artist !== vinyl.artist || album !== vinyl.album)
@@ -440,7 +446,6 @@ export const updateVinyl = async (req, res) => {
     if (price !== undefined) updateData.price = parseFloat(price);
     if (track_list !== undefined) {
       updateData.track_list = track_list;
-      // Si se actualiza track_list y no se da track_count, recalcular
       if (track_count === undefined) {
         updateData.track_count = track_list ? track_list.length : 0;
       }

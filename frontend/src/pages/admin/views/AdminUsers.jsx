@@ -14,6 +14,8 @@ import {
   X,
   Plus,
 } from "lucide-react";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import { showToast } from "../../../components/utils/toast";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -53,38 +55,47 @@ const AdminUsers = () => {
     try {
       setIsUpdating(true);
       let response;
+      let message;
 
       if (selectedUser.id) {
         response = await updateUser(selectedUser.id, selectedUser);
+        message = "Usuario actualizado con éxito";
       } else {
         response = await createUser(selectedUser);
+        message = "Usuario creado con éxito";
       }
 
       if (response.success) {
         setIsModalOpen(false);
         fetchUsers(currentPage);
+        showToast.success(message);
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Error en la operación");
+      showToast.error("Error al guardar los cambios");
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const handleDeleteUser = async (id) => {
-    if (
-      window.confirm(
-        "¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.",
-      )
-    ) {
-      try {
-        const response = await deleteUser(id);
-        if (response.success) {
-          fetchUsers(currentPage);
-        }
-      } catch (error) {
-        alert("Error al eliminar");
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const triggerDeleteFlow = (id) => {
+    setItemToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      const response = await deleteUser(itemToDelete);
+      if (response.success) {
+        fetchUsers(currentPage);
+        showToast.success("Usuario eliminado con éxito");
       }
+    } catch (error) {
+      showToast.error("Error al eliminar el usuario");
     }
   };
 
@@ -295,7 +306,7 @@ const AdminUsers = () => {
                             </button>
                             <div className="h-px bg-neutral-800 my-1 mx-2"></div>
                             <button
-                              onClick={() => handleDeleteUser(user.id)}
+                              onClick={() => triggerDeleteFlow(user.id)}
                               className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                             >
                               Eliminar
@@ -627,6 +638,13 @@ const AdminUsers = () => {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleDeleteUser}
+        title="Confirmar eliminación"
+        message="¿Estás seguro de que deseas realizar esta acción? No se puede deshacer."
+      />
     </div>
   );
 };

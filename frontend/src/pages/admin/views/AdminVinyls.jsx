@@ -107,7 +107,7 @@ const AdminVinyls = () => {
       }
     } catch (error) {
       console.error("Error al guardar:", error);
-      alert("Error al guardar los cambios");
+      showToast.error("Error al guardar los cambios");
     } finally {
       setIsUpdating(false);
     }

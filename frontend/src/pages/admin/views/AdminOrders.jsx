@@ -60,14 +60,13 @@ const AdminOrders = () => {
     }
   };
 
- useEffect(() => {
-  const timer = setTimeout(() => {
-    fetchOrders(currentPage);
-  }, 400);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchOrders(currentPage);
+    }, 400);
 
-  return () => clearTimeout(timer);
-  
-}, [currentPage, filters.search, filters.sortBy, filters.order]);
+    return () => clearTimeout(timer);
+  }, [currentPage, filters.search, filters.sortBy, filters.order]);
 
   return (
     <div className="p-6 bg-neutral-950 min-h-screen text-white rounded-3xl relative">
@@ -168,15 +167,15 @@ const AdminOrders = () => {
           </tbody>
         </table>
 
-        <div className="p-6 border-t border-neutral-800 flex justify-between items-center bg-neutral-900/80">
+        <div className="p-6 border-t border-neutral-800 flex justify-between items-center bg-neutral-900/80 sticky left-0 w-full">
           <p className="text-xs text-neutral-500 font-bold uppercase tracking-widest">
             Página {currentPage} de {pagination.totalPages || 1}
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-              className="p-2 border border-neutral-800 rounded-xl hover:bg-neutral-800 disabled:opacity-20 cursor-pointer"
+              disabled={currentPage === 1 || loading}
+              className="p-2 border border-neutral-800 rounded-xl hover:bg-neutral-800 disabled:opacity-20 cursor-pointer transition-colors text-white"
             >
               <ChevronLeft size={20} />
             </button>
@@ -184,8 +183,8 @@ const AdminOrders = () => {
               onClick={() =>
                 setCurrentPage((p) => Math.min(p + 1, pagination.totalPages))
               }
-              disabled={currentPage === pagination.totalPages}
-              className="p-2 border border-neutral-800 rounded-xl hover:bg-neutral-800 disabled:opacity-20 cursor-pointer"
+              disabled={currentPage === pagination.totalPages || loading}
+              className="p-2 border border-neutral-800 rounded-xl hover:bg-neutral-800 disabled:opacity-20 cursor-pointer transition-colors text-white"
             >
               <ChevronRight size={20} />
             </button>

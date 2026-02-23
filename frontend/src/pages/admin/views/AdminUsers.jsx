@@ -310,7 +310,7 @@ const AdminUsers = () => {
             </tbody>
           </table>
 
-          <div className="p-6 border-t border-neutral-800 flex justify-between items-center bg-neutral-900/80">
+          <div className="p-6 border-t border-neutral-800 flex justify-between items-center bg-neutral-900/80 sticky left-0 w-full">
             <p className="text-xs text-neutral-500 font-bold uppercase tracking-widest">
               Página {currentPage} de {pagination.totalPages || 1}
             </p>

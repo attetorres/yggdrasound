@@ -15,6 +15,8 @@ import {
   Search,
   ImageIcon,
 } from "lucide-react";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import { showToast } from "../../../components/utils/toast";
 
 const AdminVinyls = () => {
   const [vinyls, setVinyls] = useState([]);
@@ -80,23 +82,28 @@ const AdminVinyls = () => {
       !genres ||
       genres.length === 0
     ) {
-      alert("Por favor, completa todos los campos obligatorios.\n");
+      showToast.info("Por favor, completa todos los campos obligatorios.");
+
       return;
     }
 
     try {
       setIsUpdating(true);
       let response;
+      let message;
 
       if (selectedVinyl.id) {
         response = await updateVinyl(selectedVinyl.id, selectedVinyl);
+        message = "Vinilo actualizado con éxito";
       } else {
         response = await createVinyl(selectedVinyl);
+        message = "Vinilo creado con éxito";
       }
 
       if (response.success) {
         setIsModalOpen(false);
         fetchVinyls(currentPage);
+        showToast.success(message);
       }
     } catch (error) {
       console.error("Error al guardar:", error);
@@ -106,33 +113,36 @@ const AdminVinyls = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "¿Estás totalmente seguro? Esta acción eliminará el vinilo permanentemente de la base de datos.",
-    );
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
-    if (confirmed) {
-      try {
-        setLoading(true);
-        const response = await deleteVinyl(id);
+  const triggerDeleteFlow = (id) => {
+    setItemToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
 
-        if (response.success) {
-          if (vinyls.length === 1 && currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-          } else {
-            await fetchVinyls(currentPage);
-          }
+  const handleDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      setLoading(true);
+      const response = await deleteVinyl(itemToDelete);
+
+      if (response.success) {
+        if (vinyls.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        } else {
+          await fetchVinyls(currentPage);
         }
-      } catch (error) {
-        console.error("Error al eliminar:", error);
-        alert(
-          "No se pudo eliminar el vinilo: " +
-            (error.message || "Error desconocido"),
-        );
-      } finally {
-        setLoading(false);
-        setOpenMenuId(null);
+        showToast.success("Vinilo eliminado con éxito");
       }
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+      showToast.error("Error al eliminar el vinilo");
+    } finally {
+      setLoading(false);
+      setOpenMenuId(null);
+      setIsConfirmModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -199,7 +209,7 @@ const AdminVinyls = () => {
               Catálogo de Vinilos
             </h2>
             <span className="bg-neutral-800 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-              {pagination.totalItems || 0} Vinilos
+              {pagination.total || 0} Vinilos
             </span>
           </div>
         </div>
@@ -432,7 +442,7 @@ const AdminVinyls = () => {
                             <div className="h-px bg-neutral-800 my-1 mx-2"></div>
                             <button
                               onClick={() => {
-                                handleDelete(vinyl.id);
+                                triggerDeleteFlow(vinyl.id);
                               }}
                               className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                             >
@@ -448,7 +458,7 @@ const AdminVinyls = () => {
             </tbody>
           </table>
 
-          <div className="p-6 border-t border-neutral-800 flex justify-between items-center bg-neutral-900/80">
+          <div className="p-6 border-t border-neutral-800 flex justify-between items-center bg-neutral-900/80 sticky left-0 w-full">
             <p className="text-xs text-neutral-500 font-bold uppercase tracking-widest">
               Página {currentPage} de {pagination.totalPages || 1}
             </p>
@@ -762,6 +772,13 @@ const AdminVinyls = () => {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Confirmar eliminación"
+        message="¿Estás seguro de que deseas realizar esta acción? No se puede deshacer."
+      />
     </div>
   );
 };

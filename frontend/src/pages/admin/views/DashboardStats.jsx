@@ -77,7 +77,7 @@ const DashboardStats = () => {
         {statsCards.map((stat, index) => (
           <div
             key={index}
-            className="bg-neutral-900 border border-neutral-800 p-8 rounded-[2.5rem] group hover:border-neutral-700 transition-all"
+            className="bg-neutral-950 border border-neutral-800 p-8 rounded-[2.5rem] group hover:border-neutral-700 transition-all"
           >
             <div className="flex justify-between items-start mb-4">
               <span className="text-[10px] uppercase font-black tracking-[0.2em] text-neutral-500 group-hover:text-neutral-300">
@@ -96,7 +96,7 @@ const DashboardStats = () => {
         ))}
       </div>
 
-      <div className="bg-neutral-900 border border-neutral-800 rounded-[2.5rem] p-10">
+      <div className="bg-neutral-950 border border-neutral-800 rounded-[2.5rem] p-10">
         <div className="flex justify-between items-center mb-10">
           <h3 className="text-2xl font-black uppercase italic tracking-tighter">
             Ventas Recientes

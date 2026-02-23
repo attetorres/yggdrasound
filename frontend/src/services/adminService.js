@@ -87,11 +87,11 @@ export const getVinyls = async (
   search = "",
   sortBy = "created_at",
   order = "DESC",
-  genre = ""
+  genre = "",
 ) => {
   try {
     const response = await api.get("/admin/vinyls", {
-      params: { page, limit, search, sortBy, order, genre }, 
+      params: { page, limit, search, sortBy, order, genre },
     });
     return response.data;
   } catch (error) {
@@ -110,17 +110,15 @@ export const createVinyl = async (vinylData) => {
   }
 };
 
-
-export const updateVinyl = async (id,vinylData) => {
+export const updateVinyl = async (id, vinylData) => {
   try {
     const response = await api.put(`/admin/update-vinyl/${id}`, vinylData);
-  return response.data;
+    return response.data;
   } catch (error) {
     console.error("Error en servicio updateVinyl:", error);
     throw error;
   }
 };
-
 
 export const deleteVinyl = async (id) => {
   try {
@@ -128,6 +126,34 @@ export const deleteVinyl = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Error en deleteVinyl service:", error);
+    throw error.response?.data || error.message;
+  }
+};
+
+export const getComments = async (
+  page = 1,
+  limit = 10,
+  search = "",
+  sortBy = "created_at",
+  order = "DESC",
+) => {
+  try {
+    const response = await api.get("/admin/comments", {
+      params: { page, limit, search, sortBy, order },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener comentarios:", error);
+    throw error;
+  }
+};
+
+export const deleteComment = async (id) => {
+  try {
+    const response = await api.delete(`/admin/delete-comment/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error en servicio deleteComment:", error);
     throw error.response?.data || error.message;
   }
 };

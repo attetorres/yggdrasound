@@ -5,6 +5,7 @@ import OrderVinyl from "../models/OrderVinyl.js";
 import { Sequelize, Op } from "sequelize";
 import bcrypt from "bcryptjs";
 import Genre from "../models/Genre.js";
+import Comment from "../models/Comment.js"
 
 // FUNCIÓN AUXILIAR PARA FORMATEAR DURACIÓN
 const formatDurationForPostgres = (duration) => {
@@ -607,6 +608,105 @@ export const deleteVinyl = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error interno del servidor al eliminar: " + error.message,
+    });
+  }
+};
+
+
+export const getAdminComments = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      sortBy = "created_at",
+      order = "DESC",
+    } = req.query;
+
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    let whereCondition = {};
+    
+    if (search) {
+      whereCondition = {
+        [Op.or]: [
+          { comment_text: { [Op.iLike]: `%${search}%` } },
+          Sequelize.where(Sequelize.col("User.username"), { [Op.iLike]: `%${search}%` }),
+          Sequelize.where(Sequelize.col("Vinyl.album"), { [Op.iLike]: `%${search}%` }),
+        ]
+      };
+      
+      if (!isNaN(search)) {
+        whereCondition[Op.or].push({ id: parseInt(search) });
+      }
+    }
+
+    // 2. Ejecutamos la consulta
+    const { count, rows: comments } = await Comment.findAndCountAll({
+      where: whereCondition,
+      limit: parseInt(limit),
+      offset: offset,
+      order: [[sortBy === 'created_at' ? 'created_at' : sortBy, order.toUpperCase()]],
+      include: [
+        {
+          model: User,
+          attributes: ["username", "email", "avatar_img"],
+          required: false
+        },
+        {
+          model: Vinyl,
+          attributes: ["album", "artist", "album_cover"],
+          required: false
+        },
+      ],
+      distinct: true, 
+      subQuery: false,
+    });
+
+    res.json({
+      success: true,
+      data: comments,
+      pagination: {
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: parseInt(page),
+      },
+    });
+  } catch (error) {
+    console.error("ERROR EN GET_ADMIN_COMMENTS:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error interno del servidor",
+      error: error.message 
+    });
+  }
+};
+
+export const deleteComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const comment = await Comment.findByPk(id);
+
+    if (!comment) {
+      return res.status(404).json({
+        success: false,
+        message: "El comentario que intentas eliminar no existe.",
+      });
+    }
+
+    await comment.destroy();
+
+    res.json({
+      success: true,
+      message: "Comentario eliminado correctamente por el administrador.",
+    });
+  } catch (error) {
+    console.error("--- ERROR AL ELIMINAR COMENTARIO ---");
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor al eliminar el comentario: " + error.message,
     });
   }
 };

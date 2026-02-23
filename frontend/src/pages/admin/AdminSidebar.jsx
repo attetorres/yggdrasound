@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom"; // Importamos NavLink
-import { LayoutDashboard, Disc, Users, ShoppingBag, Home } from "lucide-react";
+import { LayoutDashboard, Disc, Users, ShoppingBag, Home, MessageSquare } from "lucide-react";
 
 const AdminSidebar = () => {
   const menuItems = [
@@ -27,6 +27,12 @@ const AdminSidebar = () => {
       label: "Ventas",
       icon: <ShoppingBag size={18} />,
       path: "/admin/orders",
+    },
+    {
+      id: "comments",
+      label: "Comentarios",
+      icon: <MessageSquare size={18} />,
+      path: "/admin/comments",
     },
   ];
 

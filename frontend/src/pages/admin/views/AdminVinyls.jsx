@@ -191,7 +191,7 @@ const AdminVinyls = () => {
     "w-full bg-neutral-800 border border-neutral-700 rounded-xl py-2 px-4 text-sm focus:outline-none focus:border-primary-500 text-white transition-colors placeholder:text-neutral-600";
 
   return (
-    <div className="p-6 bg-black min-h-screen text-white">
+    <div className="p-6 bg-neutral-950 min-h-screen text-white rounded-3xl">
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-end">
           <div className="flex justify-between items-center mb-8 w-full">
@@ -280,7 +280,7 @@ const AdminVinyls = () => {
               });
               setIsModalOpen(true);
             }}
-            className="bg-primary-500 hover:bg-primary-400 text-black px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex justify-center gap-2"
+            className="bg-primary-500 hover:bg-primary-400 text-black px-6 py-3 items-center rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex justify-center gap-2"
           >
             <Plus size={15} /> Nuevo Vinilo
           </button>

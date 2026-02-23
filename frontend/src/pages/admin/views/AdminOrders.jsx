@@ -70,7 +70,7 @@ const AdminOrders = () => {
 }, [currentPage, filters.search, filters.sortBy, filters.order]);
 
   return (
-    <div className="p-6 bg-black min-h-screen text-white relative">
+    <div className="p-6 bg-neutral-950 min-h-screen text-white rounded-3xl relative">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-black italic uppercase tracking-tighter">
           Historial de Ventas

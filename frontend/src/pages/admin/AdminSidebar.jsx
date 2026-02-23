@@ -1,6 +1,13 @@
 import React from "react";
-import { NavLink } from "react-router-dom"; // Importamos NavLink
-import { LayoutDashboard, Disc, Users, ShoppingBag, Home, MessageSquare } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Disc,
+  Users,
+  ShoppingBag,
+  Home,
+  MessageSquare,
+} from "lucide-react";
 
 const AdminSidebar = () => {
   const menuItems = [

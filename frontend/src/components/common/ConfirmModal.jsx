@@ -13,13 +13,11 @@ const ConfirmModal = ({
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
-      {/* Backdrop (Fondo oscuro) */}
       <div
         className="absolute inset-0 bg-neutral-950/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* Caja del Modal */}
       <div className="relative bg-neutral-900 border border-neutral-800 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
         <button
           onClick={onClose}

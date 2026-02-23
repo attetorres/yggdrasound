@@ -243,10 +243,8 @@ export const deleteCreditCard = async (req, res) => {
 
     await creditCard.destroy();
 
-    // Si era la tarjeta por defecto, buscar otra para poner como default
     let newDefaultCard = null;
     if (wasDefault) {
-      // Buscar la tarjeta más reciente del mismo usuario
       const latestCard = await CreditCard.findOne({
         where: { user_id: userId },
         order: [["created_at", "DESC"]],

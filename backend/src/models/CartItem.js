@@ -43,10 +43,10 @@ const CartItem = sequelize.define(
     indexes: [
       {
         unique: true,
-        fields: ["cart_id", "vinyl_id"], // Evita duplicados
+        fields: ["cart_id", "vinyl_id"],
       },
     ],
-  }
+  },
 );
 
 export default CartItem;

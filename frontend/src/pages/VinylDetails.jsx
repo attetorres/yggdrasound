@@ -419,64 +419,65 @@ const VinylDetails = () => {
             </div>
           </div>
         </div>
+        {isLoggedIn ? (
+          <div className="flex-1 flex flex-col gap-4 min-w-[320px] transition-all duration-500">
+            {showConcerts ? (
+              <div className="flex-1 min-w-full max-w-100 self-stretch">
+                <div className="bg-neutral-900 border border-neutral-800 rounded-[2.5rem] p-8 flex flex-col shadow-2xl h-full max-h-180 overflow-hidden">
+                  <div className="shrink-0 flex justify-between items-center mb-6">
+                    <h3 className="text-white font-black uppercase italic tracking-tighter text-xl leading-none">
+                      Eventos
+                    </h3>
+                    <button
+                      onClick={() => setShowConcerts(false)}
+                      className="text-neutral-500 hover:text-white uppercase text-[10px] font-black tracking-widest cursor-pointer transition-colors"
+                    >
+                      Cerrar ✕
+                    </button>
+                  </div>
 
-        <div className="flex-1 flex flex-col gap-4 min-w-[320px] transition-all duration-500">
-          {showConcerts ? (
-            <div className="flex-1 min-w-full max-w-100 self-stretch">
-              <div className="bg-neutral-900 border border-neutral-800 rounded-[2.5rem] p-8 flex flex-col shadow-2xl h-full max-h-180 overflow-hidden">
-                <div className="shrink-0 flex justify-between items-center mb-6">
-                  <h3 className="text-white font-black uppercase italic tracking-tighter text-xl leading-none">
-                    Eventos
-                  </h3>
-                  <button
-                    onClick={() => setShowConcerts(false)}
-                    className="text-neutral-500 hover:text-white uppercase text-[10px] font-black tracking-widest cursor-pointer transition-colors"
-                  >
-                    Cerrar ✕
-                  </button>
-                </div>
-
-                <div
-                  className="flex-1 overflow-y-auto pr-2 flex flex-col gap-4 min-h-0
+                  <div
+                    className="flex-1 overflow-y-auto pr-2 flex flex-col gap-4 min-h-0
         [&::-webkit-scrollbar]:w-1.5
         [&::-webkit-scrollbar-track]:bg-transparent
         [&::-webkit-scrollbar-thumb]:bg-neutral-700
         [&::-webkit-scrollbar-thumb]:rounded-full"
-                >
-                  {loadingConcerts ? (
-                    <div className="h-full flex flex-col items-center justify-center gap-4 py-10">
-                      <div className="w-6 h-6 border-2 border-neutral-700 border-t-white rounded-full animate-spin"></div>
-                      <p className="text-[10px] text-neutral-500 uppercase tracking-[0.3em] animate-pulse">
-                        Buscando...
-                      </p>
-                    </div>
-                  ) : concerts.length > 0 ? (
-                    concerts.map((c, index) => (
-                      <ConcertCard key={index} concert={c} />
-                    ))
-                  ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-center p-6 border border-dashed border-neutral-800 rounded-3xl gap-4">
-                      <p className="text-neutral-600 text-[10px] uppercase font-black tracking-widest leading-relaxed">
-                        No hay fechas próximas
-                      </p>
-                    </div>
-                  )}
+                  >
+                    {loadingConcerts ? (
+                      <div className="h-full flex flex-col items-center justify-center gap-4 py-10">
+                        <div className="w-6 h-6 border-2 border-neutral-700 border-t-white rounded-full animate-spin"></div>
+                        <p className="text-[10px] text-neutral-500 uppercase tracking-[0.3em] animate-pulse">
+                          Buscando...
+                        </p>
+                      </div>
+                    ) : concerts.length > 0 ? (
+                      concerts.map((c, index) => (
+                        <ConcertCard key={index} concert={c} />
+                      ))
+                    ) : (
+                      <div className="h-full flex flex-col items-center justify-center text-center p-6 border border-dashed border-neutral-800 rounded-3xl gap-4">
+                        <p className="text-neutral-600 text-[10px] uppercase font-black tracking-widest leading-relaxed">
+                          No hay fechas próximas
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div
-              onClick={handleFetchConcerts}
-              className="flex-1 bg-neutral-900 border border-neutral-800 rounded-[2.5rem] flex items-center justify-center p-8 relative overflow-hidden group cursor-pointer hover:border-neutral-600 transition-all duration-300"
-            >
-              <button className="relative z-10 text-white group-hover:text-primary-400 font-black uppercase text-2xl lg:[writing-mode:vertical-lr] tracking-[0.4em] transition-colors duration-300 pointer-events-none">
-                Conciertos
-              </button>
+            ) : (
+              <div
+                onClick={handleFetchConcerts}
+                className="flex-1 bg-neutral-900 border border-neutral-800 rounded-[2.5rem] flex items-center justify-center p-8 relative overflow-hidden group cursor-pointer hover:border-neutral-600 transition-all duration-300"
+              >
+                <button className="relative z-10 text-white group-hover:text-primary-400 font-black uppercase text-2xl lg:[writing-mode:vertical-lr] tracking-[0.4em] transition-colors duration-300 pointer-events-none">
+                  Conciertos
+                </button>
 
-              <div className="absolute inset-0 bg-linear-to-t from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </div>
-          )}
-        </div>
+                <div className="absolute inset-0 bg-linear-to-t from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </div>
+            )}
+          </div>
+        ) : null}
       </div>
 
       <div className="bg-neutral-950 border border-neutral-800 rounded-[2.5rem] p-10 mt-4">

@@ -375,7 +375,7 @@ const Profile = () => {
           <div className="bg-neutral-900 border border-neutral-800 p-8 rounded-[2.5rem] flex flex-col items-center gap-4">
             <div className="relative group">
               <div
-                onClick={() => setIsAvatarModalOpen(true)} // <-- Añadimos esto
+                onClick={() => setIsAvatarModalOpen(true)}
                 className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-neutral-800 group-hover:border-primary-400 transition-all duration-500 cursor-pointer"
               >
                 <img

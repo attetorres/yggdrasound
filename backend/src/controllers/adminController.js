@@ -5,7 +5,7 @@ import OrderVinyl from "../models/OrderVinyl.js";
 import { Sequelize, Op } from "sequelize";
 import bcrypt from "bcryptjs";
 import Genre from "../models/Genre.js";
-import Comment from "../models/Comment.js"
+import Comment from "../models/Comment.js";
 
 // FUNCIÓN AUXILIAR PARA FORMATEAR DURACIÓN
 const formatDurationForPostgres = (duration) => {
@@ -96,7 +96,10 @@ export const getAdminOrders = async (req, res) => {
       offset: offset,
       distinct: true,
       subQuery: false,
-      order: [[activeSortField, activeOrder],["id", "ASC"]],
+      order: [
+        [activeSortField, activeOrder],
+        ["id", "ASC"],
+      ],
       include: [
         {
           model: User,
@@ -208,7 +211,10 @@ export const getAdminUsers = async (req, res) => {
       limit: parseInt(limit),
       offset: offset,
       attributes: { exclude: ["password"] },
-      order: [[activeSortField, activeOrder],["id", "ASC"]],
+      order: [
+        [activeSortField, activeOrder],
+        ["id", "ASC"],
+      ],
     });
 
     res.json({
@@ -338,85 +344,6 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-/* export const getAdminVinyls = async (req, res) => {
-  try {
-    const {
-      page = 1,
-      limit = 10,
-      search = "",
-      sortBy = "created_at",
-      order = "DESC",
-      genre = "",
-    } = req.query;
-
-    const offset = (parseInt(page) - 1) * parseInt(limit);
-
-    const whereCondition = search
-      ? {
-          [Op.or]: [
-            { artist: { [Op.iLike]: `%${search}%` } },
-            { album: { [Op.iLike]: `%${search}%` } },
-
-            ...(!isNaN(search) && Number.isInteger(Number(search))
-              ? [{ id: parseInt(search) }]
-              : []),
-          ],
-        }
-      : {};
-
-    const allowedSortFields = [
-      "id",
-      "artist",
-      "album",
-      "price",
-      "release_date",
-      "created_at",
-    ];
-    const activeSortField = allowedSortFields.includes(sortBy)
-      ? sortBy
-      : "created_at";
-    const activeOrder = order.toUpperCase() === "ASC" ? "ASC" : "DESC";
-
-    const genreInclude = {
-      model: Genre,
-      as: "genres",
-      attributes: ["name"],
-      through: { attributes: [] },
-    };
-
-    if (genre && genre !== "") {
-      genreInclude.where = { name: genre };
-      genreInclude.required = true;
-    }
-
-    const { count, rows: vinyls } = await Vinyl.findAndCountAll({
-      where: whereCondition,
-      limit: parseInt(limit),
-      offset: offset,
-      order: [[activeSortField, activeOrder],["id", "ASC"]],
-      distinct: true,
-      subQuery: false,
-      include: [genreInclude],
-    });
-
-    res.json({
-      success: true,
-      data: vinyls,
-      pagination: {
-        totalItems: count,
-        totalPages: Math.ceil(count / limit),
-        currentPage: parseInt(page),
-      },
-    });
-  } catch (error) {
-    console.error("Error detallado en getAdminVinyls:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error al obtener catálogo: " + error.message,
-    });
-  }
-}; */
-
 export const getAdminVinyls = async (req, res) => {
   try {
     const {
@@ -439,15 +366,27 @@ export const getAdminVinyls = async (req, res) => {
       ];
     }
 
-    const allowedSortFields = ["id", "artist", "album", "price", "release_date", "created_at"];
-    const activeSortField = allowedSortFields.includes(sortBy) ? sortBy : "created_at";
+    const allowedSortFields = [
+      "id",
+      "artist",
+      "album",
+      "price",
+      "release_date",
+      "created_at",
+    ];
+    const activeSortField = allowedSortFields.includes(sortBy)
+      ? sortBy
+      : "created_at";
     const activeOrder = order.toUpperCase() === "ASC" ? "ASC" : "DESC";
 
     const { count, rows } = await Vinyl.findAndCountAll({
       where: whereClause,
       limit: parseInt(limit),
       offset: offset,
-      order: [[activeSortField, activeOrder], ["id", "ASC"]],
+      order: [
+        [activeSortField, activeOrder],
+        ["id", "ASC"],
+      ],
       distinct: true,
       include: [
         {
@@ -612,7 +551,6 @@ export const deleteVinyl = async (req, res) => {
   }
 };
 
-
 export const getAdminComments = async (req, res) => {
   try {
     const {
@@ -626,40 +564,45 @@ export const getAdminComments = async (req, res) => {
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     let whereCondition = {};
-    
+
     if (search) {
       whereCondition = {
         [Op.or]: [
           { comment_text: { [Op.iLike]: `%${search}%` } },
-          Sequelize.where(Sequelize.col("User.username"), { [Op.iLike]: `%${search}%` }),
-          Sequelize.where(Sequelize.col("Vinyl.album"), { [Op.iLike]: `%${search}%` }),
-        ]
+          Sequelize.where(Sequelize.col("User.username"), {
+            [Op.iLike]: `%${search}%`,
+          }),
+          Sequelize.where(Sequelize.col("Vinyl.album"), {
+            [Op.iLike]: `%${search}%`,
+          }),
+        ],
       };
-      
+
       if (!isNaN(search)) {
         whereCondition[Op.or].push({ id: parseInt(search) });
       }
     }
 
-    // 2. Ejecutamos la consulta
     const { count, rows: comments } = await Comment.findAndCountAll({
       where: whereCondition,
       limit: parseInt(limit),
       offset: offset,
-      order: [[sortBy === 'created_at' ? 'created_at' : sortBy, order.toUpperCase()]],
+      order: [
+        [sortBy === "created_at" ? "created_at" : sortBy, order.toUpperCase()],
+      ],
       include: [
         {
           model: User,
           attributes: ["username", "email", "avatar_img"],
-          required: false
+          required: false,
         },
         {
           model: Vinyl,
           attributes: ["album", "artist", "album_cover"],
-          required: false
+          required: false,
         },
       ],
-      distinct: true, 
+      distinct: true,
       subQuery: false,
     });
 
@@ -674,10 +617,10 @@ export const getAdminComments = async (req, res) => {
     });
   } catch (error) {
     console.error("ERROR EN GET_ADMIN_COMMENTS:", error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: "Error interno del servidor",
-      error: error.message 
+      error: error.message,
     });
   }
 };
@@ -706,7 +649,9 @@ export const deleteComment = async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Error interno del servidor al eliminar el comentario: " + error.message,
+      message:
+        "Error interno del servidor al eliminar el comentario: " +
+        error.message,
     });
   }
 };

@@ -17,6 +17,7 @@ import AdminVinyls from "../pages/admin/views/AdminVinyls";
 import AdminUsers from "../pages/admin/views/AdminUsers";
 import AdminOrders from "../pages/admin/views/AdminOrders";
 import AdminComments from "../pages/admin/views/AdminComments";
+import ErrorPage from "../pages/ErrorPage";
 
 const AppRouter = () => {
   const { isLoggedIn, user } = useAuthStore();
@@ -28,9 +29,9 @@ const AppRouter = () => {
         position="top-center"
         toastOptions={{
           style: {
-            background: "#30302e", // neutral-900
-            color: "#e5e1d8", // primary-100
-            border: "1px solid #414143", // neutral-700
+            background: "#30302e",
+            color: "#e5e1d8",
+            border: "1px solid #414143",
           },
         }}
       />
@@ -64,6 +65,8 @@ const AppRouter = () => {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="comments" element={<AdminComments />} />
         </Route>
+
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>
   );

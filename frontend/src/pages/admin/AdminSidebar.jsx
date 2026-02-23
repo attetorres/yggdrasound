@@ -39,7 +39,7 @@ const AdminSidebar = () => {
   return (
     <aside className="w-72 bg-neutral-950 border-r border-neutral-900 p-8 flex flex-col sticky top-0 h-screen">
       <h1 className="text-2xl font-black uppercase italic tracking-tighter mb-12 px-2">
-        Admin<span className="text-primary-500">.</span>Panel
+        Panel Administrador
       </h1>
 
       <nav className="flex-1 space-y-3">

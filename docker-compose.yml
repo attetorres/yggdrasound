@@ -1,0 +1,39 @@
+services:
+  # --- PIEZA 1: LA BASE DE DATOS ---
+  postgres:
+    image: postgres:15
+    container_name: yggdrasound_db_container
+    environment:
+      POSTGRES_DB: yggdrasound_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: yggdrasound_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - yggdrasound_data:/var/lib/postgresql/data
+      # Aquí cargamos tu archivo con todos los inserts que generaste
+      - ./yggdrasound_dump.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # --- PIEZA 2: EL BACKEND ---
+  backend:
+    build: ./backend        # Docker busca el Dockerfile dentro de /backend
+    container_name: yggdrasound_backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env      # Lee tu JWT_SECRET y demás variables
+    environment:
+      - DB_HOST=postgres    # <--- IMPORTANTE: Esto pisa el "localhost" de tu .env
+    depends_on:
+      - postgres            # No arranca el backend hasta que la DB esté lista
+
+  frontend:
+    build: ./frontend
+    container_name: yggdrasound_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  yggdrasound_data:         # Espacio en disco para que no se borren los datos

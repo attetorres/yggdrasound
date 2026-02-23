@@ -7,8 +7,10 @@ import {
   Search,
   Trash2,
   User,
-  Disc
+  Disc,
 } from "lucide-react";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import { showToast } from "../../../components/utils/toast";
 
 const AdminComments = () => {
   const [comments, setComments] = useState([]);
@@ -40,30 +42,37 @@ const AdminComments = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "¿Eliminar este comentario? Esta acción no se puede deshacer y el usuario no será notificado."
-    );
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
-    if (confirmed) {
-      try {
-        setLoading(true);
-        const response = await deleteComment(id);
+  const triggerDeleteFlow = (id) => {
+    setItemToDelete(id);
+    setIsConfirmModalOpen(true);
+  };
 
-        if (response.success) {
-          if (comments.length === 1 && currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-          } else {
-            await fetchComments(currentPage);
-          }
+  const handleDelete = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      setLoading(true);
+      const response = await deleteComment(itemToDelete);
+
+      if (response.success) {
+        if (comments.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        } else {
+          await fetchComments(currentPage);
         }
-      } catch (error) {
-        console.error("Error al eliminar:", error);
-        alert("No se pudo eliminar el comentario.");
-      } finally {
-        setLoading(false);
-        setOpenMenuId(null);
+        showToast.success("Comentario eliminado con éxito");
       }
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+      showToast.error("Error al eliminar el comentario");
+    } finally {
+      setLoading(false);
+      setOpenMenuId(null);
+      setIsConfirmModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -81,14 +90,17 @@ const AdminComments = () => {
           <h2 className="text-3xl font-black uppercase tracking-tighter text-white">
             Moderación de Comentarios
           </h2>
-          <span className="bg-neutral-800 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-neutral-400">
+          <span className="bg-neutral-800 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white">
             {pagination.totalItems || 0} Mensajes
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
           <div className="md:col-span-2 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-600" size={16} />
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-600"
+              size={16}
+            />
             <input
               type="text"
               placeholder="Buscar por contenido, usuario o álbum..."
@@ -144,13 +156,19 @@ const AdminComments = () => {
             <tbody className="divide-y divide-neutral-800/50">
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="p-20 text-center text-neutral-500 font-mono text-xs uppercase tracking-widest">
+                  <td
+                    colSpan="6"
+                    className="p-20 text-center text-neutral-500 font-mono text-xs uppercase tracking-widest"
+                  >
                     Cargando comentarios...
                   </td>
                 </tr>
               ) : (
                 comments.map((comment) => (
-                  <tr key={comment.id} className="hover:bg-white/5 transition-colors group">
+                  <tr
+                    key={comment.id}
+                    className="hover:bg-white/5 transition-colors group"
+                  >
                     <td className="px-6 py-4 text-xs font-mono text-neutral-500">
                       #{comment.id}
                     </td>
@@ -159,7 +177,11 @@ const AdminComments = () => {
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-500">
                           {comment.User?.avatar_img ? (
-                            <img src={comment.User.avatar_img} alt="" className="w-full h-full rounded-2xl object-cover" />
+                            <img
+                              src={comment.User.avatar_img}
+                              alt=""
+                              className="w-full h-full rounded-2xl object-cover"
+                            />
                           ) : (
                             <User size={14} className="text-neutral-600" />
                           )}
@@ -174,7 +196,11 @@ const AdminComments = () => {
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded bg-neutral-800 border border-neutral-700 overflow-hidden flex items-center justify-center">
                           {comment.Vinyl?.album_cover ? (
-                            <img src={comment.Vinyl.album_cover} alt="" className="w-full h-full object-cover" />
+                            <img
+                              src={comment.Vinyl.album_cover}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <Disc size={14} className="text-neutral-600" />
                           )}
@@ -197,14 +223,21 @@ const AdminComments = () => {
                           {new Date(comment.created_at).toLocaleDateString()}
                         </span>
                         <span className="text-[9px] text-neutral-600 font-mono">
-                          {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(comment.created_at).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </span>
                       </div>
                     </td>
 
                     <td className="px-6 py-4 text-right relative">
                       <button
-                        onClick={() => setOpenMenuId(openMenuId === comment.id ? null : comment.id)}
+                        onClick={() =>
+                          setOpenMenuId(
+                            openMenuId === comment.id ? null : comment.id,
+                          )
+                        }
                         className="p-2 hover:bg-white/10 rounded-xl text-neutral-400 transition-colors"
                       >
                         <MoreVertical size={18} />
@@ -212,11 +245,14 @@ const AdminComments = () => {
 
                       {openMenuId === comment.id && (
                         <>
-                          <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)}></div>
+                          <div
+                            className="fixed inset-0 z-10"
+                            onClick={() => setOpenMenuId(null)}
+                          ></div>
                           <div className="absolute right-6 mt-2 w-48 bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl z-20 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2">
                             <button
                               onClick={() => {
-                                handleDelete(comment.id);
+                                triggerDeleteFlow(comment.id);
                               }}
                               className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                             >
@@ -233,7 +269,7 @@ const AdminComments = () => {
             </tbody>
           </table>
 
-          <div className="p-6 border-t border-neutral-800 flex justify-between items-center bg-neutral-900/80">
+          <div className="p-6 border-t border-neutral-800 flex justify-between items-center bg-neutral-900/80 sticky left-0 w-full">
             <p className="text-xs text-neutral-500 font-bold uppercase tracking-widest">
               Página {currentPage} de {pagination.totalPages || 1}
             </p>
@@ -246,7 +282,9 @@ const AdminComments = () => {
                 <ChevronLeft size={20} />
               </button>
               <button
-                onClick={() => setCurrentPage((p) => Math.min(p + 1, pagination.totalPages))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, pagination.totalPages))
+                }
                 disabled={currentPage === pagination.totalPages || loading}
                 className="p-2 border border-neutral-800 rounded-xl hover:bg-neutral-800 disabled:opacity-20 cursor-pointer transition-colors text-white"
               >
@@ -256,6 +294,13 @@ const AdminComments = () => {
           </div>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Confirmar eliminación"
+        message="¿Estás seguro de que deseas realizar esta acción? No se puede deshacer."
+      />
     </div>
   );
 };

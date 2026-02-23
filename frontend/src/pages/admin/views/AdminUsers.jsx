@@ -96,6 +96,9 @@ const AdminUsers = () => {
       }
     } catch (error) {
       showToast.error("Error al eliminar el usuario");
+    } finally {
+      setIsConfirmModalOpen(false);
+      setItemToDelete(null);
     }
   };
 

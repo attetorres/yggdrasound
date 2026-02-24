@@ -45,6 +45,18 @@ const VinylCard = ({ vinyl }) => {
           </div>
         </div>
       </Atropos>
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .vinyl-atropos {
+            pointer-events: none;
+          }
+          
+          .vinyl-atropos :global(.atropos-inner) {
+            transform: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };

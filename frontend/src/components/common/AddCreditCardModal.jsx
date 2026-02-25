@@ -112,13 +112,6 @@ const AddCreditCardModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-neutral-400">
-            <Lock size={12} />
-            <span className="text-[9px] uppercase font-bold tracking-tighter">
-              Pago seguro encriptado
-            </span>
-          </div>
-
           <button
             type="submit"
             className="w-full bg-neutral-950 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-primary-500 hover:text-neutral-950 transition-all duration-300 cursor-pointer"

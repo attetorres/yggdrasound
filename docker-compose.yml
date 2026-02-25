@@ -35,4 +35,5 @@ services:
       - backend
 
 volumes:
-  yggdrasound_data:         
+  yggdrasound_data:
+    name: yggdrasound_shared_volume         
